@@ -38,6 +38,32 @@ The database is plain Postgres (portable via `pg_dump`); Supabase is open-source
 self-hostable. We **avoid deeply proprietary Supabase features** (Realtime, Edge Functions)
 unless there is a strong, documented need.
 
+### 1.3 Repository topology & future service extraction
+- **Single monolith repo.** One repository holds the full Next.js app (UI + server
+  actions/route handlers), the Supabase data layer (migrations, RLS, functions, seed), and
+  `docs/`. There are **no** separate frontend/backend/DB repos. Rationale: efficiency and
+  maintainability for a small team; a well-built Next.js + Postgres monolith comfortably serves
+  the planned scale (hundreds of tenants), so **scale is not a reason to split**.
+- **Modularity discipline** (so a future split is lift-and-shift, not a rewrite):
+  - Organize code **by domain module** (bounded context: identity, work-definition, work-orders,
+    scheduling, …), *not* by scattering technical layers.
+  - Each module has a **framework-agnostic domain/service layer** (plain TS) holding business
+    logic that **must not import Next.js**. Server actions/route handlers are **thin adapters**
+    that call the domain layer.
+  - Modules interact only through **explicit public interfaces** — no reaching into another
+    module's internals. Enforce with **import-boundary lint rules** (e.g. dependency-cruiser /
+    ESLint).
+  - **DB access is encapsulated per module** (repository functions).
+  - Expose a **versioned HTTP API (`/api/v1`)** so external programs have a stable contract from
+    day one.
+- **When to extract a service (triggers — NOT lines of code, NOT tenant count):** any of — a
+  component needs an independent scaling/resource profile (AI/ML, heavy optimization, media
+  processing); needs independent deploy cadence or team ownership; needs fault isolation from core
+  production; is best in another language/runtime; or is a heavy async/queue workload. The natural
+  first extractions are **peripheral, non-core capabilities** (AI/API integrations, billing
+  integrations, a scheduling optimizer). The **core product stays a monolith** — "monolith core +
+  satellite services."
+
 ---
 
 ## 2. Multi-tenancy & security

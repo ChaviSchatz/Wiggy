@@ -14,7 +14,8 @@ human working in this repo. Read it first.
 2. `docs/decisions/` — **product ADRs** (what the system does and why).
 3. `docs/domains/` — per-domain detail (entities, invariants).
 4. `docs/glossary.md` — ubiquitous language + Hebrew↔English mapping.
-5. `context-files/Wiggy Summary Document - English Translation.md` — original product spec (input,
+5. `docs/roadmap.md` — module plan & sequencing (scheduling/calendar next; billing & attendance reserved).
+6. `context-files/Wiggy Summary Document - English Translation.md` — original product spec (input,
    partly superseded by the docs above; the `docs/` folder wins on any conflict).
 
 ## Rules of engagement (AI-native project)
@@ -44,9 +45,17 @@ This project is meant to stay readable to AI agents. When you change things:
 - **Every intake selection has one fate:** a real task, structured data, a note, or nothing. No
   disconnected checklists. (ADR 0003)
 
+## Repository topology
+Single **monolith** repo: Next.js app (UI + server actions) + Supabase data layer
+(migrations/RLS/functions) + `docs/`. Keep code modular by domain (framework-agnostic domain layer;
+thin adapters; enforced import boundaries) so peripheral capabilities can later be extracted into
+satellite services without a rewrite. See `docs/architecture.md` §1.3.
+
 ## Deferred (do not build until their dedicated design session)
 - Due-date computation, worker capacity, and the **dependency engine** (`available`/`blocked`
   tasks). The model only *reserves room* for these. (architecture §8)
+- **Scheduling & Calendar** (next dedicated session), and **billing** + **attendance**
+  (reserve-room-now, detail-later). See `docs/roadmap.md`.
 
 ## Stack (fixed)
 Next.js (App Router) + React 18 + TypeScript · Tailwind + shadcn/ui · Supabase (Postgres + Auth +
