@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WigFlow — Wireframe: Sprint planning &amp; Employee queue</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --panel:#fff; --ink:#1f2430; --muted:#6b7280; --line:#d7dbe3;
+    --accent:#3b5bdb; --accent-soft:#e7ecff; --stage:#eef1f6; --chip:#f1f3f9;
+    --ok:#2f9e44; --warn:#e8590c; --lock:#adb5bd; --appr:#e8590c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",Arial,"Noto Sans Hebrew",sans-serif;font-size:13.5px;line-height:1.5}
+  header.top{background:var(--panel);border-bottom:1px solid var(--line);padding:12px 20px;
+    display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5}
+  header.top .logo{width:28px;height:28px;border-radius:8px;background:var(--accent);color:#fff;
+    display:grid;place-items:center;font-weight:700}
+  header.top h1{font-size:16px;margin:0}
+  header.top .sub{color:var(--muted);font-size:12px}
+  header.top .lang{margin-inline-start:auto;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:3px 9px}
+  .wrap{max-width:1200px;margin:0 auto;padding:20px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:24px;overflow:hidden}
+  .panel>.head{padding:11px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;background:#fbfcfe}
+  .panel>.head .n{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+  .panel>.head h2{margin:0;font-size:15px}
+  .panel>.head .tag{margin-inline-start:auto;font-size:11px;color:var(--muted);background:var(--chip);border:1px solid var(--line);border-radius:20px;padding:3px 9px}
+  .panel>.body{padding:15px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+  .filter{font-size:12px;border:1px solid var(--line);border-radius:8px;padding:5px 10px;background:#fff;color:var(--muted)}
+  .filter b{color:var(--ink)}
+  .sprintchip{font-size:12px;background:var(--accent-soft);border:1px solid #c3cffb;color:var(--accent);border-radius:8px;padding:5px 10px;font-weight:600}
+  .lanes{display:grid;grid-template-columns:220px repeat(3,1fr);gap:12px}
+  @media(max-width:900px){.lanes{grid-template-columns:1fr 1fr}}
+  .lane{background:var(--stage);border:1px solid var(--line);border-radius:10px;padding:9px;min-height:120px}
+  .lane .lh{font-size:12.5px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .lane .cnt{font-size:11px;color:var(--muted);margin-bottom:8px}
+  .av{width:20px;height:20px;border-radius:50%;background:#dfe3ea;color:#495057;display:inline-grid;place-items:center;font-size:11px;font-weight:700}
+  .t{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px;margin-bottom:7px}
+  .t.blocked{opacity:.6;border-style:dashed}
+  .t .tt{font-size:12.5px;font-weight:600;margin-bottom:4px;display:flex;gap:6px;align-items:center}
+  .t .mm{font-size:11px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .rank{font-size:10px;background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:0 6px;color:var(--muted)}
+  .stt{font-size:10px;padding:1px 7px;border-radius:20px;border:1px solid var(--line)}
+  .stt.pending{background:#f1f3f5;color:#495057}
+  .stt.prog{background:#e7f5ff;color:#1c7ed6;border-color:#a5d8ff}
+  .stt.done{background:#ebfbee;color:#2f9e44;border-color:#b2f2bb}
+  .stt.appr{background:#fff4e6;color:#e8590c;border-color:#ffd8a8}
+  .lockchip{font-size:10px;color:var(--lock);border:1px solid var(--line);border-radius:20px;padding:1px 7px;background:#f8f9fa}
+  .drag{color:var(--muted);font-size:12px;cursor:grab}
+  .cols2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+  @media(max-width:900px){.cols2{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}
+  .card h3{margin:0 0 4px;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+  .card h3 .hint{text-transform:none;font-weight:400}
+  .now{border:2px solid #a5d8ff;background:#f3faff}
+  .next{border:2px solid #b2f2bb;background:#f4fdf6}
+  .note{font-size:12px;color:var(--muted);background:#fbfcfe;border:1px dashed var(--line);border-radius:8px;padding:9px 11px;margin-top:12px}
+  .apprbox{border:1px solid #ffd8a8;background:#fff9f2;border-radius:10px;padding:12px}
+  .apprbox h3{color:var(--appr)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="logo">W</div>
+  <div><h1>WigFlow · וויגפלואו</h1>
+    <div class="sub">Wireframe (structural) — Sprint planning &amp; Employee queue · overlay on existing production tasks</div></div>
+  <div class="lang">עברית (RTL) · i18n-ready</div>
+</header>
+
+<div class="wrap">
+
+  <!-- 1. MANAGER SPRINT PLANNING -->
+  <section class="panel">
+    <div class="head"><div class="n">1</div><h2>Manager sprint planning — Fradi</h2>
+      <span class="tag">assign · order · filter · ADR 0008</span></div>
+    <div class="body">
+      <div class="toolbar">
+        <span class="sprintchip">Sprint · שבוע 30 · 20–26.7 (tenant cadence: 1 week)</span>
+        <span class="filter">Filter: <b>Stage ▾</b></span>
+        <span class="filter">Filter: <b>Task type ▾</b></span>
+        <span class="filter">Filter: <b>Status ▾</b></span>
+        <span class="filter">Employee <b>▾</b></span>
+        <span class="filter" style="margin-inline-start:auto">Open tasks this sprint: <b>54</b></span>
+      </div>
+      <div class="lanes">
+        <div class="lane">
+          <div class="lh">Backlog · מאגר</div>
+          <div class="cnt">unassigned · drag → employee</div>
+          <div class="t"><div class="tt">Roots · שורשים</div><div class="mm"><span class="drag">⠿</span> WO-1042 · Color</div></div>
+          <div class="t"><div class="tt">Wash · חפיפה</div><div class="mm"><span class="drag">⠿</span> WO-1039 · Wash</div></div>
+          <div class="t"><div class="tt">Hand tying · קשירה</div><div class="mm"><span class="drag">⠿</span> WO-1051 · Hand Tying</div></div>
+        </div>
+        <div class="lane">
+          <div class="lh"><span class="av">S</span> Sarah</div>
+          <div class="cnt">3 tasks · 1 available</div>
+          <div class="t"><div class="tt"><span class="rank">1</span> Machine sewing</div><div class="mm">WO-1042 · <span class="stt prog">in progress</span></div></div>
+          <div class="t blocked"><div class="tt"><span class="rank">2</span> Hand tying <span class="lockchip">🔒 waiting: sewing</span></div><div class="mm">WO-1042</div></div>
+          <div class="t"><div class="tt"><span class="rank">3</span> Machine sewing</div><div class="mm">WO-1051 · <span class="stt pending">pending</span></div></div>
+        </div>
+        <div class="lane">
+          <div class="lh"><span class="av">M</span> Miri</div>
+          <div class="cnt">2 tasks · 2 available</div>
+          <div class="t"><div class="tt"><span class="rank">1</span> Highlights · גוונים</div><div class="mm">WO-1042 · <span class="stt pending">pending</span></div></div>
+          <div class="t"><div class="tt"><span class="rank">2</span> Full color · צבע מלא</div><div class="mm">WO-1039 · <span class="stt pending">pending</span></div></div>
+        </div>
+        <div class="lane">
+          <div class="lh"><span class="av">F</span> Fradi</div>
+          <div class="cnt">planning tasks (own work)</div>
+          <div class="t"><div class="tt"><span class="rank">1</span> Plan WO-1055</div><div class="mm">Planning · <span class="stt prog">in progress</span></div></div>
+          <div class="t"><div class="tt"><span class="rank">2</span> Order material</div><div class="mm">Planning · <span class="stt pending">pending</span></div></div>
+        </div>
+      </div>
+      <div class="note">Manager drags backlog tasks into an employee lane and reorders them (sets
+        <b>queue_rank</b>). Blocked tasks (🔒) are assigned but not startable until upstream steps
+        finish. Counts are workload signals only — capacity math is the planning engine.</div>
+    </div>
+  </section>
+
+  <!-- 2. EMPLOYEE QUEUE -->
+  <section class="panel">
+    <div class="head"><div class="n">2</div><h2>Employee personal queue — Sarah</h2>
+      <span class="tag">know what's next · no asking · ADR 0008</span></div>
+    <div class="body">
+      <div class="cols2">
+        <div>
+          <div class="card now" style="margin-bottom:10px">
+            <h3>Now · עכשיו <span class="hint">— in progress</span></h3>
+            <div class="tt" style="font-weight:700">Machine sewing — WO-1042 (Miriam L.)</div>
+            <div class="mm" style="color:var(--muted);font-size:12px">Machine Sewing · <span class="stt prog">in progress</span></div>
+          </div>
+          <div class="card next" style="margin-bottom:10px">
+            <h3>Next · הבא <span class="hint">— top-ranked available</span></h3>
+            <div class="tt" style="font-weight:700">Machine sewing — WO-1051 (Dvora K.)</div>
+            <div class="mm" style="color:var(--muted);font-size:12px">Machine Sewing · <span class="stt pending">pending</span> · available ✓</div>
+          </div>
+          <div class="card">
+            <h3>Queue · תור <span class="hint">— by rank</span></h3>
+            <div class="t"><div class="tt"><span class="rank">3</span> Machine sewing — WO-1060</div><div class="mm"><span class="stt pending">pending</span> · available ✓</div></div>
+            <div class="t blocked"><div class="tt"><span class="rank">4</span> Hand tying — WO-1042 <span class="lockchip">🔒 waiting: sewing</span></div><div class="mm">future — not yet available</div></div>
+            <div class="t blocked"><div class="tt"><span class="rank">5</span> Hand tying — WO-1051 <span class="lockchip">🔒 waiting: sewing</span></div><div class="mm">future — not yet available</div></div>
+          </div>
+          <div class="card" style="margin-top:10px">
+            <h3>Completed · הושלם</h3>
+            <div class="t"><div class="tt">Machine sewing — WO-1039</div><div class="mm"><span class="stt done">done</span> today</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="apprbox">
+            <h3>Awaiting approval · ממתין לאישור</h3>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Separate managerial view — only for approvers (e.g. Fradi/Tzipi). Not in the personal work queue. (ADR 0009)</div>
+            <div class="t"><div class="tt">Final review — WO-1039</div><div class="mm"><span class="stt appr">awaiting approval</span> · submitted by Miri</div></div>
+            <div class="t"><div class="tt">Final review — WO-1031</div><div class="mm"><span class="stt appr">awaiting approval</span> · submitted by Sarah</div></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px">On the board these show an <b>Approve / Return</b> control at the task's stage.</div>
+          </div>
+          <div class="note" style="margin-top:12px">Availability is <b>derived</b> from the work
+            order's own sequence — no manual blocking. When Sarah finishes sewing on WO-1042, its
+            Hand-tying task automatically becomes <b>available</b> for the hand-tying worker. Same
+            <code>runtime_tasks</code>, same status as the board — no duplicate system.</div>
+        </div>
+      </div>
+      <div class="legend">
+        <span><span class="stt pending">pending</span></span>
+        <span><span class="stt prog">in progress</span></span>
+        <span><span class="stt done">done</span></span>
+        <span>🔒 blocked (waiting on earlier step)</span>
+        <span><span class="stt appr">awaiting approval</span> → approver view only</span>
+      </div>
+    </div>
+  </section>
+
+  <p style="text-align:center;font-size:12px;color:var(--muted)">
+    Structural wireframe · illustrates ADR 0008/0009 &amp; architecture §4.6 / §7.3 · final look-and-feel = UI/UX session.
+  </p>
+</div>
+</body>
+</html>
