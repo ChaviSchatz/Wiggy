@@ -51,11 +51,18 @@ Single **monolith** repo: Next.js app (UI + server actions) + Supabase data laye
 thin adapters; enforced import boundaries) so peripheral capabilities can later be extracted into
 satellite services without a rewrite. See `docs/architecture.md` §1.3.
 
+## In scope now (designed)
+- **Manual sprint + task queue** over existing `runtime_tasks` (no new task system) with
+  **automatic linear per-order availability**. See `docs/domains/sprint-and-task-queue.md`,
+  ADR 0008/0009, architecture §4.6 / §7.3. Approvals are a **separate approver view**, not in the
+  personal queue.
+
 ## Deferred (do not build until their dedicated design session)
-- Due-date computation, worker capacity, and the **dependency engine** (`available`/`blocked`
-  tasks). The model only *reserves room* for these. (architecture §8)
-- **Scheduling & Calendar** (next dedicated session), and **billing** + **attendance**
-  (reserve-room-now, detail-later). See `docs/roadmap.md`.
+- **Planning engine:** branching/parallel dependencies, capacity/workload, auto-assignment,
+  dynamic reprioritization, due-date computation, automatic rollover, sequence-skipping.
+  (architecture §8)
+- **Production calendar** (parked); **client appointments + coupling** (after planning engine);
+  **billing** + **attendance** (reserve-room-later). See `docs/roadmap.md`.
 
 ## Stack (fixed)
 Next.js (App Router) + React 18 + TypeScript · Tailwind + shadcn/ui · Supabase (Postgres + Auth +

@@ -18,24 +18,34 @@ extracted into satellite services when they hit the extraction triggers document
 |------|--------|-------|
 | Core model: Work Definition + Runtime | **Designed** | `docs/architecture.md`, ADRs 0001–0006. |
 | UI/UX usability & look-and-feel | **Own session (pending)** | Consumes this architecture as constraints. |
-| Scheduling & Calendar | **Next dedicated session (this phase)** | Worker production calendar + client appointments + coupling. See below. |
+| Employee task management (sprint & queue) | **Designed (this phase)** | Manual sprint + automatic sequence availability. ADRs 0008/0009; `docs/domains/sprint-and-task-queue.md`. |
+| Production calendar (day view) | **Parked** | Added complexity not needed now; may revisit. |
+| Client appointments + production coupling | **After planning engine** | Appointment entities/types + booking gated by production. |
 | Billing | **Reserve room now, detail later** | Invoices keyed off order completion. |
 | Time-clock / attendance (שעון נוכחות) | **Reserve room now, detail later** | Feeds worker availability/capacity + future payroll. |
 | Planning / dependency engine | **Deferred** (`architecture.md` §8) | Due-date auto-computation, capacity, auto-rollover, `available`/`blocked`. |
 
-## Scheduling & Calendar session — scope
-**In scope (buildable with manual/simple dates):**
-- **Worker production calendar** — per-worker view over `runtime_tasks` (assignee + scheduled/due
-  date); unfinished work surfaced on *today* (display carried-over; do not silently move dates).
-- **Client appointments** — an `appointments` entity (customer, staff, datetime, status:
-  scheduled/arrived/cancelled/…, linked to a work order).
-- **Unified calendar** — production tasks *and* client appointments for the same worker on one
-  calendar (a view over both sources).
-- **Production ↔ appointment coupling** — appointment booking **gated by production status** (e.g.
-  a pickup/fitting can only be booked when the order/stage reaches the right state).
+## Employee task management (this phase) — designed
+Replaces the calendar-first approach with a **manually-managed sprint** over existing
+`runtime_tasks` (no new task system). Designed in `docs/domains/sprint-and-task-queue.md`; decisions
+in ADR 0008 (sprint + sequence availability) and ADR 0009 (approvals as a separate managerial
+queue). Highlights:
+- Tenant-configurable **sprint** time-box; manager pulls open tasks, assigns, and sets each
+  employee's exact order (`queue_rank`).
+- **Automatic availability** (linear per-order sequence): blocked tasks show in the future queue
+  but aren't startable until predecessors are done — pulled forward from the planning engine.
+- Employee personal queue (current → next → queue → future/blocked → completed); approvals live in
+  a separate approver view.
 
-**Deferred to the planning-engine session:** automatic scheduling, worker capacity/buffers,
-estimated completion, automatic date rollover.
+**Deferred to the planning-engine session:** branching/parallel dependencies, capacity/workload,
+auto-assignment, dynamic reprioritization, estimated completion, automatic rollover, sequence
+skipping.
+
+## Client appointments (after planning engine)
+Appointment entities/types and the **production ↔ appointment coupling** (booking gated by
+production status; unified worker view) were **resequenced to after the planning engine**, since
+they lean on planning concepts. Reserve-room hooks below still apply. The day-grid **calendar view
+is parked**.
 
 ## Coupling decisions (reserved now, detailed in their sessions)
 - **Production gates appointments** — appointment types can require a work-order/stage status

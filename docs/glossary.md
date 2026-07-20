@@ -16,6 +16,11 @@ Shared vocabulary for WigFlow. Use these exact terms in code, docs, and UI keys.
 | **Runtime Task** | The actual, snapshotted task on the production board (assignable, trackable). |
 | **Snapshot** | A frozen copy of resolved values on an order/task at generation time; never changed by later template edits. |
 | **Activity** | An append-only event in the unified stream (audit + history + timeline). |
+| **Sprint** | A tenant-configurable time-box the manager plans work into (2 days / 1 week / 2 weeks / …). |
+| **Queue rank** | A task's fractional position in one employee's personal queue (exact working order). |
+| **Availability** | Derived overlay on a task — `available` (startable) or `blocked` (predecessors unfinished). Not a status. |
+| **Personal queue** | An employee's assigned tasks, ordered by queue rank (current → next → rest → future/blocked → completed). |
+| **Approvals view** | An approver's separate managerial surface listing tasks `awaiting_approval` for them (not their personal queue). |
 
 ## Status vocabulary
 | Term | Applies to | Meaning |

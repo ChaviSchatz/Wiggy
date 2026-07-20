@@ -121,13 +121,24 @@ See `docs/domains/` for per-domain detail.
 
 ### 4.4 Work Orders & Runtime
 - **`work_orders`** — `id, business_id, customer_id? (nullable), intake_template_id, template_version?, work_order_kind (snapshot), number, status (order-level), priority, due_at, order_received_date, intake_responses (JSON snapshot), notes, created_by`.
-- **`runtime_tasks`** — `id, business_id, work_order_id, task_type_id? (null for "Other"), title (snapshot), description (snapshot), work_stage_id (snapshot), sequence_order, status, assigned_staff_member_id?, due_at (nullable in v1), started_at?, completed_at?, requires_approval (snapshot), approver_staff_member_id?, production_notes, source (template|manual|other), origin_item_id?`.
+- **`runtime_tasks`** — `id, business_id, work_order_id, task_type_id? (null for "Other"), title (snapshot), description (snapshot), work_stage_id (snapshot), sequence_order, status, assigned_staff_member_id?, due_at (nullable in v1), started_at?, completed_at?, requires_approval (snapshot), approver_staff_member_id?, production_notes, source (template|manual|other), origin_item_id?`. **Sprint/queue overlay fields:** `sprint_id?`, `queue_rank`, `priority?` (see §4.6).
 - **`task_approvals`** — approval events (approver, action, reason, timestamps).
 - **`task_comments`** — internal comments on a runtime task.
 
 ### 4.5 Cross-cutting
 - **`attachments`** — polymorphic: `id, business_id, kind (file|photo|voice), parent_type (work_order|runtime_task|customer), parent_id, storage_path, ...`.
 - **`activity`** — append-only unified stream: `id, business_id, actor_user_id?, verb, subject_type, subject_id, work_order_id?, customer_id?, payload(JSON), created_at`. Powers audit log, order history, and the future customer timeline.
+
+### 4.6 Sprint & task-queue overlay
+An operational layer over `runtime_tasks` (ADR 0008/0009; detail in
+`docs/domains/sprint-and-task-queue.md`):
+- **`sprints`** — `id, business_id, name?, starts_on, ends_on, status (planning|active|closed)`.
+  A **tenant-configurable time-box**; default length/cadence is a per-tenant setting (2 days /
+  1 week / 2 weeks / …).
+- **`runtime_tasks` additions:** `sprint_id?` (`null` = backlog), `queue_rank` (fractional,
+  per-assignee exact ordering), `priority?` (highlight flag).
+- **No new task table and no new status** — the sprint/queue is a *view + these fields* over
+  existing tasks. Approvals are not queue items; they are a separate approver surface (ADR 0009).
 
 ---
 
@@ -200,18 +211,29 @@ Manual transitions: *confirm intake* (`draft → confirmed`, triggers generation
 *mark delivered* (`ready_for_handoff → completed`), *cancel*. A server action recalculates the
 derived order status after every task change. `delivered` is an **order** outcome, never a task state.
 
+### 7.3 Availability overlay (derived — not a status)
+Sequence-based task availability is computed on top of `status` (ADR 0008):
+- A task is **`available`** when every earlier-`sequence_order` task in the **same work order** is
+  `done`/`skipped`/`cancelled`; otherwise **`blocked`** (visible in the future queue, not
+  startable).
+- Availability is **derived** (optionally cached), recomputed on every task transition in the
+  order. The task's `status` is never changed by it → board and queue stay in sync.
+- **Linear per-order only** for now; branching/parallel dependencies remain deferred (§8).
+
 ---
 
-## 8. Deferred: planning engine & dependency engine
+## 8. Deferred: planning engine (dependencies, capacity, automation)
 
-Parked for a dedicated later design session (do **not** build now; the model only reserves room):
+Parked for a dedicated later session (do **not** build now; the model only reserves room):
+- **Branching/parallel dependencies** — explicit `task_dependencies` (within *or* across stages,
+  and cross-order), beyond the **linear per-order availability now in scope** (§7.3).
 - **Due-date computation** from `default_duration` + order due/received dates.
-- **Dependency engine:** explicit `task_dependencies` (prerequisite links, within *or* across
-  stages) → computed **`available`** vs **`blocked`** task states, enabling non-linear flow
-  (a task becomes workable when its *actual* prerequisites are met, not by rigid stage order).
-- Worker capacity, buffers, estimated completion dates, automatic rollover.
+- **Capacity & workload** — per-worker capacity, buffers, bottleneck detection.
+- **Automation** — auto-assignment, dynamic reprioritization, estimated completion, automatic date
+  rollover, and operationally-appropriate sequence-skipping.
 
-Until then, ordering is soft (stage `sort_order` + editable `sequence_order`) with no enforcement.
+In scope **today**: linear per-order sequence availability (§7.3) and a **manually-managed sprint**
+(§4.6). The structure above must not block the deferred automation.
 
 ---
 
