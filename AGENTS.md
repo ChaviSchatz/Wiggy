@@ -14,8 +14,9 @@ human working in this repo. Read it first.
 2. `docs/decisions/` — **product ADRs** (what the system does and why).
 3. `docs/domains/` — per-domain detail (entities, invariants).
 4. `docs/glossary.md` — ubiquitous language + Hebrew↔English mapping.
-5. `docs/roadmap.md` — module plan & sequencing (scheduling/calendar next; billing & attendance reserved).
-6. `context-files/Wiggy Summary Document - English Translation.md` — original product spec (input,
+5. `docs/roadmap.md` — module plan & sequencing.
+6. `docs/ui/screen-inventory.md` — the canonical screen list we build from (v1 / config / future tags).
+7. `context-files/Wiggy Summary Document - English Translation.md` — original product spec (input,
    partly superseded by the docs above; the `docs/` folder wins on any conflict).
 
 ## Rules of engagement (AI-native project)

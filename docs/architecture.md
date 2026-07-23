@@ -124,6 +124,7 @@ See `docs/domains/` for per-domain detail.
 - **`runtime_tasks`** — `id, business_id, work_order_id, task_type_id? (null for "Other"), title (snapshot), description (snapshot), work_stage_id (snapshot), sequence_order, status, assigned_staff_member_id?, due_at (nullable in v1), started_at?, completed_at?, requires_approval (snapshot), approver_staff_member_id?, production_notes, source (template|manual|other), origin_item_id?`. **Sprint/queue overlay fields:** `sprint_id?`, `queue_rank`, `priority?` (see §4.6).
 - **`task_approvals`** — approval events (approver, action, reason, timestamps).
 - **`task_comments`** — internal comments on a runtime task.
+- **`missing_items`** (v1) — `id, business_id, work_order_id, kind (top|skin|material), description, status (open|found|ordered|handled), responsible_staff_member_id?, handled_at?, notes`. Typically auto-created from an intake "no top/skin" flag; surfaced on the dashboard until handled or the order completes.
 
 ### 4.5 Cross-cutting
 - **`attachments`** — polymorphic: `id, business_id, kind (file|photo|voice), parent_type (work_order|runtime_task|customer), parent_id, storage_path, ...`.

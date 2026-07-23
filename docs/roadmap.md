@@ -21,6 +21,8 @@ extracted into satellite services when they hit the extraction triggers document
 | Employee task management (sprint & queue) | **Designed (this phase)** | Manual sprint + automatic sequence availability. ADRs 0008/0009; `docs/domains/sprint-and-task-queue.md`. |
 | Production calendar (day view) | **Parked** | Added complexity not needed now; may revisit. |
 | Client appointments + production coupling | **After planning engine** | Appointment entities/types + booking gated by production. |
+| Missing tops/skins | **In v1** | `missing_items` list + status lifecycle; auto-created from intake flags. |
+| Edit intake after creation | **In v1** | Audited edit of intake data (via `activity`). |
 | Billing | **Reserve room now, detail later** | Invoices keyed off order completion. |
 | Time-clock / attendance (שעון נוכחות) | **Reserve room now, detail later** | Feeds worker availability/capacity + future payroll. |
 | Planning / dependency engine | **Deferred** (`architecture.md` §8) | Due-date auto-computation, capacity, auto-rollover, `available`/`blocked`. |
