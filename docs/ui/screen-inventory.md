@@ -38,7 +38,8 @@ types/groups, intake templates, and staff are seeded via migrations for the firs
 17. New order wizard — Step 2: choose intake template (order kind) **[v1]**
 18. New order wizard — Step 3: fill intake (dynamic fields + task/group selection) **[v1]**
 19. New order wizard — Step 4: final details (dates, priority, notes) + confirm **[v1]**
-20. Work order detail (central: intake data, task list, status, attachments) **[v1]**
+20. Work-order hub — **full-page route** (identity, progress, next-action, tasks, notes, files, reference photos, audio, warnings, history, general details; back-to-board; `docs/ui/work-order-hub.md`) **[v1]**
+20b. Work-order **quick-view peek** (drawer from board/queue: identity, progress, reference photos, quick actions) **[v1]**
 21. Confirm/"start" order → generate tasks (dialog) **[v1]**
 22. Cancel order (dialog) **[v1]**
 23. Mark delivered/collected → completed (dialog) **[v1]**

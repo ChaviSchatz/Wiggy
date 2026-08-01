@@ -44,6 +44,13 @@
 - **+ New Order** CTA (office roles), **Feedback** (all), **Profile/account** (all).
 - Deferred: notifications center, global search.
 
+## Navigation principles (least-clicks)
+- **One-click return to the production board** from any drill-down: the full-page work-order hub has
+  an explicit **"← back to production board"**, the persistent nav (Board) always returns in one
+  click, and the quick-view peek is dismissible (tap-away / Esc).
+- Optimize every flow for **minimal clicks** and obvious back paths — the users span all levels of
+  technical comfort. Common actions (Done/Start) are reachable **inline** without opening a screen.
+
 ## Wireframes
 - `docs/wireframes/app-shell-and-landings.html` — desktop Manager Dashboard (right side nav) +
   Worker My Work (tablet, bottom bar).

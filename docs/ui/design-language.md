@@ -27,23 +27,26 @@ Hebrew; numerals aligned for codes/times.
 - Chips for status/stage; calm, low-noise.
 - **RTL:** logical CSS only (`ps/pe`, `ms/me`, `text-start/end`).
 
-## Identity & avatar rules (per surface)
-Identity text **leads with the customer name** + order code across surfaces. The **avatar** differs
-by surface, by intent:
+## Identity & media rules (revised)
+**Identity text leads with the customer name + order code** on every surface. There are **two
+visually distinct media types that must never be conflated:**
 
-| Surface | Avatar shows | Tap avatar |
-|---|---|---|
-| **Production board** (task cards) | **Assigned worker** photo | **Reassign** the task |
-| **My Work** (worker's own queue) | **Customer** photo *if available* | — |
-| **Work-order hub** | **Customer** photo *if available* (+ later CRM profile) | — |
+### Worker avatars — circular
+- **Circular, profile-style.** Show the **assigned worker** on production-board task cards and task
+  lists.
+- **Tap a board avatar → reassign** the task.
+- Fallback: deterministic **monogram** (initials, stable calm color). Workers always render an
+  avatar (photo or monogram), since we always know the worker.
 
-### Seamless avatar fallback (never an empty circle)
-- **People without a photo** → deterministic **monogram** (initials) with an auto-picked calm
-  palette color (stable per person).
-- **Customer-less orders** (internal / display-wig work) → an **order-kind icon** as identity;
-  card text = order kind + code.
-- The system always renders *something* meaningful — no blank/placeholder circles.
+### Client identity — text only (no avatar)
+- **No client avatar and no initials fallback.** Most clients have no photo, so an avatar circle
+  would just add empty space. Client identity = **name (+ order code) as text**.
+- Customer-less orders (internal / display-wig): identity = **order kind + code** (no avatar).
 
-## Notes
-- Most customers won't share a photo early; the board therefore centers **worker assignment**, not
-  customer faces. Customer photos matter on the hub/CRM, where identity/history is the point.
+### Reference / work photos — squared, only when present
+- Style/color/reference images live on the order as **attachments**; their purpose is **work
+  reference** ("what am I making"), *not* personal identity.
+- Rendered as **squared / rounded-rect thumbnails**, **only when they exist** (no placeholder), and
+  **clearly distinct in shape** from the circular worker avatars so the two are never mistaken.
+- Shown on the work-order quick-view peek, the full hub, and — as work reference — on My Work task
+  cards when available.

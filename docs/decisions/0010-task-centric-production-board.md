@@ -13,12 +13,15 @@ later-stage tasks early. All of these need task granularity.
 The production board is **task-centric**:
 - **One card per task**, placed in its work-stage column. A single order may therefore appear in
   **multiple columns** at once (e.g. the top/base parallel case).
-- Card **text leads with the customer name** + order code (customer-led identity), stage/task
-  secondary. Customer-less orders lead with order kind + code.
-- The card **avatar is the assigned worker**; **tapping the avatar reassigns** the task.
-- **Card click → task view** (task detail + a summary of the order/process); **second click →
-  full work-order hub**.
+- Card **text leads with the customer name** + order code (identity is **text — no client
+  avatar**). Customer-less orders lead with order kind + code.
+- The card **avatar is the assigned worker** (circular; **tap → reassign**). The **primary action
+  (Done/Start) is inline on the card** — no drawer needed for the everyday action.
+- **Tapping the card body → quick-view peek** (compact info, reference photos, quick actions);
+  **"open full order" → the full-page work-order hub** (`docs/ui/work-order-hub.md`).
 - The board shows **live work by stage only** (active/available tasks), not the full backlog.
+- **Reference photos** (style/color) render as **squared** thumbnails when present — visually
+  distinct from circular worker avatars (`docs/ui/design-language.md`).
 
 Availability stays **linear per order with a manual manager override** (ADR 0008) — the parallel
 top/base case is handled by the manager unlocking the blocked task on the rare occasion it's needed,
