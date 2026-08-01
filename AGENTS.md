@@ -17,7 +17,8 @@ human working in this repo. Read it first.
 5. `docs/roadmap.md` — module plan & sequencing.
 6. `docs/ui/screen-inventory.md` — the canonical screen list we build from (v1 / config / future tags).
 7. `docs/ui/information-architecture.md` — navigation, role visibility, landing pages, device strategy.
-8. `context-files/Wiggy Summary Document - English Translation.md` — original product spec (input,
+8. `docs/ui/design-language.md` — visual direction ("warm operational studio") + avatar/identity rules.
+9. `context-files/Wiggy Summary Document - English Translation.md` — original product spec (input,
    partly superseded by the docs above; the `docs/` folder wins on any conflict).
 
 ## Rules of engagement (AI-native project)

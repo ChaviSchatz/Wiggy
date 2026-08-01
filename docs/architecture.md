@@ -121,7 +121,7 @@ See `docs/domains/` for per-domain detail.
 
 ### 4.4 Work Orders & Runtime
 - **`work_orders`** — `id, business_id, customer_id? (nullable), intake_template_id, template_version?, work_order_kind (snapshot), number, status (order-level), priority, due_at, order_received_date, intake_responses (JSON snapshot), notes, created_by`.
-- **`runtime_tasks`** — `id, business_id, work_order_id, task_type_id? (null for "Other"), title (snapshot), description (snapshot), work_stage_id (snapshot), sequence_order, status, assigned_staff_member_id?, due_at (nullable in v1), started_at?, completed_at?, requires_approval (snapshot), approver_staff_member_id?, production_notes, source (template|manual|other), origin_item_id?`. **Sprint/queue overlay fields:** `sprint_id?`, `queue_rank`, `priority?` (see §4.6).
+- **`runtime_tasks`** — `id, business_id, work_order_id, task_type_id? (null for "Other"), title (snapshot), description (snapshot), work_stage_id (snapshot), sequence_order, status, assigned_staff_member_id?, due_at (nullable in v1), started_at?, completed_at?, requires_approval (snapshot), approver_staff_member_id?, production_notes, source (template|manual|other), origin_item_id?`. **Sprint/queue overlay fields:** `sprint_id?`, `queue_rank`, `priority?`, `availability_override` (see §4.6, §7.3).
 - **`task_approvals`** — approval events (approver, action, reason, timestamps).
 - **`task_comments`** — internal comments on a runtime task.
 - **`missing_items`** (v1) — `id, business_id, work_order_id, kind (top|skin|material), description, status (open|found|ordered|handled), responsible_staff_member_id?, handled_at?, notes`. Typically auto-created from an intake "no top/skin" flag; surfaced on the dashboard until handled or the order completes.
@@ -220,6 +220,9 @@ Sequence-based task availability is computed on top of `status` (ADR 0008):
 - Availability is **derived** (optionally cached), recomputed on every task transition in the
   order. The task's `status` is never changed by it → board and queue stay in sync.
 - **Linear per-order only** for now; branching/parallel dependencies remain deferred (§8).
+- **Manual override:** a manager can mark a blocked task available via `availability_override`
+  (ADR 0008) — e.g. hand-tying the top while the base is still being sewn (rare). Audited in
+  `activity`; distinct from the planning engine's dynamic resequencing.
 
 ---
 

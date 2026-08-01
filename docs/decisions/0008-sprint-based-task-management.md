@@ -37,8 +37,13 @@ task system:
 
 ## Consequences
 - New fields on `runtime_tasks`: `sprint_id?`, `queue_rank` (fractional, per-assignee ordering),
-  `priority?` (highlight flag). New `sprints` entity + a per-tenant sprint-cadence setting.
+  `priority?` (highlight flag), `availability_override` (manager unlock — see below).
 - Availability is recomputed whenever a task in the order transitions.
+- **Manual availability override:** availability stays strictly **linear**, but a manager can mark a
+  specific blocked task as available (`availability_override = true`) for rare real-world
+  parallelism — e.g. hand-tying the *top* while the *base* is still being sewn (~biweekly, only on a
+  top delay). Recorded in `activity`. This is a targeted manual unlock, **not** the planning
+  engine's dynamic resequencing.
 - **Still deferred (planning engine):** capacity/workload math, auto-assignment, dynamic
   reprioritization, branching/parallel dependencies, and sequence-skipping. The current structure
   must not block these. (`docs/architecture.md` §8)

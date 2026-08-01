@@ -28,6 +28,9 @@ view + a few fields over the existing production tasks. See ADR 0008, ADR 0009.
 - Only gates *not-yet-started* work: a `blocked` task shows in the future queue (greyed, "waiting
   on …") but can't be started; once `available` + `pending`, it's startable.
 - Linear per-order only for now; branching/parallel dependencies are deferred (planning engine).
+- **Manual override** (`availability_override`): a manager can unlock a specific blocked task for
+  rare real parallelism (e.g. hand-tying the top while the base is still being sewn). Audited;
+  distinct from the planning engine (ADR 0008).
 
 ## Manager weekly/sprint planning view
 - All open, actionable tasks for the sprint; **filter** by employee, task type, status, stage, etc.

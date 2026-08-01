@@ -56,7 +56,7 @@ types/groups, intake templates, and staff are seeded via migrations for the firs
 31. Create missing item manually (dialog) **[v1]**
 
 ## 6. Runtime tasks & production board
-32. Production board (kanban by work stage) **[v1]**
+32. Production board (kanban by work stage; **task-centric** — one card per task, customer-led text, avatar = assignee, tap avatar to reassign; ADR 0010) **[v1]**
 33. Task detail (drawer/dialog: status, assignee, due, notes) **[v1]**
 34. Task comments (thread within task detail) **[v1]**
 35. Change status / start / submit / complete (inline actions + confirm) **[v1]**
