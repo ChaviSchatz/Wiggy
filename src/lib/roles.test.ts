@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { can, PERMISSIONS, ROLES } from "./roles";
+import { can, isRole, PERMISSIONS, ROLES } from "./roles";
 
 describe("roles/can", () => {
   it("grants admins every permission", () => {
@@ -20,6 +20,7 @@ describe("roles/can", () => {
   it("limits the secretary to order/customer intake and the board", () => {
     expect(can("secretary", "createOrders")).toBe(true);
     expect(can("secretary", "editCustomers")).toBe(true);
+    expect(can("secretary", "manageMissingItems")).toBe(true);
     expect(can("secretary", "viewBoard")).toBe(true);
     expect(can("secretary", "approveTasks")).toBe(false);
     expect(can("secretary", "planSprint")).toBe(false);
@@ -34,5 +35,18 @@ describe("roles/can", () => {
 
   it("exposes the four canonical roles", () => {
     expect([...ROLES]).toEqual(["admin", "manager", "secretary", "worker"]);
+  });
+});
+
+describe("isRole", () => {
+  it("accepts every canonical role", () => {
+    for (const role of ROLES) {
+      expect(isRole(role)).toBe(true);
+    }
+  });
+
+  it("rejects arbitrary text, which is what `memberships.role` stores", () => {
+    expect(isRole("owner")).toBe(false);
+    expect(isRole("")).toBe(false);
   });
 });

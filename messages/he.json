@@ -2,7 +2,8 @@
   "app": {
     "name": "Wiggy",
     "newOrder": "הזמנה חדשה",
-    "profile": "פרופיל"
+    "profile": "פרופיל",
+    "signOut": "התנתקות"
   },
   "nav": {
     "dashboard": "דשבורד",
@@ -27,6 +28,55 @@
     "primaryNav": "ניווט ראשי",
     "secondaryNav": "ניווט תחתון"
   },
+  "roles": {
+    "admin": "מנהל/ת מערכת",
+    "manager": "מנהל/ת",
+    "secretary": "מזכיר/ה",
+    "worker": "איש/אשת צוות"
+  },
+  "auth": {
+    "login": {
+      "title": "התחברות",
+      "subtitle": "התחברו לחשבון Wiggy שלכם",
+      "emailLabel": "אימייל",
+      "passwordLabel": "סיסמה",
+      "submit": "התחברות",
+      "forgotPassword": "שכחתם סיסמה?",
+      "resetSuccess": "הסיסמה עודכנה בהצלחה. אפשר להתחבר עם הסיסמה החדשה.",
+      "missingFields": "יש למלא אימייל וסיסמה.",
+      "invalidCredentials": "אימייל או סיסמה שגויים."
+    },
+    "forgotPassword": {
+      "title": "שחזור סיסמה",
+      "subtitle": "נשלח לכם קישור לאיפוס הסיסמה באימייל",
+      "emailLabel": "אימייל",
+      "submit": "שליחת קישור",
+      "success": "אם קיים חשבון עם האימייל הזה, נשלח אליו קישור לאיפוס סיסמה.",
+      "missingEmail": "יש להזין כתובת אימייל.",
+      "backToLogin": "חזרה להתחברות"
+    },
+    "resetPassword": {
+      "title": "קביעת סיסמה חדשה",
+      "subtitle": "בחרו סיסמה חדשה לחשבון שלכם",
+      "passwordLabel": "סיסמה חדשה",
+      "confirmPasswordLabel": "אימות סיסמה",
+      "submit": "עדכון סיסמה",
+      "passwordMismatch": "הסיסמאות אינן תואמות.",
+      "passwordTooShort": "הסיסמה קצרה מדי (לפחות 6 תווים).",
+      "invalidLink": "הקישור לאיפוס סיסמה אינו תקין או שפג תוקפו.",
+      "requestNewLink": "בקשת קישור חדש",
+      "genericError": "משהו השתבש. נסו שוב.",
+      "loading": "בודקים את הקישור..."
+    },
+    "bootstrap": {
+      "title": "ברוכים הבאים ל-Wiggy",
+      "subtitle": "רק עוד רגע — נשלים את הפרופיל שלכם",
+      "fullNameLabel": "שם מלא",
+      "submit": "המשך",
+      "missingName": "יש להזין שם מלא.",
+      "genericError": "משהו השתבש. נסו שוב."
+    }
+  },
   "pages": {
     "dashboard": {
       "title": "דשבורד",
@@ -46,6 +96,28 @@
     "orders": { "title": "הזמנות עבודה" },
     "customers": { "title": "לקוחות" },
     "missingItems": { "title": "פריטים חסרים" },
-    "settings": { "title": "הגדרות" }
+    "settings": { "title": "הגדרות" },
+    "profile": {
+      "title": "פרופיל",
+      "subtitle": "פרטים אישיים והגדרות חשבון",
+      "detailsTitle": "פרטים אישיים",
+      "fullNameLabel": "שם מלא",
+      "emailLabel": "אימייל",
+      "roleLabel": "תפקיד",
+      "businessLabel": "מכון",
+      "saveProfile": "שמירת שינויים",
+      "profileSaved": "הפרופיל עודכן בהצלחה.",
+      "changePasswordTitle": "שינוי סיסמה",
+      "newPasswordLabel": "סיסמה חדשה",
+      "confirmPasswordLabel": "אימות סיסמה",
+      "changePassword": "עדכון סיסמה",
+      "passwordChanged": "הסיסמה עודכנה בהצלחה.",
+      "errors": {
+        "missingName": "יש להזין שם מלא.",
+        "generic": "משהו השתבש. נסו שוב.",
+        "tooShort": "הסיסמה קצרה מדי (לפחות 6 תווים).",
+        "mismatch": "הסיסמאות אינן תואמות."
+      }
+    }
   }
 }

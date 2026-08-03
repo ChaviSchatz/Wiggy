@@ -3,7 +3,6 @@ import { Heebo } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 
-import { AppShell } from "@/components/layout/app-shell";
 import { defaultLocale, dir } from "@/i18n/config";
 import "./globals.css";
 
@@ -32,7 +31,7 @@ export default async function RootLayout({
     <html lang={defaultLocale} dir={dir} className={heebo.variable}>
       <body className="font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
-          <AppShell>{children}</AppShell>
+          {children}
         </NextIntlClientProvider>
       </body>
     </html>

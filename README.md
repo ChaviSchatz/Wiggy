@@ -2,10 +2,12 @@
 
 A Hebrew-first (RTL) production-management web app for a wig salon.
 
-This repository is a single-monolith Next.js app. **Slice 0** contains the
-frontend scaffold only: theme, i18n/RTL, the app-shell navigation, and tooling.
-No database/auth/Supabase server work is wired up yet (only an env example and a
-thin browser-client stub).
+This repository is a single-monolith Next.js app. **Slice 0** scaffolded the
+frontend (theme, i18n/RTL, app-shell navigation, tooling). **Slice 1** added
+the Supabase data foundation (multi-tenant schema + RLS, roles module) and
+the auth flows on top of it: login, forgot/reset password, first-login
+bootstrap, sign-out, and a profile screen — all behind `src/middleware.ts`,
+which also gates every screen by role (`src/lib/roles.ts`).
 
 ## Tech stack
 
@@ -21,8 +23,16 @@ thin browser-client stub).
 ```bash
 npm install          # install dependencies
 cp .env.example .env.local   # then fill in the Supabase values
+npx supabase start   # start local Supabase (see "Local Supabase" below)
+npx supabase db reset # apply migrations + seed
+npm run gen:types     # regenerate database.types.ts
+npm run seed:dev      # seed a dev business + admin user
 npm run dev          # start the dev server at http://localhost:3000
 ```
+
+The app now requires a session for every screen (`src/middleware.ts`), so
+visiting `http://localhost:3000` redirects to `/login` — sign in with the
+dev seed credentials below.
 
 ## Scripts
 
@@ -44,11 +54,12 @@ npm run dev          # start the dev server at http://localhost:3000
 
 Copy `.env.example` to `.env.local` and provide values:
 
-| Variable                        | Description                            |
-| ------------------------------- | -------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL (public)          |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (public)        |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Service-role key (server-only; secret) |
+| Variable                        | Description                                                                                                                                                    |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL (public)                                                                                                                                  |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (public)                                                                                                                                |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Service-role key (server-only; secret)                                                                                                                         |
+| `NEXT_PUBLIC_SITE_URL`          | Optional. Origin used to build password-reset email links (`src/lib/auth/actions.ts`). Falls back to the request's `Host` header, which is fine for local dev. |
 
 The public vars are read by the browser client factory in
 `src/lib/supabase/client.ts`. The service-role key is read only by the
@@ -77,10 +88,38 @@ membership. It is idempotent (safe to re-run). Dev-only credentials:
 
 These credentials are for local development only. Never use them anywhere real.
 
+## Auth flows
+
+- `src/middleware.ts` — session + role guard for every request: signs out →
+  `/login`; signed in but first login (no `profiles.full_name` yet) →
+  `/bootstrap`; keeps a signed-in user off `/login`/`/forgot-password`.
+- Screens: `/login`, `/forgot-password`, `/reset-password`, `/bootstrap`
+  (route group `src/app/(auth)`, centered-card layout, no app shell) and
+  `/profile` (route group `src/app/(app)`, inside the normal app shell).
+- `src/lib/auth/actions.ts` — the Server Actions behind those screens
+  (sign in/out, request/complete password reset, bootstrap, edit
+  profile/password). `src/lib/auth/current-user.ts` resolves the signed-in
+  user's profile + active membership + role; framework-agnostic (takes any
+  Supabase client), covered by `tests/integration/current-user.integration.test.ts`.
+- Password reset uses Supabase's default recovery-link flow (session
+  established client-side from the emailed link before `updatePasswordAction`
+  runs); local dev emails land in Mailpit at `http://127.0.0.1:54324`.
+- Side-nav visibility is role-gated (`src/components/layout/nav-items.ts` +
+  `src/lib/roles.ts`), matching `docs/ui/information-architecture.md`.
+
 ## Project structure
 
-- `src/app` — App Router routes (dashboard `/` plus placeholder pages).
+- `src/app/(app)` — authenticated routes, wrapped in the app shell (dashboard
+  `/`, board, orders, customers, sprint, missing-items, settings, profile).
+- `src/app/(auth)` — unauthenticated/auth-transition routes (login,
+  forgot/reset password, bootstrap), centered-card layout only.
+- `src/middleware.ts` — auth/role route guard (see "Auth flows" above).
+- `src/lib/auth` — auth domain logic + Server Actions.
+- `src/lib/supabase` — Supabase client factories: browser (`client.ts`),
+  server/Server Actions (`server.ts`), middleware (`middleware.ts`),
+  service-role admin (`admin.ts`).
 - `src/components/layout` — app shell (top bar, side nav, bottom nav, page header).
+- `src/components/auth` — shared auth-screen UI (centered card).
 - `src/components/ui` — shadcn/ui primitives.
 - `src/i18n` — next-intl request config (single locale `he`).
 - `messages/he.json` — Hebrew message catalog (all UI strings live here).

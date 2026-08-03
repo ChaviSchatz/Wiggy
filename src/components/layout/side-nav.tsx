@@ -4,15 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import type { Role } from "@/lib/roles";
 import { cn } from "@/lib/utils";
-import { sideNavItems } from "./nav-items";
+import { visibleSideNavItems } from "./nav-items";
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function SideNav() {
+export function SideNav({ role }: { role: Role }) {
   const t = useTranslations("nav");
   const tA11y = useTranslations("a11y");
   const pathname = usePathname();
@@ -23,7 +24,7 @@ export function SideNav() {
         aria-label={tA11y("primaryNav")}
         className="sticky top-16 flex flex-col gap-1 p-3"
       >
-        {sideNavItems.map(({ key, href, icon: Icon }) => {
+        {visibleSideNavItems(role).map(({ key, href, icon: Icon }) => {
           const active = isActive(pathname, href);
           return (
             <Link
