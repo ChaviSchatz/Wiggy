@@ -1,20 +1,26 @@
-import { createClient } from "@supabase/supabase-js";
+"use client";
+
+import { createBrowserClient } from "@supabase/ssr";
+
+import { getSupabaseAnonKey, getSupabaseUrl } from "./env";
+import type { Database } from "./database.types";
 
 /**
- * Browser Supabase client factory.
+ * Browser Supabase client (cookie-backed session via `@supabase/ssr`), so the
+ * session is visible to Server Components/Actions and middleware too — not
+ * just this tab's `localStorage`.
  *
- * This slice ships the client stub only — no auth/session wiring or database
- * schema yet. Reads public env vars that must be provided at build/runtime.
+ * Memoized so it is constructed once per page load: the client's
+ * `detectSessionInUrl` step (recovery/invite links) only needs to run once.
  */
-export function createBrowserClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+let browserClient: ReturnType<typeof createBrowserClient<Database>> | undefined;
 
-  if (!url || !anonKey) {
-    throw new Error(
-      "Missing Supabase env vars: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+export function getBrowserClient() {
+  if (!browserClient) {
+    browserClient = createBrowserClient<Database>(
+      getSupabaseUrl(),
+      getSupabaseAnonKey(),
     );
   }
-
-  return createClient(url, anonKey);
+  return browserClient;
 }
