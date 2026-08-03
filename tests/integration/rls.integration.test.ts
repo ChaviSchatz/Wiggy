@@ -143,4 +143,42 @@ describe("RLS tenant isolation", () => {
       .maybeSingle();
     expect(otherProfile.data).toBeNull();
   });
+
+  it("blocks a tenant admin from writing into another tenant", async () => {
+    const [a, b] = tenants;
+
+    // INSERT into B is rejected by the WITH CHECK clause (RLS).
+    const insertIntoB = await a.client.from("memberships").insert({
+      user_id: a.userId,
+      business_id: b.businessId,
+      role: "admin",
+    });
+    expect(insertIntoB.error).not.toBeNull();
+
+    // UPDATE of B's business affects zero rows (USING filters them out).
+    const updateB = await a.client
+      .from("businesses")
+      .update({ name: "hacked" })
+      .eq("id", b.businessId)
+      .select("id");
+    expect(updateB.error).toBeNull();
+    expect(updateB.data ?? []).toEqual([]);
+
+    // B's row is genuinely unchanged (verified with the admin client).
+    const bAfter = await admin
+      .from("businesses")
+      .select("name")
+      .eq("id", b.businessId)
+      .single();
+    expect(bAfter.data?.name).not.toBe("hacked");
+
+    // DELETE of B's membership affects zero rows.
+    const deleteB = await a.client
+      .from("memberships")
+      .delete()
+      .eq("business_id", b.businessId)
+      .select("id");
+    expect(deleteB.error).toBeNull();
+    expect(deleteB.data ?? []).toEqual([]);
+  });
 });
