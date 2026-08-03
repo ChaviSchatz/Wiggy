@@ -1,5 +1,4 @@
 import {
-  BadgeCheck,
   CalendarRange,
   ClipboardList,
   KanbanSquare,
@@ -32,7 +31,6 @@ export const sideNavItems: NavItem[] = [
   { key: "myWork", href: "/my-work", icon: ListChecks },
   { key: "board", href: "/board", icon: KanbanSquare },
   { key: "sprint", href: "/sprint", icon: CalendarRange },
-  { key: "approvals", href: "/approvals", icon: BadgeCheck },
   { key: "orders", href: "/orders", icon: ClipboardList },
   { key: "customers", href: "/customers", icon: Users },
   { key: "missingItems", href: "/missing-items", icon: PackageX },

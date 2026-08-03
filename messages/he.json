@@ -1,15 +1,14 @@
 {
   "app": {
-    "name": "WigFlow",
+    "name": "Wiggy",
     "newOrder": "הזמנה חדשה",
     "profile": "פרופיל"
   },
   "nav": {
-    "dashboard": "לוח בקרה",
+    "dashboard": "דשבורד",
     "myWork": "העבודה שלי",
     "board": "לוח ייצור",
-    "sprint": "תכנון ספרינט",
-    "approvals": "אישורים",
+    "sprint": "תכנון",
     "orders": "הזמנות עבודה",
     "customers": "לקוחות",
     "missingItems": "פריטים חסרים",
@@ -30,7 +29,7 @@
   },
   "pages": {
     "dashboard": {
-      "title": "לוח בקרה",
+      "title": "דשבורד",
       "subtitle": "סקירה כללית של פעילות המכון",
       "openOrders": {
         "title": "הזמנות פתוחות",
@@ -43,8 +42,7 @@
     },
     "myWork": { "title": "העבודה שלי" },
     "board": { "title": "לוח ייצור" },
-    "sprint": { "title": "תכנון ספרינט" },
-    "approvals": { "title": "אישורים" },
+    "sprint": { "title": "תכנון" },
     "orders": { "title": "הזמנות עבודה" },
     "customers": { "title": "לקוחות" },
     "missingItems": { "title": "פריטים חסרים" },
