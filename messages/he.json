@@ -1,0 +1,51 @@
+{
+  "app": {
+    "name": "Wiggy",
+    "newOrder": "הזמנה חדשה",
+    "profile": "פרופיל"
+  },
+  "nav": {
+    "dashboard": "דשבורד",
+    "myWork": "העבודה שלי",
+    "board": "לוח ייצור",
+    "sprint": "תכנון",
+    "orders": "הזמנות עבודה",
+    "customers": "לקוחות",
+    "missingItems": "פריטים חסרים",
+    "settings": "הגדרות"
+  },
+  "bottomNav": {
+    "myWork": "העבודה שלי",
+    "board": "לוח",
+    "feedback": "משוב",
+    "profile": "פרופיל"
+  },
+  "common": {
+    "comingSoon": "בקרוב"
+  },
+  "a11y": {
+    "primaryNav": "ניווט ראשי",
+    "secondaryNav": "ניווט תחתון"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "דשבורד",
+      "subtitle": "סקירה כללית של פעילות המכון",
+      "openOrders": {
+        "title": "הזמנות פתוחות",
+        "description": "מספר ההזמנות הפעילות כעת בייצור"
+      },
+      "dueThisWeek": {
+        "title": "לביצוע השבוע",
+        "description": "משימות שתאריך היעד שלהן חל השבוע"
+      }
+    },
+    "myWork": { "title": "העבודה שלי" },
+    "board": { "title": "לוח ייצור" },
+    "sprint": { "title": "תכנון" },
+    "orders": { "title": "הזמנות עבודה" },
+    "customers": { "title": "לקוחות" },
+    "missingItems": { "title": "פריטים חסרים" },
+    "settings": { "title": "הגדרות" }
+  }
+}
