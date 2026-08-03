@@ -1,4 +1,4 @@
-# WigFlow
+# Wiggy
 
 A Hebrew-first (RTL) production-management web app for a wig salon.
 
