@@ -1,4 +1,4 @@
-# WigFlow — Screen Inventory (build reference)
+# Wiggy — Screen Inventory (build reference)
 
 > The canonical list of screens/dialogs/templates we build from. Derived from
 > `docs/architecture.md`, the domain docs, and ADRs. Reconciled to the reframed model
@@ -69,7 +69,7 @@ types/groups, intake templates, and staff are seeded via migrations for the firs
 39. Sprint planning board — manager (lanes per employee, backlog, filters, assign, drag-reorder) **[v1]**
 40. Create / close sprint (dialog) **[v1]**
 41. Employee personal queue (current → next → queue → future/blocked → completed) **[v1]**
-42. Awaiting-approval view (approver's separate managerial surface) **[v1]**
+42. Approvals **on the board** — `awaiting_approval` tasks highlighted with inline Approve/Return + an "awaiting approval" filter + dashboard count (**no separate screen**; ADR 0009) **[v1]**
 43. Bulk assign / reprioritize (dialog) **[v1]**
 
 ## 8. Configuration / admin (data seeded for v1; editors [config])

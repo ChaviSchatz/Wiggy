@@ -23,7 +23,7 @@ Each ADR is one numbered file: `NNNN-short-title.md`, containing:
 - [0004](0004-one-unified-activity-timeline.md) — One unified activity timeline
 - [0005](0005-multilingual-ready-hebrew-first.md) — Multilingual-ready, Hebrew-first
 - [0006](0006-other-free-text-always-creates-a-task.md) — "Other" free-text always creates a runtime task
-- [0007](0007-consolidate-scheduling-billing-attendance.md) — Consolidate scheduling, appointments, billing & attendance into WigFlow
+- [0007](0007-consolidate-scheduling-billing-attendance.md) — Consolidate scheduling, appointments, billing & attendance into Wiggy
 - [0008](0008-sprint-based-task-management.md) — Sprint-based task management with automatic sequence availability
 - [0009](0009-approvals-separate-managerial-queue.md) — Approvals are a separate managerial queue
 - [0010](0010-task-centric-production-board.md) — Task-centric production board with worker-avatar assignment

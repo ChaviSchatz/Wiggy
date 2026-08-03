@@ -1,4 +1,4 @@
-# WigFlow — Work-Order Hub (the central screen)
+# Wiggy — Work-Order Hub (the central screen)
 
 > The unified screen for a single order. Presentation is **hybrid**: inline board actions +
 > quick-view peek + a full-page route. Identity/media rules per `docs/ui/design-language.md`.

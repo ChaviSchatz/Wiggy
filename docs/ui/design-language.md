@@ -1,4 +1,4 @@
-# WigFlow — Design Language ("warm operational studio")
+# Wiggy — Design Language ("warm operational studio")
 
 > Direction for the look, feel, and identity patterns. Hebrew-first / RTL. The reference comps are
 > **inspiration, not a fixed template**. Final values are tuned in the build (shadcn/ui + Tailwind

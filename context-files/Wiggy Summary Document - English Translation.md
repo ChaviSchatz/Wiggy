@@ -1,6 +1,6 @@
 Tab 1
 
-\# WigFlow Production
+\# Wiggy Production
 
 \#\# Feature Summary and Current System State Document  
 Tzipi & Fradi Wig Production  
@@ -255,11 +255,11 @@ Planning note: This document reflects the existing system state. For continued d
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-\# WigFlow — Feature and Infrastructure List for Continued Specification  
-\# WigFlow — Feature and Infrastructure List for Continued Specification
+\# Wiggy — Feature and Infrastructure List for Continued Specification  
+\# Wiggy — Feature and Infrastructure List for Continued Specification
 
 \#\# Purpose of the Document  
-WigFlow began as a system for managing the wig production process through work orders. In practice, the business need is expanding into three connected areas:  
+Wiggy began as a system for managing the wig production process through work orders. In practice, the business need is expanding into three connected areas:  
 1\. Ongoing production management.  
 2\. Load planning, prioritization, and completion forecasting.  
 3\. CRM and documentation of customer relationships.  

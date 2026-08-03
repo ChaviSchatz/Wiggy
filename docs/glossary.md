@@ -1,6 +1,6 @@
 # Glossary — Ubiquitous Language
 
-Shared vocabulary for WigFlow. Use these exact terms in code, docs, and UI keys.
+Shared vocabulary for Wiggy. Use these exact terms in code, docs, and UI keys.
 
 ## Core modeling terms
 | Term | Meaning |
@@ -20,7 +20,7 @@ Shared vocabulary for WigFlow. Use these exact terms in code, docs, and UI keys.
 | **Queue rank** | A task's fractional position in one employee's personal queue (exact working order). |
 | **Availability** | Derived overlay on a task — `available` (startable) or `blocked` (predecessors unfinished). Not a status. |
 | **Personal queue** | An employee's assigned tasks, ordered by queue rank (current → next → rest → future/blocked → completed). |
-| **Approvals view** | An approver's separate managerial surface listing tasks `awaiting_approval` for them (not their personal queue). |
+| **Approvals (on board)** | `awaiting_approval` tasks are handled on the production board (highlight + inline approve/return + filter + dashboard count), kept out of the personal queue (ADR 0009). |
 
 ## Status vocabulary
 | Term | Applies to | Meaning |

@@ -1,4 +1,4 @@
-# WigFlow — Design System (build-ready lock)
+# Wiggy — Design System (build-ready lock)
 
 > Concrete tokens, components, page archetypes, and interaction patterns so screens are **composed
 > from known parts, not re-designed**. Hebrew-first / RTL. Extends `docs/ui/design-language.md`.

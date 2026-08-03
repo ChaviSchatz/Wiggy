@@ -46,9 +46,9 @@ view + a few fields over the existing production tasks. See ADR 0008, ADR 0009.
 - Employees see only tasks **assigned to them** (no self-serve pool in this phase).
 
 ## Approvals (separate — ADR 0009)
-- **Not** in the personal queue. The approver has a separate **"Awaiting approval"** view
-  (`status = awaiting_approval` and `approver = me`).
-- On the board, awaiting-approval tasks expose approve / return-for-rework at their stage.
+- **Not** in the personal queue. Handled **on the board** (v1): `awaiting_approval` tasks
+  (`approver = me`) are highlighted with inline approve / return-for-rework, plus an "awaiting
+  approval" filter and a dashboard count — no separate approvals screen (ADR 0009).
 
 ## Carryover
 - Unfinished tasks in a closed sprint carry into the next sprint (display/rollover), preserving

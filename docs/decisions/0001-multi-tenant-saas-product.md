@@ -3,11 +3,11 @@
 **Status:** Accepted
 
 ## Context
-WigFlow started as a tool for a single salon (Tzipi & Fradi). The goal is now to resell the same
+Wiggy started as a tool for a single salon (Tzipi & Fradi). The goal is now to resell the same
 product to many independent salons.
 
 ## Decision
-Build WigFlow as a **multi-tenant SaaS**: many client salons ("tenants") share one deployment,
+Build Wiggy as a **multi-tenant SaaS**: many client salons ("tenants") share one deployment,
 with each tenant's data fully isolated from the others. Each tenant self-serves its own
 configuration.
 

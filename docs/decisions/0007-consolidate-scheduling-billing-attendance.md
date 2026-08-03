@@ -1,4 +1,4 @@
-# 0007 — Consolidate scheduling, appointments, billing & attendance into WigFlow
+# 0007 — Consolidate scheduling, appointments, billing & attendance into Wiggy
 
 **Status:** Accepted (scope/intent) — individual modules designed in their own later sessions.
 
@@ -9,7 +9,7 @@ production, so appointments, billing, and worker day-plans don't reflect the rea
 work.
 
 ## Decision
-WigFlow will **absorb these capabilities** so they live on top of the production model, with
+Wiggy will **absorb these capabilities** so they live on top of the production model, with
 **production status as the spine**:
 - **Worker production calendar** — assigned runtime tasks viewable per worker/day; unfinished work
   carries to today.

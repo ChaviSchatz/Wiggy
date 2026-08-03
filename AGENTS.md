@@ -1,6 +1,6 @@
-# AGENTS.md — WigFlow
+# AGENTS.md — Wiggy
 
-WigFlow is a **multi-tenant SaaS** for task-and-process management in wig-manufacturing salons.
+Wiggy is a **multi-tenant SaaS** for task-and-process management in wig-manufacturing salons.
 **Hebrew-first / RTL**, built multilingual-ready. This file is the entry point for any AI agent or
 human working in this repo. Read it first.
 

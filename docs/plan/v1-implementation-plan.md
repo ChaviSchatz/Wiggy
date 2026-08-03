@@ -1,11 +1,11 @@
-# WigFlow v1 — Implementation Plan
+# Wiggy v1 — Implementation Plan
 
 > **For agentic workers:** implement slice-by-slice; each slice is a shippable vertical increment.
 > Within a slice, screens are built from `docs/ui/design-system.md` archetypes + components — **no
 > design re-brainstorming**, just execution. Expand each slice's tasks into TDD steps at the moment
 > you start it, against the scaffold from Slice 0.
 
-**Goal:** Ship v1 of WigFlow — intake → runtime tasks → task-centric board + worker queue + sprint
+**Goal:** Ship v1 of Wiggy — intake → runtime tasks → task-centric board + worker queue + sprint
 planning + work-order hub + missing items — for the first salon (seeded config).
 
 **Architecture:** Single-monolith Next.js (App Router) + Supabase (Postgres/Auth/Storage/RLS),
@@ -89,7 +89,7 @@ peek opens/dismisses; board stays in sync with status. Playwright happy-path.
 **Goal:** the unified order screen + approvals.
 **Modules:** `task_approvals`, `task_comments`, `attachments`, `activity`, `missing_items` migrations;
 Hub (Detail archetype, full page per `work-order-hub.md`); Dialogs: add/"Other" task, defer/resume,
-approve/return, cancel, mark delivered, upload, edit-intake; Awaiting-approval view.
+approve/return (on the board), cancel, mark delivered, upload, edit-intake.
 **Tasks:** hub sections (identity/text, stepper, next-action, tasks w/ circular avatars, notes,
 files, squared reference photos, audio, warnings/missing, history from `activity`, general details,
 back-to-board); transitions write `task_approvals` + `activity`; edit-intake audited.
@@ -99,8 +99,8 @@ audited; delivered/cancel; every transition logs `activity`.
 ## Slice 7 — Sprint & personal queue (ADR 0008/0009)
 **Goal:** manager planning + worker queue.
 **Modules:** `sprints` migration + tenant cadence setting; Sprint planning Board (lanes per employee,
-backlog, drag → `queue_rank`, filters, create/close sprint); My Work Queue (tablet archetype);
-Approvals view (separate).
+backlog, drag → `queue_rank`, filters, create/close sprint); My Work Queue (tablet archetype).
+Approvals are handled on the board (Slice 5/6), not a separate screen (ADR 0009).
 **Tasks:** assign + reorder (fractional rank); backlog → lane; employee queue now→next→queue→
 blocked→done (next = top-ranked available); approvals excluded from personal queue.
 **Acceptance:** manager plans/reorders a sprint; worker sees correct ordered queue; approvals only in

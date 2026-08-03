@@ -1,4 +1,4 @@
-# WigFlow — Architecture (Technical Foundation)
+# Wiggy — Architecture (Technical Foundation)
 
 > **Status:** Living document. This is the *fixed technical foundation* of the system.
 > Product/behaviour decisions live in `docs/decisions/` (ADRs). Domain detail lives in
@@ -8,7 +8,7 @@
 > relevant doc here or in `docs/domains/`, and any *product* decision must add/update an ADR.
 > See `AGENTS.md` for the full rules of engagement.
 
-WigFlow is a **multi-tenant SaaS** for managing task-and-process work in wig-manufacturing
+Wiggy is a **multi-tenant SaaS** for managing task-and-process work in wig-manufacturing
 salons. It began as a single-client production tool and is being rebuilt to be resold to
 many salons without code forks. It is **Hebrew-first / RTL**, but built multilingual-ready.
 
@@ -139,7 +139,7 @@ An operational layer over `runtime_tasks` (ADR 0008/0009; detail in
 - **`runtime_tasks` additions:** `sprint_id?` (`null` = backlog), `queue_rank` (fractional,
   per-assignee exact ordering), `priority?` (highlight flag).
 - **No new task table and no new status** — the sprint/queue is a *view + these fields* over
-  existing tasks. Approvals are not queue items; they are a separate approver surface (ADR 0009).
+  existing tasks. Approvals are not queue items; they are handled on the board (ADR 0009).
 
 ---
 

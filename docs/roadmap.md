@@ -1,10 +1,10 @@
-# WigFlow — Roadmap & Module Plan
+# Wiggy — Roadmap & Module Plan
 
 > Living document. Sequencing and scope of modules. Individual modules get their own
 > brainstorming session + ADRs/domain docs before implementation.
 
 ## Vision
-WigFlow **absorbs the salon's external "mini-CRM + scheduling + billing + time-clock" tool** into
+Wiggy **absorbs the salon's external "mini-CRM + scheduling + billing + time-clock" tool** into
 one product. The unifying principle: **production status is the spine** — worker calendars, client
 appointments, billing, and attendance all key off task/order state.
 
@@ -37,8 +37,8 @@ queue). Highlights:
   employee's exact order (`queue_rank`).
 - **Automatic availability** (linear per-order sequence): blocked tasks show in the future queue
   but aren't startable until predecessors are done — pulled forward from the planning engine.
-- Employee personal queue (current → next → queue → future/blocked → completed); approvals live in
-  a separate approver view.
+- Employee personal queue (current → next → queue → future/blocked → completed); approvals are
+  handled on the board (highlight + inline approve/return + filter), not the personal queue.
 
 **Deferred to the planning-engine session:** branching/parallel dependencies, capacity/workload,
 auto-assignment, dynamic reprioritization, estimated completion, automatic rollover, sequence

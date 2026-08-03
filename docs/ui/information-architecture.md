@@ -1,4 +1,4 @@
-# WigFlow — Information Architecture & Device Strategy (v1)
+# Wiggy — Information Architecture & Device Strategy (v1)
 
 > How the v1 screens (`docs/ui/screen-inventory.md`) hang together: device strategy, navigation,
 > role visibility, and per-role landing pages. Hebrew-first / RTL.
@@ -24,7 +24,6 @@
 | My Work (personal queue) | 41 | ✓ | ✓* | ✓ | – |
 | Production Board | 32–38 | ✓ | view | ✓ | ✓ |
 | Sprint Planning | 39–40, 43 | – | – | ✓ | ✓ |
-| Approvals | 42, 36 | – | – | ✓ | ✓ |
 | Work Orders (+New Order) | 15–28 | – | ✓ | ✓ | ✓ |
 | Customers | 9–12 | – | ✓ | ✓ | ✓ |
 | Missing Items | 29–31 | – | ✓ | ✓ | ✓ |
@@ -36,7 +35,7 @@
 ## Landing page per role (on login)
 - **Worker →** **My Work** (their queue: now → next → up next → blocked → done). The primary
   "what do I do now" screen; on a shared tablet, gated by the station's active-worker switcher.
-- **Manager (Fradi) →** **Dashboard** command center, one tap into Sprint Planning and Approvals.
+- **Manager (Fradi) →** **Dashboard** command center, one tap into Sprint Planning; approvals are handled on the Production Board (highlighted tasks + inline approve/return), not a separate screen (ADR 0009).
 - **Secretary →** **Work Orders** list with a prominent **+ New Order** CTA.
 - **Admin →** **Dashboard** + full Settings access.
 
