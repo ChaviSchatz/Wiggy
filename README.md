@@ -26,27 +26,56 @@ npm run dev          # start the dev server at http://localhost:3000
 
 ## Scripts
 
-| Command                | Description                       |
-| ---------------------- | --------------------------------- |
-| `npm run dev`          | Start the development server      |
-| `npm run build`        | Create a production build         |
-| `npm run start`        | Serve the production build        |
-| `npm run lint`         | Run ESLint                        |
-| `npm run test`         | Run the test suite once (Vitest)  |
-| `npm run test:watch`   | Run tests in watch mode           |
-| `npm run format`       | Format the codebase with Prettier |
-| `npm run format:check` | Check formatting without writing  |
+| Command                    | Description                                                       |
+| -------------------------- | ----------------------------------------------------------------- |
+| `npm run dev`              | Start the development server                                      |
+| `npm run build`            | Create a production build                                         |
+| `npm run start`            | Serve the production build                                        |
+| `npm run lint`             | Run ESLint                                                        |
+| `npm run test`             | Run unit tests once (Vitest, jsdom; no Supabase)                  |
+| `npm run test:watch`       | Run unit tests in watch mode                                      |
+| `npm run test:integration` | Run RLS integration tests against local Supabase                  |
+| `npm run gen:types`        | Regenerate `src/lib/supabase/database.types.ts` from the local DB |
+| `npm run seed:dev`         | Seed a dev business + admin user (idempotent)                     |
+| `npm run format`           | Format the codebase with Prettier                                 |
+| `npm run format:check`     | Check formatting without writing                                  |
 
 ## Environment variables
 
 Copy `.env.example` to `.env.local` and provide values:
 
-| Variable                        | Description                     |
-| ------------------------------- | ------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL (public)   |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (public) |
+| Variable                        | Description                            |
+| ------------------------------- | -------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL (public)          |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (public)        |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Service-role key (server-only; secret) |
 
-These are read by the browser client factory in `src/lib/supabase/client.ts`.
+The public vars are read by the browser client factory in
+`src/lib/supabase/client.ts`. The service-role key is read only by the
+server-only admin client in `src/lib/supabase/admin.ts` (seeding, bootstrap,
+integration tests) and must never be exposed to the browser.
+
+## Local Supabase & data layer
+
+The data foundation (multi-tenant schema + RLS) lives in `supabase/migrations`.
+With the Supabase CLI and Docker running:
+
+```bash
+npx supabase start        # start local Supabase (Postgres, Auth, Studio)
+npx supabase db reset     # apply migrations + seed from scratch
+npm run gen:types         # regenerate TypeScript types from the schema
+npm run seed:dev          # seed a dev tenant + admin (see credentials below)
+```
+
+### Dev seed (local only)
+
+`npm run seed:dev` creates one business, one admin user, and an admin
+membership. It is idempotent (safe to re-run). Dev-only credentials:
+
+- **Email:** `admin@wiggy.local`
+- **Password:** `wiggy-dev-password`
+
+These credentials are for local development only. Never use them anywhere real.
 
 ## Project structure
 
