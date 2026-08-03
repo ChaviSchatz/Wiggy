@@ -2,26 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Warm "operational studio" theme tokens */
+    --bg: #faf7f5;
+    --surface: #ffffff;
+    --ink: #2e2a2e;
+    --muted: #7a727a;
+    --line: #e9e2e7;
+
+    --mauve-600: #7c5e7d;
+    --mauve-100: #efe7ef;
+    --sage-600: #5f8a73;
+    --sage-100: #e6efe9;
+    --peach-500: #e0916b;
+    --peach-100: #f8e9df;
+    --danger-600: #c0553b;
+
+    /* Semantic tokens consumed by shadcn/ui primitives */
+    --background: var(--bg);
+    --foreground: var(--ink);
+    --card: var(--surface);
+    --card-foreground: var(--ink);
+    --primary: var(--mauve-600);
+    --primary-foreground: #ffffff;
+    --border: var(--line);
+    --input: var(--line);
+    --ring: var(--mauve-600);
+
+    /* Radii */
+    --radius-card: 16px;
+    --radius-control: 10px;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
+@layer base {
+  * {
+    @apply border-line;
+  }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  body {
+    @apply bg-bg text-ink;
   }
 }
