@@ -1,0 +1,10 @@
+-- Dev seed (runs on `supabase db reset`).
+--
+-- Auth users cannot be created from plain SQL (they live in the GoTrue-managed
+-- `auth.users` table and need a hashed password + identities). The dev business,
+-- admin user, profile, and membership are therefore seeded by the idempotent
+-- Node script instead:
+--
+--     npm run seed:dev
+--
+-- See scripts/seed-dev.ts and the README ("Dev seed") for credentials.
