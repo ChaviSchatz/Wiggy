@@ -80,8 +80,11 @@ npm run seed:dev          # seed a dev tenant + admin (see credentials below)
 
 ### Dev seed (local only)
 
-`npm run seed:dev` creates one business, one admin user, and an admin
-membership. It is idempotent (safe to re-run). Dev-only credentials:
+`npm run seed:dev` creates one business, one admin user, an admin
+membership, and the Slice 2 work-definition catalog for that business (8
+work stages, 3 staff members, 8 task types across 2 task groups, and one
+"New Wig" intake template with 7 items — see `scripts/seed-work-definition.ts`).
+It is idempotent (safe to re-run). Dev-only credentials:
 
 - **Email:** `admin@wiggy.local`
 - **Password:** `wiggy-dev-password`
