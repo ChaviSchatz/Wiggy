@@ -14,12 +14,13 @@ function isActive(pathname: string, href: string) {
 
 export function SideNav() {
   const t = useTranslations("nav");
+  const tA11y = useTranslations("a11y");
   const pathname = usePathname();
 
   return (
     <aside className="hidden w-64 shrink-0 border-s border-line bg-surface lg:block">
       <nav
-        aria-label={t("dashboard")}
+        aria-label={tA11y("primaryNav")}
         className="sticky top-16 flex flex-col gap-1 p-3"
       >
         {sideNavItems.map(({ key, href, icon: Icon }) => {

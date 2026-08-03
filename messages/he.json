@@ -24,6 +24,10 @@
   "common": {
     "comingSoon": "בקרוב"
   },
+  "a11y": {
+    "primaryNav": "ניווט ראשי",
+    "secondaryNav": "ניווט תחתון"
+  },
   "pages": {
     "dashboard": {
       "title": "לוח בקרה",

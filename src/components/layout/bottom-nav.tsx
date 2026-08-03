@@ -9,6 +9,7 @@ import { bottomNavItems } from "./nav-items";
 
 export function BottomNav() {
   const t = useTranslations("bottomNav");
+  const tA11y = useTranslations("a11y");
   const pathname = usePathname();
 
   const itemClass = (active: boolean) =>
@@ -19,7 +20,7 @@ export function BottomNav() {
 
   return (
     <nav
-      aria-label={t("myWork")}
+      aria-label={tA11y("secondaryNav")}
       className="fixed inset-x-0 bottom-0 z-20 flex border-t border-line bg-surface lg:hidden"
     >
       {bottomNavItems.map(({ key, href, icon: Icon }) => {
