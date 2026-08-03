@@ -16,6 +16,7 @@ export const PERMISSIONS = [
   "editWorkDefinition",
   "createOrders",
   "editCustomers",
+  "manageMissingItems",
   "approveTasks",
   "planSprint",
   "viewBoard",
@@ -30,6 +31,7 @@ const ROLE_PERMISSIONS: Record<Role, ReadonlySet<Permission>> = {
     "editWorkDefinition",
     "createOrders",
     "editCustomers",
+    "manageMissingItems",
     "approveTasks",
     "planSprint",
     "viewBoard",
@@ -38,6 +40,7 @@ const ROLE_PERMISSIONS: Record<Role, ReadonlySet<Permission>> = {
   secretary: new Set<Permission>([
     "createOrders",
     "editCustomers",
+    "manageMissingItems",
     "viewBoard",
   ]),
   worker: new Set<Permission>(["viewBoard", "workOwnTasks"]),
@@ -46,4 +49,9 @@ const ROLE_PERMISSIONS: Record<Role, ReadonlySet<Permission>> = {
 /** Whether a role is granted a permission. */
 export function can(role: Role, permission: Permission): boolean {
   return ROLE_PERMISSIONS[role]?.has(permission) ?? false;
+}
+
+/** Type guard for values coming from `memberships.role` (stored as plain text). */
+export function isRole(value: string): value is Role {
+  return (ROLES as readonly string[]).includes(value);
 }
