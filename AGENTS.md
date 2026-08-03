@@ -96,6 +96,12 @@ server, env vars, and the dev seed. Notes below are the non-obvious caveats.
 - **Two test suites.** `npm run test` is unit-only (Vitest/jsdom) and needs no Supabase — keep it
   that way. `npm run test:integration` (config `vitest.integration.config.mts`) hits **local
   Supabase** and requires Docker + `npx supabase start` to be running.
+- **First-time backend bring-up (one-time per VM; NOT in the update script).** Docker is not
+  preinstalled. Install Docker Engine, then (Docker 29 on this VM) set `/etc/docker/daemon.json` to
+  `{"storage-driver":"fuse-overlayfs","features":{"containerd-snapshotter":false}}`, switch to
+  `iptables-legacy`, start `dockerd`, and run `npx supabase start`. Copy the printed API URL, anon
+  key, and service_role key into `.env.local`. (System/service setup is intentionally excluded from
+  the update script.)
 - **Local Supabase is required** for `npx supabase db reset`, `npm run gen:types`, `npm run
 seed:dev`, and `npm run test:integration`. Check with `npx supabase status`. Env vars
   (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) live in
