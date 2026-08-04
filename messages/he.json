@@ -94,7 +94,53 @@
     "board": { "title": "לוח ייצור" },
     "sprint": { "title": "תכנון" },
     "orders": { "title": "הזמנות עבודה" },
-    "customers": { "title": "לקוחות" },
+    "customers": {
+      "title": "לקוחות",
+      "subtitle": "ניהול רשימת לקוחות הסלון",
+      "newCustomer": "לקוח חדש",
+      "searchPlaceholder": "חיפוש לפי שם, טלפון או אימייל",
+      "actions": "פעולות",
+      "edit": "עריכה",
+      "emptyTitle": "אין עדיין לקוחות",
+      "emptyDescription": "הוסיפו את הלקוח הראשון כדי להתחיל.",
+      "emptySearchTitle": "לא נמצאו תוצאות",
+      "emptySearchDescription": "נסו חיפוש אחר.",
+      "previous": "הקודם",
+      "next": "הבא",
+      "pageOf": "עמוד {page} מתוך {totalPages}",
+      "backToList": "חזרה לרשימת הלקוחות",
+      "form": {
+        "createTitle": "לקוח חדש",
+        "editTitle": "עריכת לקוח",
+        "nameLabel": "שם",
+        "phoneLabel": "טלפון",
+        "emailLabel": "אימייל",
+        "notesLabel": "הערות",
+        "cancel": "ביטול",
+        "save": "שמירה",
+        "saving": "שומר/ת...",
+        "errors": {
+          "nameRequired": "יש להזין שם.",
+          "emailInvalid": "כתובת אימייל לא תקינה.",
+          "generic": "משהו השתבש. נסו שוב.",
+          "forbidden": "אין לך הרשאה לביצוע פעולה זו."
+        }
+      },
+      "delete": {
+        "title": "מחיקת לקוח",
+        "confirm": "למחוק את {name}? הפעולה לא ניתנת לביטול.",
+        "cancel": "ביטול",
+        "confirmAction": "מחיקה",
+        "deleting": "מוחק/ת..."
+      },
+      "detail": {
+        "subtitle": "פרטי לקוח",
+        "infoTitle": "פרטים אישיים",
+        "ordersTitle": "היסטוריית הזמנות",
+        "noOrdersTitle": "אין עדיין הזמנות",
+        "noOrdersDescription": "הזמנות עבודה יופיעו כאן."
+      }
+    },
     "missingItems": { "title": "פריטים חסרים" },
     "settings": { "title": "הגדרות" },
     "profile": {
