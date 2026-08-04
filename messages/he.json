@@ -91,7 +91,47 @@
       }
     },
     "myWork": { "title": "העבודה שלי" },
-    "board": { "title": "לוח ייצור" },
+    "board": {
+      "title": "לוח ייצור",
+      "subtitle": "עבודה חיה לפי שלב ייצור",
+      "emptyTitle": "אין משימות פעילות",
+      "emptyDescription": "משימות יופיעו כאן לאחר יצירת הזמנות עבודה.",
+      "blocked": "חסום",
+      "unlock": "פתיחה",
+      "start": "התחלה",
+      "done": "סיום",
+      "reassign": "שיוך עובד/ת",
+      "undo": "ביטול",
+      "undoStartMessage": "המשימה הותחלה.",
+      "undoCompleteMessage": "המשימה סומנה כהושלמה.",
+      "filters": {
+        "employeeLabel": "סינון לפי עובד/ת",
+        "employeeAll": "כל העובדים",
+        "unassigned": "לא משויך",
+        "typeLabel": "סינון לפי סוג משימה",
+        "typeAll": "כל הסוגים",
+        "statusLabel": "סינון לפי סטטוס",
+        "statusAll": "כל הסטטוסים"
+      },
+      "assignee": {
+        "title": "שיוך עובד/ת למשימה",
+        "unassign": "ללא שיוך",
+        "cancel": "ביטול",
+        "save": "שמירה",
+        "saving": "שומר/ת..."
+      },
+      "peek": {
+        "status": "סטטוס",
+        "availability": "זמינות",
+        "assignee": "עובד/ת משויכ/ת",
+        "unassigned": "לא משויך",
+        "requiresApproval": "דורש אישור",
+        "yes": "כן",
+        "description": "תיאור",
+        "productionNotes": "הערות ייצור",
+        "openOrder": "פתיחת ההזמנה המלאה"
+      }
+    },
     "sprint": { "title": "תכנון" },
     "orders": {
       "title": "הזמנות עבודה",
