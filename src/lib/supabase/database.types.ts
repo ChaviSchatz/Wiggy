@@ -297,6 +297,125 @@ export type Database = {
         }
         Relationships: []
       }
+      runtime_tasks: {
+        Row: {
+          approver_staff_member_id: string | null
+          assigned_staff_member_id: string | null
+          business_id: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_at: string | null
+          id: string
+          origin_item_id: string | null
+          production_notes: string | null
+          requires_approval: boolean
+          sequence_order: number
+          source: string
+          started_at: string | null
+          status: string
+          task_type_id: string | null
+          title: string
+          updated_at: string
+          work_order_id: string
+          work_stage_id: string
+        }
+        Insert: {
+          approver_staff_member_id?: string | null
+          assigned_staff_member_id?: string | null
+          business_id: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          origin_item_id?: string | null
+          production_notes?: string | null
+          requires_approval?: boolean
+          sequence_order?: number
+          source: string
+          started_at?: string | null
+          status?: string
+          task_type_id?: string | null
+          title: string
+          updated_at?: string
+          work_order_id: string
+          work_stage_id: string
+        }
+        Update: {
+          approver_staff_member_id?: string | null
+          assigned_staff_member_id?: string | null
+          business_id?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          origin_item_id?: string | null
+          production_notes?: string | null
+          requires_approval?: boolean
+          sequence_order?: number
+          source?: string
+          started_at?: string | null
+          status?: string
+          task_type_id?: string | null
+          title?: string
+          updated_at?: string
+          work_order_id?: string
+          work_stage_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "runtime_tasks_approver_staff_member_id_fkey"
+            columns: ["approver_staff_member_id"]
+            isOneToOne: false
+            referencedRelation: "staff_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "runtime_tasks_assigned_staff_member_id_fkey"
+            columns: ["assigned_staff_member_id"]
+            isOneToOne: false
+            referencedRelation: "staff_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "runtime_tasks_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "runtime_tasks_origin_item_id_fkey"
+            columns: ["origin_item_id"]
+            isOneToOne: false
+            referencedRelation: "intake_template_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "runtime_tasks_task_type_id_fkey"
+            columns: ["task_type_id"]
+            isOneToOne: false
+            referencedRelation: "task_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "runtime_tasks_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "runtime_tasks_work_stage_id_fkey"
+            columns: ["work_stage_id"]
+            isOneToOne: false
+            referencedRelation: "work_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_members: {
         Row: {
           business_id: string
@@ -508,6 +627,112 @@ export type Database = {
           },
         ]
       }
+      work_order_counters: {
+        Row: {
+          business_id: string
+          next_number: number
+        }
+        Insert: {
+          business_id: string
+          next_number?: number
+        }
+        Update: {
+          business_id?: string
+          next_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_order_counters_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_orders: {
+        Row: {
+          business_id: string
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          due_at: string | null
+          id: string
+          intake_responses: Json
+          intake_template_id: string
+          notes: string | null
+          number: number
+          order_received_date: string
+          priority: string
+          status: string
+          updated_at: string
+          work_order_kind: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          due_at?: string | null
+          id?: string
+          intake_responses?: Json
+          intake_template_id: string
+          notes?: string | null
+          number: number
+          order_received_date?: string
+          priority?: string
+          status?: string
+          updated_at?: string
+          work_order_kind: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          due_at?: string | null
+          id?: string
+          intake_responses?: Json
+          intake_template_id?: string
+          notes?: string | null
+          number?: number
+          order_received_date?: string
+          priority?: string
+          status?: string
+          updated_at?: string
+          work_order_kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_orders_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_intake_template_id_fkey"
+            columns: ["intake_template_id"]
+            isOneToOne: false
+            referencedRelation: "intake_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       work_stages: {
         Row: {
           business_id: string
@@ -559,6 +784,10 @@ export type Database = {
     Functions: {
       is_business_admin: { Args: { bid: string }; Returns: boolean }
       is_business_member: { Args: { bid: string }; Returns: boolean }
+      next_work_order_number: {
+        Args: { p_business_id: string }
+        Returns: number
+      }
       shares_business_with: { Args: { target_user: string }; Returns: boolean }
     }
     Enums: {
