@@ -125,3 +125,5 @@ seed:dev` passes `--conditions=react-server --experimental-strip-types`, and the
   vitest config aliases `server-only` to a no-op stub. The `.ts` import extension in the seed script
   is why `tsconfig` sets `allowImportingTsExtensions`.
 - **Dev login** (from `npm run seed:dev`): `admin@wiggy.local` / `wiggy-dev-password` (local only).
+- **Manual testing evidence:** use screenshots from `computerUse`, not `RecordScreen` video
+  recordings — recording/saving is slow and unreliable in this environment.
