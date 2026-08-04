@@ -14,8 +14,12 @@ human working in this repo. Read it first.
 > `intake_templates`/`intake_template_items`) with read-only RLS (no editor UI yet — that's
 > `[config]`, a later slice) and seeded it via `scripts/seed-work-definition.ts`; Slice 3 added
 > `customers` (full CRUD, member-level RLS) with list/detail/create/edit/delete screens
-> (`src/app/(app)/customers`, `src/lib/customers/`). The design is specified in `docs/`;
-> implementation follows the specs there.
+> (`src/app/(app)/customers`, `src/lib/customers/`); Slice 4 added the core intake ->
+> runtime-task generation loop — `work_orders`/`runtime_tasks` schema + RLS, the pure generation
+> algorithm (`src/lib/work-orders/generate.ts`, architecture.md §5-§6), the 4-step New Order
+> wizard (`src/app/(app)/orders/new`), the orders list, and a minimal order detail page (the
+> full Work-Order Hub is Slice 6). The design is specified in `docs/`; implementation follows
+> the specs there.
 
 ## Start here (read in this order)
 
