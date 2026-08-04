@@ -96,7 +96,7 @@
     "orders": { "title": "הזמנות עבודה" },
     "customers": {
       "title": "לקוחות",
-      "subtitle": "ניהול רשימת הלקוחות של המכון",
+      "subtitle": "ניהול רשימת לקוחות הסלון",
       "newCustomer": "לקוח חדש",
       "searchPlaceholder": "חיפוש לפי שם, טלפון או אימייל",
       "actions": "פעולות",
