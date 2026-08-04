@@ -93,7 +93,121 @@
     "myWork": { "title": "העבודה שלי" },
     "board": { "title": "לוח ייצור" },
     "sprint": { "title": "תכנון" },
-    "orders": { "title": "הזמנות עבודה" },
+    "orders": {
+      "title": "הזמנות עבודה",
+      "subtitle": "ניהול הזמנות העבודה של הסלון",
+      "newOrder": "הזמנה חדשה",
+      "searchPlaceholder": "חיפוש לפי מספר הזמנה, לקוח או הערות",
+      "statusFilterLabel": "סינון לפי סטטוס",
+      "statusFilterAll": "כל הסטטוסים",
+      "emptyTitle": "אין עדיין הזמנות עבודה",
+      "emptyDescription": "צרו את ההזמנה הראשונה כדי להתחיל.",
+      "emptySearchTitle": "לא נמצאו תוצאות",
+      "emptySearchDescription": "נסו חיפוש או סינון אחר.",
+      "previous": "הקודם",
+      "next": "הבא",
+      "pageOf": "עמוד {page} מתוך {totalPages}",
+      "backToList": "חזרה להזמנות עבודה",
+      "columns": {
+        "number": "מספר",
+        "identity": "לקוח / סוג",
+        "status": "סטטוס",
+        "priority": "עדיפות",
+        "receivedDate": "תאריך קבלה"
+      },
+      "kind": {
+        "customer": "הזמנת לקוח",
+        "display_wig": "פאת תצוגה",
+        "internal": "הזמנה פנימית",
+        "missing_item": "פריט חסר",
+        "repair": "תיקון"
+      },
+      "status": {
+        "draft": "טיוטה",
+        "confirmed": "אושרה",
+        "active": "בעבודה",
+        "ready_for_handoff": "מוכנה למסירה",
+        "completed": "הושלמה",
+        "on_hold": "בהמתנה",
+        "cancelled": "בוטלה"
+      },
+      "priority": {
+        "normal": "רגילה",
+        "urgent": "דחופה"
+      },
+      "taskStatus": {
+        "pending": "ממתין",
+        "in_progress": "בביצוע",
+        "awaiting_approval": "ממתין לאישור",
+        "returned_for_rework": "הוחזר לתיקון",
+        "done": "הושלם",
+        "deferred": "נדחה",
+        "skipped": "דולג",
+        "cancelled": "בוטל"
+      },
+      "detail": {
+        "generatedNotice": "ההזמנה נוצרה בהצלחה והמשימות הופקו.",
+        "infoTitle": "פרטי הזמנה",
+        "dueAt": "תאריך יעד",
+        "notes": "הערות",
+        "tasksTitle": "משימות שנוצרו ({count})",
+        "noTasks": "לא נוצרו משימות עבור הזמנה זו."
+      },
+      "wizard": {
+        "title": "הזמנה חדשה",
+        "subtitle": "יצירת הזמנת עבודה חדשה מתוך טופס קליטה",
+        "back": "הקודם",
+        "next": "הבא",
+        "steps": {
+          "customer": "לקוח",
+          "template": "סוג הזמנה",
+          "intake": "פרטי קליטה",
+          "details": "פרטים אחרונים"
+        },
+        "customer": {
+          "noCustomer": "ללא לקוח (הזמנה פנימית)",
+          "searchLabel": "חיפוש לקוח",
+          "searchPlaceholder": "חיפוש לפי שם, טלפון או אימייל",
+          "noResults": "לא נמצאו לקוחות",
+          "newCustomerToggle": "+ לקוח חדש",
+          "cancelNew": "ביטול יצירת לקוח חדש",
+          "nameLabel": "שם",
+          "phoneLabel": "טלפון",
+          "emailLabel": "אימייל"
+        },
+        "template": {
+          "none": "לא נמצאו טפסי קליטה פעילים."
+        },
+        "intake": {
+          "empty": "אין פריטים בטופס הקליטה הזה.",
+          "required": "חובה",
+          "otherLabel": "תיאור עבודה נוספת",
+          "otherPlaceholder": "תארו את העבודה הנוספת הנדרשת",
+          "groupAll": "כל הפריטים הבאים ייכללו: {names}",
+          "back": "הקודם",
+          "next": "הבא"
+        },
+        "details": {
+          "orderReceivedDateLabel": "תאריך קבלה",
+          "dueAtLabel": "תאריך יעד",
+          "priorityLabel": "עדיפות",
+          "priorityNormal": "רגילה",
+          "priorityUrgent": "דחופה",
+          "notesLabel": "הערות",
+          "back": "הקודם",
+          "confirm": "אישור והפקת משימות",
+          "confirming": "מפיק משימות...",
+          "errors": {
+            "template": "יש לבחור טופס קליטה.",
+            "customer": "אירעה שגיאה ביצירת הלקוח החדש.",
+            "forbidden": "אין לך הרשאה ליצור הזמנות.",
+            "invalidTemplate": "טופס הקליטה שנבחר אינו זמין.",
+            "noWorkStages": "לא הוגדרו שלבי עבודה עבור העסק.",
+            "generic": "משהו השתבש. נסו שוב."
+          }
+        }
+      }
+    },
     "customers": {
       "title": "לקוחות",
       "subtitle": "ניהול רשימת לקוחות הסלון",
