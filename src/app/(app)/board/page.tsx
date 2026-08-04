@@ -1,8 +1,62 @@
+import { redirect } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
+import { PageHeader } from "@/components/layout/page-header";
+import { getCurrentUser } from "@/lib/auth/server";
+import { fetchAssignableStaff, fetchBoardTasks } from "@/lib/board/queries";
+import { can } from "@/lib/roles";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { fetchActiveWorkStages } from "@/lib/work-orders/queries";
+import { ProductionBoard } from "./production-board";
 
-export default function BoardPage() {
+export default async function BoardPage() {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/login");
+  }
+  if (!can(user.role, "viewBoard")) {
+    redirect("/");
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const [stages, tasks, staff] = await Promise.all([
+    fetchActiveWorkStages(supabase, user.businessId),
+    fetchBoardTasks(supabase, user.businessId),
+    fetchAssignableStaff(supabase, user.businessId),
+  ]);
+
+  return (
+    <BoardPageView
+      stages={stages}
+      tasks={tasks}
+      staff={staff}
+      canManageBoard={can(user.role, "manageBoard")}
+    />
+  );
+}
+
+function BoardPageView({
+  stages,
+  tasks,
+  staff,
+  canManageBoard,
+}: {
+  stages: Awaited<ReturnType<typeof fetchActiveWorkStages>>;
+  tasks: Awaited<ReturnType<typeof fetchBoardTasks>>;
+  staff: Awaited<ReturnType<typeof fetchAssignableStaff>>;
+  canManageBoard: boolean;
+}) {
   const t = useTranslations("pages.board");
-  return <PlaceholderPage title={t("title")} />;
+
+  return (
+    <div>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <ProductionBoard
+        stages={stages}
+        initialTasks={tasks}
+        staff={staff}
+        canManageBoard={canManageBoard}
+      />
+    </div>
+  );
 }

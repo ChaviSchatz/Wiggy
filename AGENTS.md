@@ -18,8 +18,12 @@ human working in this repo. Read it first.
 > runtime-task generation loop — `work_orders`/`runtime_tasks` schema + RLS, the pure generation
 > algorithm (`src/lib/work-orders/generate.ts`, architecture.md §5-§6), the 4-step New Order
 > wizard (`src/app/(app)/orders/new`), the orders list, and a minimal order detail page (the
-> full Work-Order Hub is Slice 6). The design is specified in `docs/`; implementation follows
-> the specs there.
+> full Work-Order Hub is Slice 6); Slice 5 added the task-centric production board (ADR 0010) —
+> `src/lib/availability.ts` (linear per-order availability + manager override, ADR 0008),
+> `src/lib/board/` (start/complete/undo/reassign/override Server Actions, added the
+> `runtime_tasks` UPDATE grant/RLS Slice 4 deferred), and `src/app/(app)/board` (columns by
+> stage, TaskCard, peek Sheet, AssigneePicker, FilterBar). The design is specified in `docs/`;
+> implementation follows the specs there.
 
 ## Start here (read in this order)
 

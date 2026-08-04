@@ -21,6 +21,7 @@ export const PERMISSIONS = [
   "planSprint",
   "viewBoard",
   "workOwnTasks",
+  "manageBoard",
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
@@ -36,6 +37,7 @@ const ROLE_PERMISSIONS: Record<Role, ReadonlySet<Permission>> = {
     "planSprint",
     "viewBoard",
     "workOwnTasks",
+    "manageBoard",
   ]),
   secretary: new Set<Permission>([
     "createOrders",

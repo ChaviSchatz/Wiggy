@@ -17,13 +17,15 @@ describe("roles/can", () => {
     expect(can("manager", "editBranding")).toBe(false);
   });
 
-  it("limits the secretary to order/customer intake and the board", () => {
+  it("limits the secretary to order/customer intake and a view-only board", () => {
     expect(can("secretary", "createOrders")).toBe(true);
     expect(can("secretary", "editCustomers")).toBe(true);
     expect(can("secretary", "manageMissingItems")).toBe(true);
     expect(can("secretary", "viewBoard")).toBe(true);
     expect(can("secretary", "approveTasks")).toBe(false);
     expect(can("secretary", "planSprint")).toBe(false);
+    expect(can("secretary", "workOwnTasks")).toBe(false);
+    expect(can("secretary", "manageBoard")).toBe(false);
   });
 
   it("limits workers to viewing the board and working their own tasks", () => {
@@ -31,6 +33,13 @@ describe("roles/can", () => {
     expect(can("worker", "workOwnTasks")).toBe(true);
     expect(can("worker", "createOrders")).toBe(false);
     expect(can("worker", "manageStaff")).toBe(false);
+    expect(can("worker", "manageBoard")).toBe(false);
+  });
+
+  it("lets managers reassign tasks and override availability, but not workers/secretaries", () => {
+    expect(can("manager", "manageBoard")).toBe(true);
+    expect(can("worker", "manageBoard")).toBe(false);
+    expect(can("secretary", "manageBoard")).toBe(false);
   });
 
   it("exposes the four canonical roles", () => {

@@ -218,7 +218,7 @@ describe("confirm intake -> generated work order + runtime tasks", () => {
     expect(order.status).toBe("confirmed");
     expect(order.intake_responses).toEqual(generated.intakeResponses);
     expect(
-      (order.intake_responses as { itemId: string }[]).some(
+      (order.intake_responses as { itemId: string; value: string }[]).some(
         (entry) => entry.value === "בדיקת התאמה נוספת",
       ),
     ).toBe(true);
