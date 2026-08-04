@@ -1,5 +1,7 @@
 /**
- * Idempotent dev seed: one business + one admin user + membership.
+ * Idempotent dev seed: one business + one admin user + membership, plus the
+ * Slice 2 work-definition catalog (work stages, staff, task types/groups,
+ * one "New Wig" intake template).
  *
  * Run with: npm run seed:dev
  *
@@ -8,6 +10,7 @@
  * profile row. Safe to run repeatedly — existing rows are reused.
  */
 import { createAdminClient } from "../src/lib/supabase/admin.ts";
+import { seedWorkDefinition } from "./seed-work-definition.ts";
 
 const BUSINESS_SLUG = "wiggy-dev";
 const BUSINESS_NAME = "Wiggy Dev Salon";
@@ -74,6 +77,10 @@ async function main() {
   console.log(
     `Ensured admin membership for ${ADMIN_EMAIL} in ${BUSINESS_SLUG}.`,
   );
+
+  // 4. Work-definition catalog (Slice 2): stages, staff, task types/groups,
+  // one "New Wig" intake template.
+  await seedWorkDefinition(supabase, businessId);
 
   console.log("\nDev seed complete.");
   console.log(`  Login: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);

@@ -9,8 +9,11 @@ human working in this repo. Read it first.
 > RLS in `supabase/migrations`, roles module, generated types); Slice 1b added the auth-flow
 > screens/guards on top of it (login, forgot/reset password, first-login bootstrap, sign-out,
 > profile — `src/middleware.ts`, `src/lib/auth/`, `src/app/(auth)`, `src/app/(app)`), plus
-> role-gated navigation. The design is specified in `docs/`; implementation follows the specs
-> there.
+> role-gated navigation; Slice 2 added the work-definition catalog schema (`work_stages`,
+> `staff_members`, `task_types`, `task_groups`/`task_group_items`,
+> `intake_templates`/`intake_template_items`) with read-only RLS (no editor UI yet — that's
+> `[config]`, a later slice) and seeded it via `scripts/seed-work-definition.ts`. The design is
+> specified in `docs/`; implementation follows the specs there.
 
 ## Start here (read in this order)
 

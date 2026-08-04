@@ -73,6 +73,117 @@ export type Database = {
         }
         Relationships: []
       }
+      intake_template_items: {
+        Row: {
+          config: Json
+          created_at: string
+          field_key: string | null
+          field_label: string | null
+          field_type: string | null
+          id: string
+          intake_template_id: string
+          item_kind: string
+          options: Json | null
+          sort_order: number
+          task_group_id: string | null
+          task_type_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          field_key?: string | null
+          field_label?: string | null
+          field_type?: string | null
+          id?: string
+          intake_template_id: string
+          item_kind: string
+          options?: Json | null
+          sort_order?: number
+          task_group_id?: string | null
+          task_type_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          field_key?: string | null
+          field_label?: string | null
+          field_type?: string | null
+          id?: string
+          intake_template_id?: string
+          item_kind?: string
+          options?: Json | null
+          sort_order?: number
+          task_group_id?: string | null
+          task_type_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_template_items_intake_template_id_fkey"
+            columns: ["intake_template_id"]
+            isOneToOne: false
+            referencedRelation: "intake_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_template_items_task_group_id_fkey"
+            columns: ["task_group_id"]
+            isOneToOne: false
+            referencedRelation: "task_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_template_items_task_type_id_fkey"
+            columns: ["task_type_id"]
+            isOneToOne: false
+            referencedRelation: "task_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intake_templates: {
+        Row: {
+          business_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          work_order_kind: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          work_order_kind: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          work_order_kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_templates_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           business_id: string
@@ -144,6 +255,261 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      staff_members: {
+        Row: {
+          business_id: string
+          created_at: string
+          default_work_stage_id: string | null
+          full_name: string
+          id: string
+          is_active: boolean
+          title: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          default_work_stage_id?: string | null
+          full_name: string
+          id?: string
+          is_active?: boolean
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          default_work_stage_id?: string | null
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_members_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_members_default_work_stage_id_fkey"
+            columns: ["default_work_stage_id"]
+            isOneToOne: false
+            referencedRelation: "work_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_group_items: {
+        Row: {
+          created_at: string
+          id: string
+          sort_order: number
+          task_group_id: string
+          task_type_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sort_order?: number
+          task_group_id: string
+          task_type_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sort_order?: number
+          task_group_id?: string
+          task_type_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_group_items_task_group_id_fkey"
+            columns: ["task_group_id"]
+            isOneToOne: false
+            referencedRelation: "task_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_group_items_task_type_id_fkey"
+            columns: ["task_type_id"]
+            isOneToOne: false
+            referencedRelation: "task_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_groups: {
+        Row: {
+          business_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_groups_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_types: {
+        Row: {
+          business_id: string
+          created_at: string
+          default_duration_minutes: number | null
+          default_staff_member_id: string | null
+          default_work_stage_id: string
+          description: string | null
+          id: string
+          instructions: string | null
+          is_active: boolean
+          name: string
+          requires_approval_default: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          default_duration_minutes?: number | null
+          default_staff_member_id?: string | null
+          default_work_stage_id: string
+          description?: string | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          name: string
+          requires_approval_default?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          default_duration_minutes?: number | null
+          default_staff_member_id?: string | null
+          default_work_stage_id?: string
+          description?: string | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          name?: string
+          requires_approval_default?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_types_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_types_default_staff_member_id_fkey"
+            columns: ["default_staff_member_id"]
+            isOneToOne: false
+            referencedRelation: "staff_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_types_default_work_stage_id_fkey"
+            columns: ["default_work_stage_id"]
+            isOneToOne: false
+            referencedRelation: "work_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_stages: {
+        Row: {
+          business_id: string
+          color: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          key: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_stages_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
