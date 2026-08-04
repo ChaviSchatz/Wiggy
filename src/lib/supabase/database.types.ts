@@ -301,6 +301,7 @@ export type Database = {
         Row: {
           approver_staff_member_id: string | null
           assigned_staff_member_id: string | null
+          availability_override: boolean
           business_id: string
           completed_at: string | null
           created_at: string
@@ -323,6 +324,7 @@ export type Database = {
         Insert: {
           approver_staff_member_id?: string | null
           assigned_staff_member_id?: string | null
+          availability_override?: boolean
           business_id: string
           completed_at?: string | null
           created_at?: string
@@ -345,6 +347,7 @@ export type Database = {
         Update: {
           approver_staff_member_id?: string | null
           assigned_staff_member_id?: string | null
+          availability_override?: boolean
           business_id?: string
           completed_at?: string | null
           created_at?: string
