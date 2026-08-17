@@ -33,7 +33,8 @@ export type ActivityVerb =
   | "task_deferred"
   | "task_resumed"
   | "task_comment_added"
-  | "attachment_added";
+  | "attachment_added"
+  | "task_assigned_to_sprint";
 
 /** Loose on purpose -- `activity.payload` is a jsonb column with no fixed
  * shape across verbs; the history renderer reads specific keys per verb. */

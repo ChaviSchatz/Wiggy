@@ -1,5 +1,6 @@
 import {
   CalendarRange,
+  CheckCircle2,
   ClipboardList,
   KanbanSquare,
   LayoutDashboard,
@@ -47,6 +48,12 @@ export const sideNavItems: NavItem[] = [
     href: "/sprint",
     icon: CalendarRange,
     permission: "planSprint",
+  },
+  {
+    key: "approvals",
+    href: "/approvals",
+    icon: CheckCircle2,
+    permission: "approveTasks",
   },
   {
     key: "orders",

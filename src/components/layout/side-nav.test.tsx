@@ -41,6 +41,7 @@ describe("SideNav", () => {
     expect(screen.getByText(messages.nav.board)).toBeInTheDocument();
 
     expect(screen.queryByText(messages.nav.sprint)).not.toBeInTheDocument();
+    expect(screen.queryByText(messages.nav.approvals)).not.toBeInTheDocument();
     expect(screen.queryByText(messages.nav.orders)).not.toBeInTheDocument();
     expect(screen.queryByText(messages.nav.customers)).not.toBeInTheDocument();
     expect(
@@ -58,6 +59,7 @@ describe("SideNav", () => {
 
     expect(screen.queryByText(messages.nav.myWork)).not.toBeInTheDocument();
     expect(screen.queryByText(messages.nav.sprint)).not.toBeInTheDocument();
+    expect(screen.queryByText(messages.nav.approvals)).not.toBeInTheDocument();
     expect(screen.queryByText(messages.nav.settings)).not.toBeInTheDocument();
   });
 });

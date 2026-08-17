@@ -156,6 +156,32 @@ export type Database = {
           },
         ]
       }
+      business_settings: {
+        Row: {
+          business_id: string
+          sprint_cadence_days: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          sprint_cadence_days?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          sprint_cadence_days?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           created_at: string
@@ -497,10 +523,13 @@ export type Database = {
           due_at: string | null
           id: string
           origin_item_id: string | null
+          priority: boolean
           production_notes: string | null
+          queue_rank: number | null
           requires_approval: boolean
           sequence_order: number
           source: string
+          sprint_id: string | null
           started_at: string | null
           status: string
           task_type_id: string | null
@@ -522,10 +551,13 @@ export type Database = {
           due_at?: string | null
           id?: string
           origin_item_id?: string | null
+          priority?: boolean
           production_notes?: string | null
+          queue_rank?: number | null
           requires_approval?: boolean
           sequence_order?: number
           source: string
+          sprint_id?: string | null
           started_at?: string | null
           status?: string
           task_type_id?: string | null
@@ -547,10 +579,13 @@ export type Database = {
           due_at?: string | null
           id?: string
           origin_item_id?: string | null
+          priority?: boolean
           production_notes?: string | null
+          queue_rank?: number | null
           requires_approval?: boolean
           sequence_order?: number
           source?: string
+          sprint_id?: string | null
           started_at?: string | null
           status?: string
           task_type_id?: string | null
@@ -589,6 +624,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "runtime_tasks_sprint_id_fkey"
+            columns: ["sprint_id"]
+            isOneToOne: false
+            referencedRelation: "sprints"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "runtime_tasks_task_type_id_fkey"
             columns: ["task_type_id"]
             isOneToOne: false
@@ -607,6 +649,47 @@ export type Database = {
             columns: ["work_stage_id"]
             isOneToOne: false
             referencedRelation: "work_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sprints: {
+        Row: {
+          business_id: string
+          created_at: string
+          ends_on: string
+          id: string
+          name: string | null
+          starts_on: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          ends_on: string
+          id?: string
+          name?: string | null
+          starts_on: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          ends_on?: string
+          id?: string
+          name?: string | null
+          starts_on?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sprints_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
         ]

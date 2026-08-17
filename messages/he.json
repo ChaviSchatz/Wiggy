@@ -10,6 +10,7 @@
     "myWork": "העבודה שלי",
     "board": "לוח ייצור",
     "sprint": "תכנון",
+    "approvals": "אישורים",
     "orders": "הזמנות עבודה",
     "customers": "לקוחות",
     "missingItems": "פריטים חסרים",
@@ -90,7 +91,24 @@
         "description": "משימות שתאריך היעד שלהן חל השבוע"
       }
     },
-    "myWork": { "title": "העבודה שלי" },
+    "myWork": {
+      "title": "העבודה שלי",
+      "start": "התחלה",
+      "done": "סיום",
+      "sequenceReason": "ממתין לשלב קודם",
+      "deferredReason": "נדחה",
+      "sections": {
+        "current": "עכשיו",
+        "next": "הבא",
+        "queue": "בתור",
+        "blocked": "עתידי (חסום)",
+        "completed": "הושלם"
+      },
+      "emptyTitle": "אין משימות בתור",
+      "emptyDescription": "משימות ישויכו אליך בתכנון הספרינט.",
+      "noProfileTitle": "לא משויך/ת כאיש/אשת צוות",
+      "noProfileDescription": "לחשבון שלך אין פרופיל איש/אשת צוות מקושר, ולכן אין תור עבודה אישי."
+    },
     "board": {
       "title": "לוח ייצור",
       "subtitle": "עבודה חיה לפי שלב ייצור",
@@ -145,7 +163,35 @@
         "openOrder": "פתיחת ההזמנה המלאה"
       }
     },
-    "sprint": { "title": "תכנון" },
+    "sprint": {
+      "title": "תכנון ספרינט",
+      "sprintChip": "ספרינט · {start} – {end}",
+      "noActiveSprint": "אין ספרינט פעיל",
+      "cadenceLabel": "משך ספרינט:",
+      "cadenceDays": "{count} ימים",
+      "createSprint": "פתיחת ספרינט",
+      "closeSprint": "סגירת ספרינט",
+      "openTasksCount": "משימות פתוחות: {count}",
+      "backlogTitle": "מאגר (לא משויך)",
+      "emptyTitle": "אין משימות פעילות",
+      "emptyDescription": "משימות יופיעו כאן לאחר יצירת הזמנות עבודה.",
+      "blocked": "חסום",
+      "priorityToggle": "סימון כדחוף",
+      "assignLabel": "שיוך לעובד/ת",
+      "unassignedOption": "ללא שיוך (מאגר)",
+      "moveUp": "הזזה למעלה",
+      "moveDown": "הזזה למטה",
+      "filters": {
+        "stageLabel": "סינון לפי שלב",
+        "stageAll": "כל השלבים",
+        "employeeLabel": "סינון לפי עובד/ת",
+        "employeeAll": "כל העובדים",
+        "typeLabel": "סינון לפי סוג משימה",
+        "typeAll": "כל הסוגים",
+        "statusLabel": "סינון לפי סטטוס",
+        "statusAll": "כל הסטטוסים"
+      }
+    },
     "orders": {
       "title": "הזמנות עבודה",
       "subtitle": "ניהול הזמנות העבודה של הסלון",
@@ -434,6 +480,16 @@
         "noOrdersTitle": "אין עדיין הזמנות",
         "noOrdersDescription": "הזמנות עבודה יופיעו כאן."
       }
+    },
+    "approvals": {
+      "title": "אישורים",
+      "subtitle": "משימות הממתינות לאישור ניהולי",
+      "emptyTitle": "אין משימות הממתינות לאישור",
+      "emptyDescription": "משימות שהוגשו לאישור יופיעו כאן.",
+      "submittedBy": "הוגש על ידי {name}",
+      "unknownStaff": "לא ידוע",
+      "approveAction": "אישור",
+      "returnAction": "החזרה לתיקון"
     },
     "missingItems": { "title": "פריטים חסרים" },
     "settings": { "title": "הגדרות" },
