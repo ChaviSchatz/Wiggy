@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/activity/log";
 import { getCurrentUser } from "@/lib/auth/server";
 import { LIVE_STATUSES } from "@/lib/board/queries";
-import { rankAfter, rankBetween } from "@/lib/queue/rank";
+import { computeAppendRank } from "@/lib/queue/append-rank";
+import { rankBetween } from "@/lib/queue/rank";
 import { can } from "@/lib/roles";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -24,6 +25,7 @@ function revalidateSprintSurfaces() {
   revalidatePath("/sprint");
   revalidatePath("/my-work");
   revalidatePath("/board");
+  revalidatePath("/approvals");
 }
 
 /** Creates a new sprint starting today, sized by the tenant's cadence setting. */
@@ -128,19 +130,9 @@ export async function assignTaskToEmployeeAction(
     .maybeSingle();
   if (fetchError || !existingTask) return { success: false, error: "notFound" };
 
-  let queueRank: number | null = null;
-  if (staffMemberId) {
-    const { data: lastRanked } = await supabase
-      .from("runtime_tasks")
-      .select("queue_rank")
-      .eq("business_id", user.businessId)
-      .eq("assigned_staff_member_id", staffMemberId)
-      .in("status", LIVE_STATUSES)
-      .order("queue_rank", { ascending: false, nullsFirst: false })
-      .limit(1)
-      .maybeSingle();
-    queueRank = rankAfter(lastRanked?.queue_rank ?? null);
-  }
+  const queueRank = staffMemberId
+    ? await computeAppendRank(supabase, user.businessId, staffMemberId)
+    : null;
 
   const { error } = await supabase
     .from("runtime_tasks")

@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock } from "lucide-react";
+import { Lock, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Avatar } from "@/components/ui/avatar";
@@ -46,6 +46,7 @@ export function TaskCard({
   const t = useTranslations("pages.board");
   const tKind = useTranslations("pages.orders.kind");
   const tTaskStatus = useTranslations("pages.orders.taskStatus");
+  const tCommon = useTranslations("common");
 
   const isBlocked = availability === "blocked";
   const identity = task.customerName ?? tKind(task.orderKind);
@@ -64,9 +65,20 @@ export function TaskCard({
         onClick={onOpenPeek}
         className="block w-full text-start"
       >
-        <p className="text-sm font-medium text-ink">
-          {identity}{" "}
-          <span className="font-normal text-muted">#{task.orderNumber}</span>
+        <p className="flex items-center gap-1.5 text-sm font-medium text-ink">
+          <span>
+            {identity}{" "}
+            <span className="font-normal text-muted">#{task.orderNumber}</span>
+          </span>
+          {task.priority ? (
+            <span aria-label={tCommon("priorityLabel")} title={tCommon("priorityLabel")}>
+              <Star
+                className="size-3.5 shrink-0 text-peach-500"
+                fill="currentColor"
+                aria-hidden
+              />
+            </span>
+          ) : null}
         </p>
         <p className="text-sm text-ink">{task.title}</p>
       </button>

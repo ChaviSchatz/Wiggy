@@ -20,7 +20,7 @@ export function AppShell({
           {children}
         </main>
       </div>
-      <BottomNav />
+      <BottomNav role={user.role} />
     </div>
   );
 }

@@ -4,13 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import type { Role } from "@/lib/roles";
 import { cn } from "@/lib/utils";
-import { bottomNavItems } from "./nav-items";
+import { visibleBottomNavItems } from "./nav-items";
 
-export function BottomNav() {
+export function BottomNav({ role }: { role: Role }) {
   const t = useTranslations("bottomNav");
   const tA11y = useTranslations("a11y");
   const pathname = usePathname();
+  const items = visibleBottomNavItems(role);
 
   const itemClass = (active: boolean) =>
     cn(
@@ -23,7 +25,7 @@ export function BottomNav() {
       aria-label={tA11y("secondaryNav")}
       className="fixed inset-x-0 bottom-0 z-20 flex border-t border-line bg-surface lg:hidden"
     >
-      {bottomNavItems.map(({ key, href, icon: Icon }) => {
+      {items.map(({ key, href, icon: Icon }) => {
         const active = href ? pathname === href : false;
         const content = (
           <>
