@@ -262,6 +262,54 @@ export type Database = {
           },
         ]
       }
+      feedback_items: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          kind: string
+          message: string
+          page_path: string | null
+          submitted_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          message: string
+          page_path?: string | null
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          message?: string
+          page_path?: string | null
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_items_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_items_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       intake_template_items: {
         Row: {
           config: Json

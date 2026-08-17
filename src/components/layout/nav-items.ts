@@ -90,7 +90,8 @@ export function visibleSideNavItems(role: Role): NavItem[] {
   );
 }
 
-// Feedback and Profile are placeholders for a later slice, so they have no route yet.
+// Feedback is the one entry with no route: it opens the global submit-feedback
+// dialog (screen inventory #58), which `BottomNav` special-cases by key.
 // Sprint and Approvals mirror their side-nav entries (same permissions) so
 // managers/admins have *some* reachable path to them below the `lg`
 // breakpoint too (side-nav is `lg:block`-only) -- see Bug 6.
@@ -105,16 +106,16 @@ export const bottomNavItems: BottomNavItem[] = [
     permission: "approveTasks",
   },
   { key: "feedback", icon: MessageSquare },
-  { key: "profile", icon: UserCircle },
+  { key: "profile", href: "/profile", icon: UserCircle },
 ];
 
 /**
  * Bottom-nav items visible to a given role, in display order -- gated the
  * same way `visibleSideNavItems` is. To avoid overcrowding the bar (limited
  * horizontal space for icons+labels), roles that can plan sprints/approve
- * tasks (managers/admins) drop the "Feedback" placeholder -- it has no
- * destination yet, while Sprint and Approvals are real routes those roles
- * need reachable below `lg`.
+ * tasks (managers/admins) drop "Feedback": Sprint and Approvals are routes
+ * they need reachable below `lg`, and the feedback dialog is still one tap
+ * away in the top bar at every width.
  */
 export function visibleBottomNavItems(role: Role): BottomNavItem[] {
   const items = bottomNavItems.filter(

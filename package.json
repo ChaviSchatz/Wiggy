@@ -12,6 +12,7 @@
     "test:integration": "vitest run --config vitest.integration.config.mts",
     "gen:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts",
     "seed:dev": "node --env-file=.env.local --conditions=react-server --experimental-strip-types scripts/seed-dev.ts",
+    "seed:demo": "node --env-file=.env.local --conditions=react-server --experimental-strip-types scripts/seed-demo-data.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

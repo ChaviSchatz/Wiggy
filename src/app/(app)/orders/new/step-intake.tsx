@@ -195,6 +195,26 @@ function FieldInput({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const t = useTranslations("pages.orders.wizard.intake");
+
+  // A boolean field stores the affirmative *label* rather than "true": the
+  // value is snapshotted verbatim into `intake_responses` and shown on the hub
+  // (and the generator only cares whether it's non-empty -- §6.5).
+  if (fieldType === "boolean") {
+    return (
+      <label className="flex cursor-pointer items-center gap-2">
+        <input
+          id={id}
+          type="checkbox"
+          className="accent-mauve-600"
+          checked={value.trim().length > 0}
+          onChange={(event) => onChange(event.target.checked ? t("yes") : "")}
+        />
+        <span className="text-sm text-ink">{t("yes")}</span>
+      </label>
+    );
+  }
+
   if (fieldType === "textarea") {
     return (
       <Textarea

@@ -21,6 +21,9 @@ Shared vocabulary for WigFlow. Use these exact terms in code, docs, and UI keys.
 | **Availability** | Derived overlay on a task — `available` (startable) or `blocked` (predecessors unfinished). Not a status. |
 | **Personal queue** | An employee's assigned tasks, ordered by queue rank (current → next → rest → future/blocked → completed). |
 | **Approvals view** | An approver's separate managerial surface listing tasks `awaiting_approval` for them (not their personal queue). |
+| **Missing item** | A top, skin or material an order is waiting on. Tracked alongside the order, never a runtime task (ADR 0011). |
+| **Missing-stock flag** | An intake field carrying `config.missing_item_kind`; answering it creates a missing item of that kind. |
+| **Feedback item** | An in-app bug/feature/question submission, captured per tenant. Append-only in v1. |
 
 ## Status vocabulary
 | Term | Applies to | Meaning |
@@ -40,6 +43,10 @@ Shared vocabulary for WigFlow. Use these exact terms in code, docs, and UI keys.
 | `ready_for_handoff` | order | all tasks done, awaiting pickup/delivery |
 | `completed` | order | delivered/collected/closed |
 | `on_hold` | order | manually paused |
+| `open` | missing item | flagged, nobody has found it yet |
+| `found` | missing item | located in stock/elsewhere |
+| `ordered` | missing item | ordered from a supplier, awaiting arrival |
+| `handled` | missing item | resolved; stamps `handled_at` |
 
 ## Hebrew ↔ English (UI-facing domain terms)
 > App-shell strings come from i18n catalogs; this table is the canonical mapping. Tenant-entered
@@ -67,3 +74,8 @@ Shared vocabulary for WigFlow. Use these exact terms in code, docs, and UI keys.
 | Pending | ממתין |
 | In progress | בביצוע |
 | Done | הושלם |
+| Missing items | פריטים חסרים |
+| Missing top / skin | טופ חסר / עור חסר |
+| Open / Found / Ordered / Handled | פתוח / נמצא / הוזמן / טופל |
+| Responsible | אחראי/ת |
+| Feedback | משוב |

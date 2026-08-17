@@ -40,6 +40,7 @@ export default async function OrderDetailPage({
         canApprove: can(user.role, "approveTasks"),
         canWorkTasks: can(user.role, "workOwnTasks"),
         canManageBoard: can(user.role, "manageBoard"),
+        canManageMissingItems: can(user.role, "manageMissingItems"),
       }}
     />
   );

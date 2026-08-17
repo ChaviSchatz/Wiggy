@@ -10,7 +10,11 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { recomputeOrderStatus } from "./recompute";
 import { generateWorkOrder } from "./generate";
 import { fetchActiveWorkStages, fetchResolvedIntakeItems } from "./queries";
-import type { IntakeResponseEntry, ItemResponse } from "./types";
+import type {
+  GeneratedMissingItem,
+  IntakeResponseEntry,
+  ItemResponse,
+} from "./types";
 
 export type CreateWorkOrderInput = {
   customerId: string | null;
@@ -140,7 +144,63 @@ export async function createWorkOrderAction(
     payload: { taskCount: generated.tasks.length },
   });
 
+  await createFlaggedMissingItems(supabase, {
+    businessId: user.businessId,
+    actorUserId: user.id,
+    workOrderId: order.id,
+    missingItems: generated.missingItems,
+  });
+
   return { success: true, workOrderId: order.id, number: order.number };
+}
+
+/**
+ * Persists the "no top / no skin" items an intake flagged (architecture §6.5).
+ * Best-effort, like activity logging: the order and its tasks have already
+ * committed, and the flag itself is still visible in the order's
+ * `intake_responses`, so a failure here degrades to "a manager adds the item
+ * manually" rather than losing the confirmed order.
+ */
+async function createFlaggedMissingItems(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  {
+    businessId,
+    actorUserId,
+    workOrderId,
+    missingItems,
+  }: {
+    businessId: string;
+    actorUserId: string;
+    workOrderId: string;
+    missingItems: GeneratedMissingItem[];
+  },
+): Promise<void> {
+  if (missingItems.length === 0) return;
+
+  const { error } = await supabase.from("missing_items").insert(
+    missingItems.map((missing) => ({
+      business_id: businessId,
+      work_order_id: workOrderId,
+      kind: missing.kind,
+      description: missing.description,
+    })),
+  );
+  if (error) {
+    console.error("createFlaggedMissingItems failed", { workOrderId, error });
+    return;
+  }
+
+  for (const missing of missingItems) {
+    await logActivity(supabase, {
+      businessId,
+      actorUserId,
+      verb: "missing_item_created",
+      subjectType: "work_order",
+      subjectId: workOrderId,
+      workOrderId,
+      payload: { kind: missing.kind, source: "intake" },
+    });
+  }
 }
 
 export type SearchCustomersResult = {

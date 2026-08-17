@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Plus, UserCircle } from "lucide-react";
+import { LogOut, MessageSquare, Plus, UserCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
 import { Button } from "@/components/ui/button";
 import { signOutAction } from "@/lib/auth/actions";
 import type { CurrentUser } from "@/lib/auth/types";
@@ -27,6 +28,13 @@ export function TopBar({ user }: { user: CurrentUser }) {
             </Link>
           </Button>
         ) : null}
+        <FeedbackDialog
+          trigger={
+            <Button variant="ghost" size="icon" aria-label={t("feedback")}>
+              <MessageSquare className="size-6" aria-hidden />
+            </Button>
+          }
+        />
         <Button variant="ghost" size="icon" aria-label={t("profile")} asChild>
           <Link href="/profile">
             <UserCircle className="size-6" aria-hidden />

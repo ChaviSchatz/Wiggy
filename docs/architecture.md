@@ -117,18 +117,20 @@ See `docs/domains/` for per-domain detail.
 - **`task_group_items`** — join `(task_group_id, task_type_id, sort_order)`. **Many-to-many** — a task type may live in multiple groups.
 - **`intake_templates`** — `id, business_id, name, work_order_kind, description, is_active`. Not necessarily customer-facing (see ADR 0003 / §9).
 - **`intake_template_items`** — the **single ordered list** that *is* the form. `id, intake_template_id, sort_order, item_kind (task_type | task_group | field | section), task_type_id?, task_group_id?, field_key?, field_label?, field_type?, options?, config(JSON)`.
-  - `config` = `{ mandatory, visible, default_selected, selection_mode (single|multi|all), display_style (checklist|dropdown|list), section_title, help_text, generates_runtime_tasks, allow_other, other_default_work_stage_id }`.
+  - `config` = `{ mandatory, visible, default_selected, selection_mode (single|multi|all), display_style (checklist|dropdown|list), section_title, help_text, generates_runtime_tasks, allow_other, other_default_work_stage_id, missing_item_kind }`.
+  - `missing_item_kind (top|skin|material)` marks a `field` item as a **missing-stock flag**: answering it creates a `missing_items` row of that kind (§6.5, ADR 0011). Seeded on the "no top" / "no skin" boolean fields.
 
 ### 4.4 Work Orders & Runtime
 - **`work_orders`** — `id, business_id, customer_id? (nullable), intake_template_id, template_version?, work_order_kind (snapshot), number, status (order-level), priority, due_at, order_received_date, intake_responses (JSON snapshot), notes, created_by`.
 - **`runtime_tasks`** — `id, business_id, work_order_id, task_type_id? (null for "Other"), title (snapshot), description (snapshot), work_stage_id (snapshot), sequence_order, status, assigned_staff_member_id?, due_at (nullable in v1), started_at?, completed_at?, requires_approval (snapshot), approver_staff_member_id?, production_notes, source (template|manual|other), origin_item_id?`. **Sprint/queue overlay fields:** `sprint_id?`, `queue_rank`, `priority?`, `availability_override` (see §4.6, §7.3).
 - **`task_approvals`** — approval events (approver, action, reason, timestamps).
 - **`task_comments`** — internal comments on a runtime task.
-- **`missing_items`** (v1) — `id, business_id, work_order_id, kind (top|skin|material), description, status (open|found|ordered|handled), responsible_staff_member_id?, handled_at?, notes`. Typically auto-created from an intake "no top/skin" flag; surfaced on the dashboard until handled or the order completes.
+- **`missing_items`** (v1) — `id, business_id, work_order_id, kind (top|skin|material), description, status (open|found|ordered|handled), responsible_staff_member_id?, handled_at?, notes`. Auto-created from an intake `missing_item_kind` flag (§6.5) or added manually; surfaced on the dashboard and the order hub until handled or the order completes. `handled_at` is set exactly while `status = handled` (ADR 0011).
 
 ### 4.5 Cross-cutting
 - **`attachments`** — polymorphic: `id, business_id, kind (file|photo|voice), parent_type (work_order|runtime_task|customer), parent_id, storage_path, ...`.
-- **`activity`** — append-only unified stream: `id, business_id, actor_user_id?, verb, subject_type, subject_id, work_order_id?, customer_id?, payload(JSON), created_at`. Powers audit log, order history, and the future customer timeline.
+- **`activity`** — append-only unified stream: `id, business_id, actor_user_id?, verb, subject_type, subject_id, work_order_id?, customer_id?, payload(JSON), created_at`. Powers audit log, order history, and the future customer timeline. `subject_type` is `work_order | runtime_task`; events about a child record (a missing item, for instance) are logged against the **order** with the detail in `payload`.
+- **`feedback_items`** (v1) — `id, business_id, submitted_by?→profiles, kind (bug|feature|question), message, page_path?`. The in-app feedback box (screen inventory #58), open to every role. **Append-only:** v1 has no triage UI (#57 is `[config]`), so nothing updates a submission.
 
 ### 4.6 Sprint & task-queue overlay
 An operational layer over `runtime_tasks` (ADR 0008/0009; detail in
@@ -176,9 +178,24 @@ On **confirm intake** (`work_order.status: draft → confirmed`):
    - `allow_other` entries → create a `runtime_task` with `task_type_id = null`, `source = 'other'`, stage from `config.other_default_work_stage_id` (fallback: a general stage). See ADR 0006.
 3. For each created task, resolve values via §5.2 and **snapshot** them.
 4. **Sequencing (v1):** `sequence_order` derives from the task's `work_stage.sort_order`, tie-broken by item order; manager-editable per order afterward. **No blocking/enforcement in v1** — ordering is presentation + suggestion.
+5. **Missing-stock flags** → a `missing_items` row per answered flag (§6.5).
 
 > Every intake selection has exactly one operational fate: **a real task**, **structured data**,
 > **a note**, or **explicitly nothing**. There is no hidden checklist. (ADR 0003.)
+
+### 6.5 Missing-stock flags → `missing_items`
+A `field` item whose `config.missing_item_kind` is set is a **missing-stock flag** ("no top in
+stock"). When it is answered (any non-empty value), generation emits a `missing_items` row of that
+kind, with the field's label as its description.
+
+- The flag stays **structured intake data as well** — it is snapshotted into `intake_responses`
+  like any other field, and it never becomes a task (ADR 0003 is satisfied by the tracked item).
+- `config` is tenant data, so an unrecognised kind is **dropped** rather than carried into an
+  insert the check constraint would reject.
+- Generation itself stays pure (`src/lib/work-orders/generate.ts` returns `missingItems`); the
+  inserts happen in the confirm action, best-effort like activity logging — the order and its tasks
+  are already committed, and the flag is still visible in `intake_responses`, so a failure degrades
+  to "a manager adds the item manually".
 
 ---
 
@@ -223,6 +240,12 @@ Sequence-based task availability is computed on top of `status` (ADR 0008):
 - **Manual override:** a manager can mark a blocked task available via `availability_override`
   (ADR 0008) — e.g. hand-tying the top while the base is still being sewn (rare). Audited in
   `activity`; distinct from the planning engine's dynamic resequencing.
+
+### 7.4 Missing-item lifecycle (`open → found → ordered → handled`)
+Deliberately **not a ratchet**: any status may be set from any other, because a salon corrects
+itself ("marked handled, the top never turned up"). What the transition does control is
+`handled_at` — stamped on the way into `handled`, preserved if it was already handled, cleared on
+the way back out. Every change is audited in `activity` against the owning order. (ADR 0011.)
 
 ---
 
