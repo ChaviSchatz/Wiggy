@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
+import { logActivity } from "@/lib/activity/log";
+import type { ActivityVerb } from "@/lib/activity/types";
 import {
   computeAvailability,
   type TaskAvailabilityInput,
@@ -10,6 +12,7 @@ import {
 import { getCurrentUser } from "@/lib/auth/server";
 import { can } from "@/lib/roles";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { recomputeOrderStatus } from "@/lib/work-orders/recompute";
 
 export type TaskActionResult =
   { success: true } | { success: false; error: string };
@@ -35,6 +38,13 @@ async function requireBoardManager() {
   return user;
 }
 
+/** approve/return is a quality-control decision -- manager/admin only (ADR 0009). */
+async function requireApprover() {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "approveTasks")) return null;
+  return user;
+}
+
 async function fetchSiblingTasks(
   supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   businessId: string,
@@ -54,6 +64,39 @@ async function fetchSiblingTasks(
     status: task.status as TaskStatus,
     availabilityOverride: task.availability_override,
   }));
+}
+
+/** Revalidates every surface a task change can appear on + logs + recomputes order status. */
+async function afterTaskChange(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  {
+    businessId,
+    actorUserId,
+    verb,
+    taskId,
+    workOrderId,
+    payload,
+  }: {
+    businessId: string;
+    actorUserId: string;
+    verb: ActivityVerb;
+    taskId: string;
+    workOrderId: string;
+    payload?: Record<string, string | number | boolean | null>;
+  },
+) {
+  await logActivity(supabase, {
+    businessId,
+    actorUserId,
+    verb,
+    subjectType: "runtime_task",
+    subjectId: taskId,
+    workOrderId,
+    payload,
+  });
+  await recomputeOrderStatus(supabase, workOrderId, businessId, actorUserId);
+  revalidatePath("/board");
+  revalidatePath(`/orders/${workOrderId}`);
 }
 
 const STARTABLE_STATUSES: TaskStatus[] = ["pending", "returned_for_rework"];
@@ -95,7 +138,13 @@ export async function startTaskAction(
     .eq("id", taskId);
   if (error) return { success: false, error: "generic" };
 
-  revalidatePath("/board");
+  await afterTaskChange(supabase, {
+    businessId: user.businessId,
+    actorUserId: user.id,
+    verb: "task_started",
+    taskId,
+    workOrderId: existingTask.work_order_id,
+  });
   return { success: true };
 }
 
@@ -107,6 +156,12 @@ export async function undoStartTaskAction(
   if (!user) return { success: false, error: "forbidden" };
 
   const supabase = await createServerSupabaseClient();
+  const { data: existingTask } = await supabase
+    .from("runtime_tasks")
+    .select("work_order_id")
+    .eq("id", taskId)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("runtime_tasks")
     .update({ status: "pending", started_at: null })
@@ -114,7 +169,15 @@ export async function undoStartTaskAction(
     .eq("status", "in_progress");
   if (error) return { success: false, error: "generic" };
 
-  revalidatePath("/board");
+  if (existingTask) {
+    await afterTaskChange(supabase, {
+      businessId: user.businessId,
+      actorUserId: user.id,
+      verb: "task_start_undone",
+      taskId,
+      workOrderId: existingTask.work_order_id,
+    });
+  }
   return { success: true };
 }
 
@@ -128,7 +191,7 @@ export async function completeTaskAction(
   const supabase = await createServerSupabaseClient();
   const { data: existingTask, error: fetchError } = await supabase
     .from("runtime_tasks")
-    .select("id, status, requires_approval")
+    .select("id, work_order_id, status, requires_approval")
     .eq("id", taskId)
     .maybeSingle();
   if (fetchError || !existingTask) return { success: false, error: "notFound" };
@@ -148,7 +211,14 @@ export async function completeTaskAction(
     .eq("id", taskId);
   if (error) return { success: false, error: "generic" };
 
-  revalidatePath("/board");
+  await afterTaskChange(supabase, {
+    businessId: user.businessId,
+    actorUserId: user.id,
+    verb: "task_completed",
+    taskId,
+    workOrderId: existingTask.work_order_id,
+    payload: { nextStatus },
+  });
   return { success: true };
 }
 
@@ -160,6 +230,12 @@ export async function undoCompleteTaskAction(
   if (!user) return { success: false, error: "forbidden" };
 
   const supabase = await createServerSupabaseClient();
+  const { data: existingTask } = await supabase
+    .from("runtime_tasks")
+    .select("work_order_id")
+    .eq("id", taskId)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("runtime_tasks")
     .update({ status: "in_progress", completed_at: null })
@@ -167,7 +243,15 @@ export async function undoCompleteTaskAction(
     .in("status", ["done", "awaiting_approval"]);
   if (error) return { success: false, error: "generic" };
 
-  revalidatePath("/board");
+  if (existingTask) {
+    await afterTaskChange(supabase, {
+      businessId: user.businessId,
+      actorUserId: user.id,
+      verb: "task_complete_undone",
+      taskId,
+      workOrderId: existingTask.work_order_id,
+    });
+  }
   return { success: true };
 }
 
@@ -180,13 +264,28 @@ export async function reassignTaskAction(
   if (!user) return { success: false, error: "forbidden" };
 
   const supabase = await createServerSupabaseClient();
+  const { data: existingTask } = await supabase
+    .from("runtime_tasks")
+    .select("work_order_id")
+    .eq("id", taskId)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("runtime_tasks")
     .update({ assigned_staff_member_id: staffMemberId })
     .eq("id", taskId);
   if (error) return { success: false, error: "generic" };
 
-  revalidatePath("/board");
+  if (existingTask) {
+    await afterTaskChange(supabase, {
+      businessId: user.businessId,
+      actorUserId: user.id,
+      verb: "task_reassigned",
+      taskId,
+      workOrderId: existingTask.work_order_id,
+      payload: { staffMemberId },
+    });
+  }
   return { success: true };
 }
 
@@ -199,12 +298,199 @@ export async function setAvailabilityOverrideAction(
   if (!user) return { success: false, error: "forbidden" };
 
   const supabase = await createServerSupabaseClient();
+  const { data: existingTask } = await supabase
+    .from("runtime_tasks")
+    .select("work_order_id")
+    .eq("id", taskId)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("runtime_tasks")
     .update({ availability_override: override })
     .eq("id", taskId);
   if (error) return { success: false, error: "generic" };
 
-  revalidatePath("/board");
+  if (existingTask) {
+    await afterTaskChange(supabase, {
+      businessId: user.businessId,
+      actorUserId: user.id,
+      verb: "task_availability_overridden",
+      taskId,
+      workOrderId: existingTask.work_order_id,
+      payload: { override },
+    });
+  }
+  return { success: true };
+}
+
+/**
+ * awaiting_approval -> done (screen inventory #36, ADR 0009). Shown on the
+ * board card at the stage where the worker submitted it, and in the hub's
+ * task list.
+ */
+export async function approveTaskAction(
+  taskId: string,
+): Promise<TaskActionResult> {
+  const user = await requireApprover();
+  if (!user) return { success: false, error: "forbidden" };
+
+  const supabase = await createServerSupabaseClient();
+  const { data: existingTask, error: fetchError } = await supabase
+    .from("runtime_tasks")
+    .select("id, work_order_id, status")
+    .eq("id", taskId)
+    .maybeSingle();
+  if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (existingTask.status !== "awaiting_approval") {
+    return { success: false, error: "invalidTransition" };
+  }
+
+  const { error } = await supabase
+    .from("runtime_tasks")
+    .update({ status: "done", completed_at: new Date().toISOString() })
+    .eq("id", taskId);
+  if (error) return { success: false, error: "generic" };
+
+  await supabase.from("task_approvals").insert({
+    business_id: user.businessId,
+    runtime_task_id: taskId,
+    actor_user_id: user.id,
+    action: "approve",
+  });
+
+  await afterTaskChange(supabase, {
+    businessId: user.businessId,
+    actorUserId: user.id,
+    verb: "task_approved",
+    taskId,
+    workOrderId: existingTask.work_order_id,
+  });
+  return { success: true };
+}
+
+/** awaiting_approval -> returned_for_rework + reason (screen inventory #36, ADR 0009). */
+export async function returnTaskForReworkAction(
+  taskId: string,
+  reason: string,
+): Promise<TaskActionResult> {
+  const user = await requireApprover();
+  if (!user) return { success: false, error: "forbidden" };
+
+  const trimmedReason = reason.trim();
+  if (!trimmedReason) return { success: false, error: "reasonRequired" };
+
+  const supabase = await createServerSupabaseClient();
+  const { data: existingTask, error: fetchError } = await supabase
+    .from("runtime_tasks")
+    .select("id, work_order_id, status")
+    .eq("id", taskId)
+    .maybeSingle();
+  if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (existingTask.status !== "awaiting_approval") {
+    return { success: false, error: "invalidTransition" };
+  }
+
+  const { error } = await supabase
+    .from("runtime_tasks")
+    .update({ status: "returned_for_rework", completed_at: null })
+    .eq("id", taskId);
+  if (error) return { success: false, error: "generic" };
+
+  await supabase.from("task_approvals").insert({
+    business_id: user.businessId,
+    runtime_task_id: taskId,
+    actor_user_id: user.id,
+    action: "return",
+    reason: trimmedReason,
+  });
+
+  await afterTaskChange(supabase, {
+    businessId: user.businessId,
+    actorUserId: user.id,
+    verb: "task_returned_for_rework",
+    taskId,
+    workOrderId: existingTask.work_order_id,
+    payload: { reason: trimmedReason },
+  });
+  return { success: true };
+}
+
+const DEFERRABLE_STATUSES: TaskStatus[] = ["pending", "in_progress"];
+
+/** Manual pause with reason + resume date (screen inventory #38). */
+export async function deferTaskAction(
+  taskId: string,
+  reason: string,
+  resumeDate: string | null,
+): Promise<TaskActionResult> {
+  const user = await requireBoardWorker();
+  if (!user) return { success: false, error: "forbidden" };
+
+  const trimmedReason = reason.trim();
+  if (!trimmedReason) return { success: false, error: "reasonRequired" };
+
+  const supabase = await createServerSupabaseClient();
+  const { data: existingTask, error: fetchError } = await supabase
+    .from("runtime_tasks")
+    .select("id, work_order_id, status")
+    .eq("id", taskId)
+    .maybeSingle();
+  if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (!DEFERRABLE_STATUSES.includes(existingTask.status as TaskStatus)) {
+    return { success: false, error: "invalidTransition" };
+  }
+
+  const { error } = await supabase
+    .from("runtime_tasks")
+    .update({
+      status: "deferred",
+      deferred_reason: trimmedReason,
+      deferred_until: resumeDate,
+    })
+    .eq("id", taskId);
+  if (error) return { success: false, error: "generic" };
+
+  await afterTaskChange(supabase, {
+    businessId: user.businessId,
+    actorUserId: user.id,
+    verb: "task_deferred",
+    taskId,
+    workOrderId: existingTask.work_order_id,
+    payload: { reason: trimmedReason, resumeDate },
+  });
+  return { success: true };
+}
+
+/** deferred -> pending (architecture §7.1); clears the defer reason/date. */
+export async function resumeTaskAction(
+  taskId: string,
+): Promise<TaskActionResult> {
+  const user = await requireBoardWorker();
+  if (!user) return { success: false, error: "forbidden" };
+
+  const supabase = await createServerSupabaseClient();
+  const { data: existingTask, error: fetchError } = await supabase
+    .from("runtime_tasks")
+    .select("id, work_order_id, status")
+    .eq("id", taskId)
+    .maybeSingle();
+  if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (existingTask.status !== "deferred") {
+    return { success: false, error: "invalidTransition" };
+  }
+
+  const { error } = await supabase
+    .from("runtime_tasks")
+    .update({ status: "pending", deferred_reason: null, deferred_until: null })
+    .eq("id", taskId);
+  if (error) return { success: false, error: "generic" };
+
+  await afterTaskChange(supabase, {
+    businessId: user.businessId,
+    actorUserId: user.id,
+    verb: "task_resumed",
+    taskId,
+    workOrderId: existingTask.work_order_id,
+  });
   return { success: true };
 }

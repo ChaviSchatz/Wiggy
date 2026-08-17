@@ -31,6 +31,7 @@ export default async function BoardPage() {
       tasks={tasks}
       staff={staff}
       canManageBoard={can(user.role, "manageBoard")}
+      canApprove={can(user.role, "approveTasks")}
     />
   );
 }
@@ -40,11 +41,13 @@ function BoardPageView({
   tasks,
   staff,
   canManageBoard,
+  canApprove,
 }: {
   stages: Awaited<ReturnType<typeof fetchActiveWorkStages>>;
   tasks: Awaited<ReturnType<typeof fetchBoardTasks>>;
   staff: Awaited<ReturnType<typeof fetchAssignableStaff>>;
   canManageBoard: boolean;
+  canApprove: boolean;
 }) {
   const t = useTranslations("pages.board");
 
@@ -56,6 +59,7 @@ function BoardPageView({
         initialTasks={tasks}
         staff={staff}
         canManageBoard={canManageBoard}
+        canApprove={canApprove}
       />
     </div>
   );

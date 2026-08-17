@@ -104,6 +104,19 @@
       "undo": "ביטול",
       "undoStartMessage": "המשימה הותחלה.",
       "undoCompleteMessage": "המשימה סומנה כהושלמה.",
+      "approveAction": "אישור",
+      "returnAction": "החזרה לתיקון",
+      "returnDialog": {
+        "title": "החזרת משימה לתיקון",
+        "reasonLabel": "סיבת ההחזרה",
+        "cancel": "ביטול",
+        "confirm": "החזרה לתיקון",
+        "saving": "שולח/ת...",
+        "errors": {
+          "reasonRequired": "יש לפרט את סיבת ההחזרה.",
+          "generic": "משהו השתבש. נסו שוב."
+        }
+      },
       "filters": {
         "employeeLabel": "סינון לפי עובד/ת",
         "employeeAll": "כל העובדים",
@@ -191,7 +204,134 @@
         "dueAt": "תאריך יעד",
         "notes": "הערות",
         "tasksTitle": "משימות שנוצרו ({count})",
-        "noTasks": "לא נוצרו משימות עבור הזמנה זו."
+        "noTasks": "לא נוצרו משימות עבור הזמנה זו.",
+        "hub": {
+          "backToBoard": "חזרה ללוח הייצור",
+          "call": "התקשרות",
+          "whatsapp": "וואטסאפ",
+          "email": "אימייל",
+          "editIntake": "עריכת פרטי קליטה",
+          "markDelivered": "סימון כנמסרה",
+          "markDeliveredTitle": "סימון ההזמנה כנמסרה",
+          "markDeliveredConfirm": "לסמן את ההזמנה הזו כנמסרה ללקוח?",
+          "cancelOrder": "ביטול הזמנה",
+          "cancelOrderTitle": "ביטול ההזמנה",
+          "cancelOrderConfirm": "לבטל את ההזמנה הזו? הפעולה לא ניתנת לביטול.",
+          "cancelAction": "סגירה",
+          "confirmAction": "אישור",
+          "genericError": "משהו השתבש. נסו שוב.",
+          "tasks": {
+            "nextActionTitle": "הפעולה הבאה",
+            "title": "משימות ({count})",
+            "empty": "לא נוצרו משימות עבור הזמנה זו.",
+            "addTask": "הוספת משימה",
+            "start": "התחלה",
+            "done": "סיום",
+            "blocked": "חסום",
+            "unlock": "פתיחה",
+            "reassign": "שיוך עובד/ת",
+            "unassigned": "לא משויך",
+            "deferredReasonPrefix": "סיבת הדחייה",
+            "approveAction": "אישור",
+            "returnAction": "החזרה לתיקון",
+            "resumeAction": "חידוש",
+            "deferAction": "דחייה",
+            "cancel": "ביטול",
+            "saving": "שומר/ת...",
+            "returnTitle": "החזרת משימה לתיקון",
+            "returnReasonLabel": "סיבת ההחזרה",
+            "deferTitle": "דחיית משימה",
+            "deferReasonLabel": "סיבת הדחייה",
+            "deferResumeDateLabel": "תאריך חידוש משוער",
+            "addTaskTitle": "הוספת משימה",
+            "addTaskTypeLabel": "סוג משימה",
+            "addTaskOtherOption": "אחר (חופשי)",
+            "addTaskOtherTitleLabel": "תיאור המשימה",
+            "addTaskWorkStageLabel": "שלב ייצור",
+            "addTaskAction": "הוספה",
+            "errors": {
+              "reasonRequired": "יש לפרט סיבה.",
+              "generic": "משהו השתבש. נסו שוב."
+            }
+          },
+          "notes": {
+            "title": "הערות",
+            "addComment": "הוספת הערה",
+            "empty": "אין עדיין הערות.",
+            "unknownAuthor": "משתמש/ת",
+            "taskLabel": "משימה",
+            "bodyLabel": "תוכן ההערה",
+            "cancel": "ביטול",
+            "save": "שמירה",
+            "saving": "שומר/ת...",
+            "errors": { "generic": "משהו השתבש. נסו שוב." }
+          },
+          "attachments": {
+            "filesTitle": "קבצים ותמונות",
+            "addPhoto": "הוספת תמונה",
+            "addFile": "הוספת קובץ",
+            "filesEmpty": "אין עדיין קבצים או תמונות.",
+            "audioTitle": "הקלטות קוליות",
+            "addVoice": "הוספת הקלטה",
+            "audioEmpty": "אין עדיין הקלטות קוליות.",
+            "fileLabel": "קובץ",
+            "cancel": "ביטול",
+            "upload": "העלאה",
+            "uploading": "מעלה...",
+            "errors": {
+              "fileTooLarge": "הקובץ גדול מדי (עד 20MB).",
+              "generic": "משהו השתבש. נסו שוב."
+            }
+          },
+          "warnings": {
+            "title": "התראות ופריטים חסרים",
+            "kind": {
+              "top": "טופ חסר",
+              "skin": "עור חסר",
+              "material": "חומר חסר"
+            },
+            "status": {
+              "open": "פתוח",
+              "found": "נמצא",
+              "ordered": "הוזמן",
+              "handled": "טופל"
+            }
+          },
+          "history": {
+            "title": "היסטוריה",
+            "empty": "אין עדיין היסטוריית פעילות.",
+            "system": "מערכת",
+            "verbs": {
+              "order_created": "ההזמנה נוצרה",
+              "order_cancelled": "ההזמנה בוטלה",
+              "order_delivered": "ההזמנה סומנה כנמסרה",
+              "order_reopened": "ההזמנה נפתחה מחדש",
+              "order_status_changed": "סטטוס ההזמנה השתנה מ-{from} ל-{to}",
+              "order_intake_edited": "פרטי הקליטה עודכנו",
+              "task_created": "נוספה משימה",
+              "task_started": "משימה הותחלה",
+              "task_start_undone": "התחלת המשימה בוטלה",
+              "task_completed": "משימה סומנה כהושלמה",
+              "task_complete_undone": "סימון ההשלמה בוטל",
+              "task_reassigned": "המשימה שויכה מחדש",
+              "task_availability_overridden": "זמינות המשימה נפתחה ידנית",
+              "task_approved": "משימה אושרה",
+              "task_returned_for_rework": "משימה הוחזרה לתיקון: {reason}",
+              "task_deferred": "משימה נדחתה: {reason}",
+              "task_resumed": "משימה חודשה",
+              "task_comment_added": "נוספה הערה למשימה",
+              "attachment_added": "נוסף קובץ: {fileName}"
+            }
+          },
+          "editIntake": {
+            "title": "עריכת פרטי קליטה",
+            "empty": "אין פרטי קליטה חופשיים לעריכה עבור הזמנה זו.",
+            "cancel": "ביטול",
+            "save": "שמירה",
+            "saving": "שומר/ת...",
+            "errors": { "generic": "משהו השתבש. נסו שוב." }
+          }
+        }
       },
       "wizard": {
         "title": "הזמנה חדשה",
