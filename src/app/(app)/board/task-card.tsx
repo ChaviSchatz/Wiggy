@@ -22,20 +22,26 @@ export function TaskCard({
   task,
   availability,
   canManageBoard,
+  canApprove,
   onOpenPeek,
   onOpenAssignee,
   onStart,
   onComplete,
   onToggleOverride,
+  onApprove,
+  onReturn,
 }: {
   task: BoardTask;
   availability: Availability;
   canManageBoard: boolean;
+  canApprove: boolean;
   onOpenPeek: () => void;
   onOpenAssignee: () => void;
   onStart: () => void;
   onComplete: () => void;
   onToggleOverride: () => void;
+  onApprove: () => void;
+  onReturn: () => void;
 }) {
   const t = useTranslations("pages.board");
   const tKind = useTranslations("pages.orders.kind");
@@ -96,6 +102,15 @@ export function TaskCard({
           <Button size="sm" onClick={onComplete}>
             {t("done")}
           </Button>
+        ) : task.status === "awaiting_approval" && canApprove ? (
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="outline" onClick={onReturn}>
+              {t("returnAction")}
+            </Button>
+            <Button size="sm" onClick={onApprove}>
+              {t("approveAction")}
+            </Button>
+          </div>
         ) : (
           <Badge
             variant={

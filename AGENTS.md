@@ -22,7 +22,18 @@ human working in this repo. Read it first.
 > `src/lib/availability.ts` (linear per-order availability + manager override, ADR 0008),
 > `src/lib/board/` (start/complete/undo/reassign/override Server Actions, added the
 > `runtime_tasks` UPDATE grant/RLS Slice 4 deferred), and `src/app/(app)/board` (columns by
-> stage, TaskCard, peek Sheet, AssigneePicker, FilterBar). The design is specified in `docs/`;
+> stage, TaskCard, peek Sheet, AssigneePicker, FilterBar); Slice 6 added the full-page
+> Work-Order Hub (`src/app/(app)/orders/[id]`, docs/ui/work-order-hub.md) plus the schema/RLS
+> for `task_approvals`, `task_comments`, `attachments` (+ a private Storage bucket),
+> `activity`, and `missing_items` (schema/RLS only — the missing-items list UI is Slice 8).
+> Added approve/return-for-rework (ADR 0009, on both the board card and the hub), defer/resume
+> (`runtime_tasks.deferred_reason`/`deferred_until`), comments, file/photo/voice attachments,
+> audited edit-intake, cancel/mark-delivered, add-manual-task, and order-status auto-recompute
+> (`src/lib/work-orders/status.ts` + `recompute.ts`, architecture §7.2) wired into every task/
+> order transition. Every transition now writes to the unified `activity` stream (ADR 0004,
+> `src/lib/activity/`) shown in the hub's History section. The order detail route is open to
+> every role that can see the board (`viewBoard`), not just office roles, since the board peek's
+> "open full order" link must resolve for workers too. The design is specified in `docs/`;
 > implementation follows the specs there.
 
 ## Start here (read in this order)

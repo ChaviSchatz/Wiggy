@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { ReturnForReworkDialog } from "@/components/tasks/return-for-rework-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { UndoToast } from "@/components/ui/undo-toast";
 import { computeAvailability, type TaskStatus } from "@/lib/availability";
 import {
+  approveTaskAction,
   completeTaskAction,
   setAvailabilityOverrideAction,
   startTaskAction,
@@ -34,11 +36,13 @@ export function ProductionBoard({
   initialTasks,
   staff,
   canManageBoard,
+  canApprove,
 }: {
   stages: WorkStage[];
   initialTasks: BoardTask[];
   staff: AssignableStaffMember[];
   canManageBoard: boolean;
+  canApprove: boolean;
 }) {
   const t = useTranslations("pages.board");
 
@@ -50,6 +54,7 @@ export function ProductionBoard({
   });
   const [peekTask, setPeekTask] = useState<BoardTask | null>(null);
   const [assigneeTask, setAssigneeTask] = useState<BoardTask | null>(null);
+  const [returnTaskId, setReturnTaskId] = useState<string | null>(null);
   const [undo, setUndo] = useState<{ taskId: string; entry: UndoEntry } | null>(
     null,
   );
@@ -182,6 +187,15 @@ export function ProductionBoard({
     }
   }
 
+  async function handleApprove(task: BoardTask) {
+    const previousTask = task;
+    updateTask(task.id, { status: "done", completed_at: new Date().toISOString() });
+    const result = await approveTaskAction(task.id);
+    if (!result.success) {
+      replaceTask(previousTask);
+    }
+  }
+
   return (
     <div>
       <BoardFilterBar
@@ -219,11 +233,14 @@ export function ProductionBoard({
                         availabilityByTaskId.get(task.id) ?? "available"
                       }
                       canManageBoard={canManageBoard}
+                      canApprove={canApprove}
                       onOpenPeek={() => setPeekTask(task)}
                       onOpenAssignee={() => setAssigneeTask(task)}
                       onStart={() => handleStart(task)}
                       onComplete={() => handleComplete(task)}
                       onToggleOverride={() => handleToggleOverride(task)}
+                      onApprove={() => handleApprove(task)}
+                      onReturn={() => setReturnTaskId(task.id)}
                     />
                   ))}
                 </div>
@@ -259,6 +276,12 @@ export function ProductionBoard({
             assignedStaffMemberName: staffName,
           });
         }}
+      />
+
+      <ReturnForReworkDialog
+        taskId={returnTaskId}
+        open={returnTaskId !== null}
+        onOpenChange={(open) => !open && setReturnTaskId(null)}
       />
 
       {undo ? (

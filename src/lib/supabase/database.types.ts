@@ -34,6 +34,128 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity: {
+        Row: {
+          actor_user_id: string | null
+          business_id: string
+          created_at: string
+          customer_id: string | null
+          id: string
+          payload: Json
+          subject_id: string
+          subject_type: string
+          verb: string
+          work_order_id: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          business_id: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          payload?: Json
+          subject_id: string
+          subject_type: string
+          verb: string
+          work_order_id?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          business_id?: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          payload?: Json
+          subject_id?: string
+          subject_type?: string
+          verb?: string
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attachments: {
+        Row: {
+          business_id: string
+          created_at: string
+          file_name: string
+          id: string
+          kind: string
+          mime_type: string | null
+          parent_id: string
+          parent_type: string
+          storage_path: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          file_name: string
+          id?: string
+          kind: string
+          mime_type?: string | null
+          parent_id: string
+          parent_type: string
+          storage_path: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          file_name?: string
+          id?: string
+          kind?: string
+          mime_type?: string | null
+          parent_id?: string
+          parent_type?: string
+          storage_path?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attachments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           created_at: string
@@ -270,6 +392,70 @@ export type Database = {
           },
         ]
       }
+      missing_items: {
+        Row: {
+          business_id: string
+          created_at: string
+          description: string | null
+          handled_at: string | null
+          id: string
+          kind: string
+          notes: string | null
+          responsible_staff_member_id: string | null
+          status: string
+          updated_at: string
+          work_order_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          description?: string | null
+          handled_at?: string | null
+          id?: string
+          kind: string
+          notes?: string | null
+          responsible_staff_member_id?: string | null
+          status?: string
+          updated_at?: string
+          work_order_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          description?: string | null
+          handled_at?: string | null
+          id?: string
+          kind?: string
+          notes?: string | null
+          responsible_staff_member_id?: string | null
+          status?: string
+          updated_at?: string
+          work_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missing_items_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missing_items_responsible_staff_member_id_fkey"
+            columns: ["responsible_staff_member_id"]
+            isOneToOne: false
+            referencedRelation: "staff_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missing_items_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -305,6 +491,8 @@ export type Database = {
           business_id: string
           completed_at: string | null
           created_at: string
+          deferred_reason: string | null
+          deferred_until: string | null
           description: string | null
           due_at: string | null
           id: string
@@ -328,6 +516,8 @@ export type Database = {
           business_id: string
           completed_at?: string | null
           created_at?: string
+          deferred_reason?: string | null
+          deferred_until?: string | null
           description?: string | null
           due_at?: string | null
           id?: string
@@ -351,6 +541,8 @@ export type Database = {
           business_id?: string
           completed_at?: string | null
           created_at?: string
+          deferred_reason?: string | null
+          deferred_until?: string | null
           description?: string | null
           due_at?: string | null
           id?: string
@@ -473,6 +665,107 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_approvals: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          business_id: string
+          created_at: string
+          id: string
+          reason: string | null
+          runtime_task_id: string
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          business_id: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          runtime_task_id: string
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          business_id?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          runtime_task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_approvals_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_approvals_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_approvals_runtime_task_id_fkey"
+            columns: ["runtime_task_id"]
+            isOneToOne: false
+            referencedRelation: "runtime_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_comments: {
+        Row: {
+          author_user_id: string | null
+          body: string
+          business_id: string
+          created_at: string
+          id: string
+          runtime_task_id: string
+        }
+        Insert: {
+          author_user_id?: string | null
+          body: string
+          business_id: string
+          created_at?: string
+          id?: string
+          runtime_task_id: string
+        }
+        Update: {
+          author_user_id?: string | null
+          body?: string
+          business_id?: string
+          created_at?: string
+          id?: string
+          runtime_task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_author_user_id_fkey"
+            columns: ["author_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comments_runtime_task_id_fkey"
+            columns: ["runtime_task_id"]
+            isOneToOne: false
+            referencedRelation: "runtime_tasks"
             referencedColumns: ["id"]
           },
         ]
