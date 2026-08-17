@@ -19,11 +19,14 @@
   "bottomNav": {
     "myWork": "העבודה שלי",
     "board": "לוח",
+    "sprint": "תכנון",
+    "approvals": "אישורים",
     "feedback": "משוב",
     "profile": "פרופיל"
   },
   "common": {
-    "comingSoon": "בקרוב"
+    "comingSoon": "בקרוב",
+    "priorityLabel": "משימה דחופה"
   },
   "a11y": {
     "primaryNav": "ניווט ראשי",
@@ -169,6 +172,7 @@
       "noActiveSprint": "אין ספרינט פעיל",
       "cadenceLabel": "משך ספרינט:",
       "cadenceDays": "{count} ימים",
+      "cadenceDaysDual": "יומיים",
       "createSprint": "פתיחת ספרינט",
       "closeSprint": "סגירת ספרינט",
       "openTasksCount": "משימות פתוחות: {count}",
@@ -366,7 +370,8 @@
               "task_deferred": "משימה נדחתה: {reason}",
               "task_resumed": "משימה חודשה",
               "task_comment_added": "נוספה הערה למשימה",
-              "attachment_added": "נוסף קובץ: {fileName}"
+              "attachment_added": "נוסף קובץ: {fileName}",
+              "task_assigned_to_sprint": "המשימה שובצה לתכנון ספרינט"
             }
           },
           "editIntake": {

@@ -46,8 +46,11 @@ view + a few fields over the existing production tasks. See ADR 0008, ADR 0009.
 - Employees see only tasks **assigned to them** (no self-serve pool in this phase).
 
 ## Approvals (separate — ADR 0009)
-- **Not** in the personal queue. The approver has a separate **"Awaiting approval"** view
-  (`status = awaiting_approval` and `approver = me`).
+- **Not** in the personal queue. The approver has a separate **"Awaiting approval"** view.
+- **v1 shipped scope:** business-wide — every `status = awaiting_approval` task, scoped only by
+  the `approveTasks` permission, not by `approver_staff_member_id = me`. `approver_staff_member_id`
+  has no population path yet; per-approver scoping is a future enhancement once it does (ADR 0009
+  amendment).
 - On the board, awaiting-approval tasks expose approve / return-for-rework at their stage.
 
 ## Carryover

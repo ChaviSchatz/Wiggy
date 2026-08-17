@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleCheck, Lock, Play } from "lucide-react";
+import { CircleCheck, Lock, Play, Star } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -18,12 +18,20 @@ import { cn } from "@/lib/utils";
 
 function TaskLine({ task }: { task: BoardTask }) {
   const tKind = useTranslations("pages.orders.kind");
+  const tCommon = useTranslations("common");
   const identity = task.customerName ?? tKind(task.orderKind);
   return (
-    <p className="text-sm font-medium text-ink">
-      {identity} <span className="font-normal text-muted">#{task.orderNumber}</span>
-      {" · "}
-      {task.title}
+    <p className="flex items-center gap-1.5 text-sm font-medium text-ink">
+      <span>
+        {identity} <span className="font-normal text-muted">#{task.orderNumber}</span>
+        {" · "}
+        {task.title}
+      </span>
+      {task.priority ? (
+        <span aria-label={tCommon("priorityLabel")} title={tCommon("priorityLabel")}>
+          <Star className="size-3.5 shrink-0 text-peach-500" fill="currentColor" aria-hidden />
+        </span>
+      ) : null}
     </p>
   );
 }

@@ -78,7 +78,7 @@ export function SprintHeader({
         >
           {CADENCE_OPTIONS.map((days) => (
             <option key={days} value={days}>
-              {t("cadenceDays", { count: days })}
+              {days === 2 ? t("cadenceDaysDual") : t("cadenceDays", { count: days })}
             </option>
           ))}
         </select>

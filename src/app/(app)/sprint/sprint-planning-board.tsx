@@ -20,8 +20,15 @@ import { SprintTaskCard } from "./sprint-task-card";
 
 type WorkStage = Tables<"work_stages">;
 
+// A null rank sorts to the END, not the start -- matching
+// `moveTaskInQueueAction`'s `nullsFirst: false` DB ordering (Bug 2). Real
+// ranks always start at `RANK_GAP` (src/lib/queue/rank.ts), so treating
+// null as 0 would wrongly put an unranked task first.
 function byQueueRank(a: BoardTask, b: BoardTask): number {
-  return (a.queue_rank ?? 0) - (b.queue_rank ?? 0);
+  return (
+    (a.queue_rank ?? Number.POSITIVE_INFINITY) -
+    (b.queue_rank ?? Number.POSITIVE_INFINITY)
+  );
 }
 
 export function SprintPlanningBoard({
@@ -84,6 +91,18 @@ export function SprintPlanningBoard({
   const visibleStaff = filters.staffId
     ? staff.filter((member) => member.id === filters.staffId)
     : staff;
+
+  // `moveTaskInQueueAction` always reorders against the employee's complete,
+  // unfiltered live-task queue, but `laneTasks` below is built from
+  // `filteredTasks`. With any filter active, the on-screen edge-of-list
+  // button state (and the move itself) could disagree with reality --
+  // e.g. a task could look first-in-lane with "move up" disabled while
+  // filtered-out siblings actually precede it server-side. Reordering a
+  // partial view is inherently misleading, so simply disable the move
+  // buttons whenever a filter narrows the list (Bug 5).
+  const reorderDisabled = Boolean(
+    filters.stageId || filters.staffId || filters.taskTypeId || filters.status,
+  );
 
   function updateTask(taskId: string, patch: Partial<BoardTask>) {
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, ...patch } : t)));
@@ -171,8 +190,8 @@ export function SprintPlanningBoard({
                       rank={index + 1}
                       availability={availabilityByTaskId.get(task.id) ?? "available"}
                       staff={staff}
-                      canMoveUp={index > 0}
-                      canMoveDown={index < laneTasks.length - 1}
+                      canMoveUp={index > 0 && !reorderDisabled}
+                      canMoveDown={index < laneTasks.length - 1 && !reorderDisabled}
                       onAssign={(staffMemberId) => handleAssign(task, staffMemberId)}
                       onMove={(direction) => handleMove(task, direction)}
                       onTogglePriority={() => handleTogglePriority(task)}

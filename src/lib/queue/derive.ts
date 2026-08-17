@@ -40,8 +40,15 @@ const STARTABLE_STATUSES = new Set<TaskStatus>([
   "returned_for_rework",
 ]);
 
+// A null rank sorts to the END, not the start -- matching
+// `moveTaskInQueueAction`'s `nullsFirst: false` DB ordering (Bug 2). Real
+// ranks always start at `RANK_GAP` (src/lib/queue/rank.ts), so treating
+// null as 0 would wrongly put an unranked task first.
 function byRank<T extends QueueTaskInput>(a: T, b: T): number {
-  return (a.queueRank ?? 0) - (b.queueRank ?? 0);
+  return (
+    (a.queueRank ?? Number.POSITIVE_INFINITY) -
+    (b.queueRank ?? Number.POSITIVE_INFINITY)
+  );
 }
 
 export function deriveQueueSections<T extends QueueTaskInput>(

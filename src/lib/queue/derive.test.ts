@@ -87,4 +87,21 @@ describe("deriveQueueSections", () => {
     const result = deriveQueueSections([], new Map());
     expect(result.next).toBeNull();
   });
+
+  it("sorts a null-rank task to the end of the queue, not the start (Bug 2)", () => {
+    const tasks = [
+      task({ id: "t1", status: "pending", queueRank: 2048 }),
+      task({ id: "t2", status: "pending", queueRank: null }),
+      task({ id: "t3", status: "pending", queueRank: 1024 }),
+    ];
+    const availability = new Map<string, Availability>([
+      ["t1", "available"],
+      ["t2", "available"],
+      ["t3", "available"],
+    ]);
+
+    const result = deriveQueueSections(tasks, availability);
+    expect(result.next?.id).toBe("t3");
+    expect(result.queue.map((t) => t.id)).toEqual(["t1", "t2"]);
+  });
 });

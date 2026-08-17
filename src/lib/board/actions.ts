@@ -10,6 +10,7 @@ import {
   type TaskStatus,
 } from "@/lib/availability";
 import { getCurrentUser } from "@/lib/auth/server";
+import { computeAppendRank } from "@/lib/queue/append-rank";
 import { can } from "@/lib/roles";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { recomputeOrderStatus } from "@/lib/work-orders/recompute";
@@ -97,6 +98,9 @@ async function afterTaskChange(
   await recomputeOrderStatus(supabase, workOrderId, businessId, actorUserId);
   revalidatePath("/board");
   revalidatePath(`/orders/${workOrderId}`);
+  revalidatePath("/my-work");
+  revalidatePath("/sprint");
+  revalidatePath("/approvals");
 }
 
 const STARTABLE_STATUSES: TaskStatus[] = ["pending", "returned_for_rework"];
@@ -266,13 +270,29 @@ export async function reassignTaskAction(
   const supabase = await createServerSupabaseClient();
   const { data: existingTask } = await supabase
     .from("runtime_tasks")
-    .select("work_order_id")
+    .select("work_order_id, queue_rank")
     .eq("id", taskId)
     .maybeSingle();
 
+  // A task assigned via this tap-avatar reassign (rather than Sprint
+  // Planning's assign action) must still land in the assignee's queue --
+  // otherwise it keeps `queue_rank = null`, which the queue-derivation and
+  // reorder logic disagree about how to sort (Bug 2: null sorted first in
+  // `deriveQueueSections`/the sprint board but last in
+  // `moveTaskInQueueAction`'s DB query). Only fill in a rank when the task
+  // doesn't already have one -- don't disturb an existing position.
+  let queueRank: number | null = existingTask?.queue_rank ?? null;
+  if (staffMemberId) {
+    if (queueRank === null) {
+      queueRank = await computeAppendRank(supabase, user.businessId, staffMemberId);
+    }
+  } else {
+    queueRank = null;
+  }
+
   const { error } = await supabase
     .from("runtime_tasks")
-    .update({ assigned_staff_member_id: staffMemberId })
+    .update({ assigned_staff_member_id: staffMemberId, queue_rank: queueRank })
     .eq("id", taskId);
   if (error) return { success: false, error: "generic" };
 
