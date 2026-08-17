@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables } from "@/lib/supabase/database.types";
 
 /** Board/queue never shows the full backlog -- only live, non-terminal work (ADR 0010). */
-const LIVE_STATUSES = [
+export const LIVE_STATUSES = [
   "pending",
   "in_progress",
   "awaiting_approval",

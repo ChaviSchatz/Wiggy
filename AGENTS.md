@@ -33,8 +33,19 @@ human working in this repo. Read it first.
 > order transition. Every transition now writes to the unified `activity` stream (ADR 0004,
 > `src/lib/activity/`) shown in the hub's History section. The order detail route is open to
 > every role that can see the board (`viewBoard`), not just office roles, since the board peek's
-> "open full order" link must resolve for workers too. The design is specified in `docs/`;
-> implementation follows the specs there.
+> "open full order" link must resolve for workers too. Slice 7 added the sprint/queue overlay
+> (ADR 0008/0009) — `sprints` + `business_settings` (tenant sprint cadence) schema/RLS, and
+> `runtime_tasks.{sprint_id,queue_rank,priority}` (`src/lib/queue/` for the pure fractional-rank
+> and now/next/queue/blocked/completed derivation, `src/lib/sprints/` for queries + Server
+> Actions); the Sprint Planning board (`src/app/(app)/sprint`, manager/admin, backlog + one lane
+> per employee, assign + up/down reorder — plain buttons, not pointer drag-and-drop, matching the
+> board's own inline-action style); My Work (`src/app/(app)/my-work`, the personal queue, sprint-
+> agnostic by design so a closed sprint's unfinished tasks simply keep showing up rather than
+> needing a data rewrite); and a new Approvals view (`src/app/(app)/approvals`) — business-wide
+> for any `approveTasks` role, since `approver_staff_member_id` is never actually populated
+> anywhere. Out of scope this slice: the tablet "who's at this station" switcher (each user is
+> just their own login) and the bulk-assign/reprioritize dialog (screen inventory #43). The
+> design is specified in `docs/`; implementation follows the specs there.
 
 ## Start here (read in this order)
 
