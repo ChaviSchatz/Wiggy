@@ -10,9 +10,13 @@ export type ActivityRow = Tables<"activity">;
 export type ActivitySubjectType = "work_order" | "runtime_task";
 
 /**
- * Every verb a Slice 6 transition can write. Kept as a closed union (rather
- * than a free string) so `payload` shapes stay predictable for the history
- * renderer -- add a case here + in the renderer together.
+ * Every verb a transition can write. Kept as a closed union (rather than a
+ * free string) so `payload` shapes stay predictable for the history renderer
+ * -- add a case here + in the renderer together.
+ *
+ * Missing-item verbs use `subjectType: "work_order"` (the subject_type check
+ * constraint has no `missing_item` value, and the order is what the history
+ * section is about anyway); the item's kind travels in the payload.
  */
 export type ActivityVerb =
   | "order_created"
@@ -34,7 +38,9 @@ export type ActivityVerb =
   | "task_resumed"
   | "task_comment_added"
   | "attachment_added"
-  | "task_assigned_to_sprint";
+  | "task_assigned_to_sprint"
+  | "missing_item_created"
+  | "missing_item_status_changed";
 
 /** Loose on purpose -- `activity.payload` is a jsonb column with no fixed
  * shape across verbs; the history renderer reads specific keys per verb. */

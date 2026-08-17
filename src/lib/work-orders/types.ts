@@ -4,6 +4,7 @@
  * the generated Database row types, so `generate.ts` stays pure and
  * unit-testable without a database.
  */
+import type { MissingItemKind } from "@/lib/missing-items/validation";
 import type { Tables } from "@/lib/supabase/database.types";
 
 export type IntakeTemplate = Tables<"intake_templates">;
@@ -24,6 +25,13 @@ export type IntakeItemConfig = {
   generates_runtime_tasks?: boolean;
   allow_other?: boolean;
   other_default_work_stage_id?: string;
+  /**
+   * Marks a `field` item as a missing-stock flag: answering it creates a
+   * `missing_items` row of this kind instead of (or rather, in addition to)
+   * plain structured data (architecture §4.4, §6.5). This is how the salon's
+   * "no top / no skin" intake question turns into a tracked item.
+   */
+  missing_item_kind?: MissingItemKind;
 };
 
 /**
@@ -84,6 +92,13 @@ export type GeneratedTask = {
   sequenceOrder: number;
 };
 
+/** A missing item flagged during intake, ready to insert (architecture §6.5). */
+export type GeneratedMissingItem = {
+  kind: MissingItemKind;
+  description: string | null;
+  originItemId: string;
+};
+
 export type GenerateWorkOrderInput = {
   /** Sorted by `sort_order` ascending. */
   items: ResolvedIntakeItem[];
@@ -101,4 +116,5 @@ export type GenerateWorkOrderInput = {
 export type GenerateWorkOrderResult = {
   intakeResponses: IntakeResponseEntry[];
   tasks: GeneratedTask[];
+  missingItems: GeneratedMissingItem[];
 };

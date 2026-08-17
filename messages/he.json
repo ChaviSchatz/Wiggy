@@ -2,6 +2,7 @@
   "app": {
     "name": "Wiggy",
     "newOrder": "הזמנה חדשה",
+    "feedback": "משוב",
     "profile": "פרופיל",
     "signOut": "התנתקות"
   },
@@ -85,13 +86,45 @@
     "dashboard": {
       "title": "דשבורד",
       "subtitle": "סקירה כללית של פעילות המכון",
-      "openOrders": {
-        "title": "הזמנות פתוחות",
-        "description": "מספר ההזמנות הפעילות כעת בייצור"
+      "workerSubtitle": "העבודה שלי במבט אחד",
+      "noStaffLink": "המשתמש שלך אינו מקושר לאיש/אשת צוות, ולכן אין כאן משימות אישיות.",
+      "kpis": {
+        "activeOrders": "הזמנות פעילות",
+        "urgent": "דחוף",
+        "dueSoon": "לביצוע השבוע",
+        "dueSoonHint": "הזמנות שתאריך היעד שלהן חל בשבוע הקרוב",
+        "missingItems": "חוסרים",
+        "awaitingApproval": "ממתין לאישור",
+        "myInProgress": "בעבודה כרגע",
+        "myQueue": "בתור שלי",
+        "myCompletedToday": "הושלמו היום"
       },
-      "dueThisWeek": {
-        "title": "לביצוע השבוע",
-        "description": "משימות שתאריך היעד שלהן חל השבוע"
+      "quickActions": {
+        "sprint": "תכנון ספרינט",
+        "board": "לוח ייצור",
+        "newOrder": "הזמנה חדשה",
+        "customers": "לקוחות"
+      },
+      "attention": {
+        "title": "דורש טיפול",
+        "empty": "אין כרגע פריטים שדורשים טיפול.",
+        "missingItems": "חוסרים",
+        "approvals": "ממתין לאישור",
+        "deferred": "משימות שנדחו",
+        "viewAll": "לרשימה המלאה",
+        "orderLine": "הזמנה #{number} · {customer}"
+      },
+      "sprint": {
+        "title": "הספרינט הנוכחי",
+        "dateRange": "{from} – {to}",
+        "progress": "{done} מתוך {total} משימות הושלמו",
+        "plan": "מעבר לתכנון הספרינט",
+        "none": "אין ספרינט פעיל."
+      },
+      "worker": {
+        "currentTitle": "מה בעבודה עכשיו",
+        "currentEmpty": "אין משימה בעבודה כרגע.",
+        "openQueue": "פתיחת התור שלי"
       }
     },
     "myWork": {
@@ -345,7 +378,8 @@
               "found": "נמצא",
               "ordered": "הוזמן",
               "handled": "טופל"
-            }
+            },
+            "manageLink": "ניהול פריטים חסרים"
           },
           "history": {
             "title": "היסטוריה",
@@ -371,7 +405,9 @@
               "task_resumed": "משימה חודשה",
               "task_comment_added": "נוספה הערה למשימה",
               "attachment_added": "נוסף קובץ: {fileName}",
-              "task_assigned_to_sprint": "המשימה שובצה לתכנון ספרינט"
+              "task_assigned_to_sprint": "המשימה שובצה לתכנון ספרינט",
+              "missing_item_created": "נרשם חוסר: {kind}",
+              "missing_item_status_changed": "סטטוס החוסר {kind} עודכן מ-{from} ל-{to}"
             }
           },
           "editIntake": {
@@ -412,6 +448,7 @@
         "intake": {
           "empty": "אין פריטים בטופס הקליטה הזה.",
           "required": "חובה",
+          "yes": "כן",
           "otherLabel": "תיאור עבודה נוספת",
           "otherPlaceholder": "תארו את העבודה הנוספת הנדרשת",
           "groupAll": "כל הפריטים הבאים ייכללו: {names}",
@@ -496,7 +533,110 @@
       "approveAction": "אישור",
       "returnAction": "החזרה לתיקון"
     },
-    "missingItems": { "title": "פריטים חסרים" },
+    "missingItems": {
+      "title": "פריטים חסרים",
+      "subtitle": "טופים, עורות וחומרים שחסרים להזמנות פעילות",
+      "newItem": "פריט חסר חדש",
+      "handle": "טיפול",
+      "noCustomer": "ללא לקוחה",
+      "orderLine": "הזמנה #{number} · {customer}",
+      "pageOf": "עמוד {page} מתוך {totalPages}",
+      "previous": "הקודם",
+      "next": "הבא",
+      "emptyTitle": "אין פריטים חסרים",
+      "emptyDescription": "כשיסומן חוסר בטופס קליטה, או שיתווסף פריט ידנית, הוא יופיע כאן.",
+      "emptyFilteredTitle": "אין פריטים מתאימים",
+      "emptyFilteredDescription": "נסו לשנות את הסינון.",
+      "columns": {
+        "kind": "סוג",
+        "order": "הזמנה",
+        "description": "תיאור",
+        "responsible": "אחראי/ת",
+        "status": "סטטוס",
+        "actions": "פעולות"
+      },
+      "kind": {
+        "top": "טופ חסר",
+        "skin": "עור חסר",
+        "material": "חומר חסר"
+      },
+      "status": {
+        "open": "פתוח",
+        "found": "נמצא",
+        "ordered": "הוזמן",
+        "handled": "טופל"
+      },
+      "filters": {
+        "statusLabel": "סינון לפי סטטוס",
+        "statusUnhandled": "פתוחים (לא טופלו)",
+        "statusAll": "כל הסטטוסים",
+        "kindLabel": "סינון לפי סוג",
+        "kindAll": "כל הסוגים",
+        "responsibleLabel": "סינון לפי אחראי/ת",
+        "responsibleAll": "כל האחראים"
+      },
+      "form": {
+        "createTitle": "הוספת פריט חסר",
+        "orderLabel": "הזמנה",
+        "orderPlaceholder": "בחרו הזמנה",
+        "orderOption": "הזמנה #{number} · {customer}",
+        "noCustomer": "ללא לקוחה",
+        "noOrders": "אין הזמנות פעילות שניתן לשייך אליהן פריט חסר.",
+        "kindLabel": "סוג הפריט",
+        "descriptionLabel": "תיאור",
+        "responsibleLabel": "אחראי/ת",
+        "responsibleNone": "ללא אחראי/ת",
+        "notesLabel": "הערות",
+        "cancel": "ביטול",
+        "save": "שמירה",
+        "saving": "שומר...",
+        "errors": {
+          "workOrderIdRequired": "יש לבחור הזמנה.",
+          "kindInvalid": "יש לבחור סוג פריט מהרשימה.",
+          "forbidden": "אין לך הרשאה לנהל פריטים חסרים.",
+          "generic": "משהו השתבש. נסו שוב."
+        }
+      },
+      "handleDialog": {
+        "title": "{kind} · הזמנה #{number}",
+        "statusLabel": "סטטוס",
+        "responsibleLabel": "אחראי/ת",
+        "responsibleNone": "ללא אחראי/ת",
+        "notesLabel": "הערות",
+        "cancel": "ביטול",
+        "save": "שמירה",
+        "saving": "שומר...",
+        "errors": {
+          "statusInvalid": "יש לבחור סטטוס מהרשימה.",
+          "forbidden": "אין לך הרשאה לנהל פריטים חסרים.",
+          "notFound": "הפריט לא נמצא.",
+          "generic": "משהו השתבש. נסו שוב."
+        }
+      }
+    },
+    "feedback": {
+      "title": "שליחת משוב",
+      "kindLabel": "סוג הפנייה",
+      "kind": {
+        "bug": "תקלה",
+        "feature": "רעיון לשיפור",
+        "question": "שאלה"
+      },
+      "messageLabel": "הפירוט",
+      "messagePlaceholder": "מה קרה? מה היה עוזר לכם?",
+      "send": "שליחה",
+      "sending": "שולח...",
+      "cancel": "ביטול",
+      "close": "סגירה",
+      "thanks": "תודה! המשוב נשלח.",
+      "errors": {
+        "kindInvalid": "יש לבחור סוג פנייה.",
+        "messageRequired": "יש להזין פירוט.",
+        "messageTooLong": "הפירוט ארוך מדי.",
+        "forbidden": "יש להתחבר כדי לשלוח משוב.",
+        "generic": "משהו השתבש. נסו שוב."
+      }
+    },
     "settings": { "title": "הגדרות" },
     "profile": {
       "title": "פרופיל",

@@ -27,3 +27,4 @@ Each ADR is one numbered file: `NNNN-short-title.md`, containing:
 - [0008](0008-sprint-based-task-management.md) — Sprint-based task management with automatic sequence availability
 - [0009](0009-approvals-separate-managerial-queue.md) — Approvals are a separate managerial queue
 - [0010](0010-task-centric-production-board.md) — Task-centric production board with worker-avatar assignment
+- [0011](0011-missing-items-are-tracked-not-tasks.md) — Missing tops/skins are tracked items, not runtime tasks

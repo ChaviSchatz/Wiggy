@@ -21,10 +21,18 @@
  *    is a documented no-op for those today; `other_default_work_stage_id`
  *    is the one override that exists, for "Other" items specifically.
  * 4. Sequence by `work_stage.sort_order`, tie-broken by item order (§6.4).
+ * 5. A `field` item carrying `config.missing_item_kind` ("no top / no skin")
+ *    additionally yields a `missing_items` row when it was answered (§6.5) --
+ *    structured data *and* a tracked item, never a task.
  */
+// Relative, with the extension, unlike the rest of the codebase's `@/` imports:
+// this module is imported directly by the seed scripts, which run in plain Node
+// and can't resolve the alias for a *value* import (see AGENTS.md).
+import { isMissingItemKind } from "../missing-items/validation.ts";
 import type {
   GenerateWorkOrderInput,
   GenerateWorkOrderResult,
+  GeneratedMissingItem,
   GeneratedTask,
   IntakeResponseEntry,
   ResolvedIntakeItem,
@@ -39,11 +47,13 @@ export function generateWorkOrder(
 
   const intakeResponses: IntakeResponseEntry[] = [];
   const tasks: GeneratedTask[] = [];
+  const missingItems: GeneratedMissingItem[] = [];
 
   for (const item of input.items) {
     const response = responseByItemId.get(item.id);
 
     collectFieldResponse(item, response, intakeResponses);
+    collectMissingItemFlag(item, response, missingItems);
     collectOtherResponse(
       item,
       response,
@@ -58,6 +68,7 @@ export function generateWorkOrder(
   return {
     intakeResponses,
     tasks: sequenceTasks(tasks, input.workStageSortOrderById),
+    missingItems,
   };
 }
 
@@ -74,6 +85,30 @@ function collectFieldResponse(
     itemId: item.id,
     label: item.fieldLabel ?? item.fieldKey ?? item.id,
     value,
+  });
+}
+
+/**
+ * "No top / no skin" intake flags (§6.5). Only `field` items qualify: the
+ * answer is what marks the item as missing, so there has to be an answer to
+ * read. `config` is tenant data, so an unrecognised kind is dropped rather
+ * than carried into an insert the check constraint would reject.
+ */
+function collectMissingItemFlag(
+  item: ResolvedIntakeItem,
+  response: { fieldValue?: string } | undefined,
+  missingItems: GeneratedMissingItem[],
+) {
+  if (item.itemKind !== "field") return;
+
+  const kind = item.config.missing_item_kind;
+  if (!kind || !isMissingItemKind(kind)) return;
+  if (!response?.fieldValue?.trim()) return;
+
+  missingItems.push({
+    kind,
+    description: item.fieldLabel ?? item.fieldKey ?? null,
+    originItemId: item.id,
   });
 }
 

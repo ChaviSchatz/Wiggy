@@ -14,7 +14,20 @@
 
 ## Platform
 - Tenant **settings/branding** live on `businesses` (name, logo, color, timezone, locale).
-- **Feedback** box (bug/feature/question) captured per tenant for in-app feedback collection.
+- **`feedback_items`** — the in-app feedback box: `submitted_by?, kind (bug|feature|question),
+  message, page_path?`. Reachable from the app shell (top bar on desktop, bottom bar on tablet) by
+  **every role** — the one action with no role gate. `page_path` records where the submitter was,
+  as free triage context.
+  - **Append-only.** v1 ships no triage/management UI (screen inventory #57 is `[config]`), so the
+    table carries no status or assignee column that nothing would ever update, and RLS grants only
+    `select`/`insert` to members.
+
+## Dashboard
+- The landing page is **role-tailored**, not one shared screen: office roles
+  (manager/admin/secretary) get order/sprint KPIs plus attention widgets (missing items,
+  approvals awaiting them, orders due soon), workers get their own queue snapshot. Every widget
+  reads existing tables — the dashboard owns no data of its own.
+- A missing item counts as an alert until it is handled **or its order closes** (architecture §4.4).
 
 ## Related
-- ADR 0004. Architecture §4.5.
+- ADR 0004, ADR 0011. Architecture §4.5.

@@ -481,6 +481,137 @@ describe("generateWorkOrder", () => {
     expect(result.tasks.map((t) => t.taskTypeId)).toEqual(["tt-2", "tt-1"]);
   });
 
+  it("flags a missing item when a missing_item_kind field is answered", () => {
+    const items = [
+      item({
+        id: "item-no-top",
+        sortOrder: 0,
+        itemKind: "field",
+        fieldKey: "no_top",
+        fieldLabel: "אין טופ במלאי",
+        fieldType: "boolean",
+        config: config({ missing_item_kind: "top" }),
+      }),
+    ];
+    const responses: ItemResponse[] = [{ itemId: "item-no-top", fieldValue: "כן" }];
+
+    const result = generateWorkOrder(baseInput({ items, responses }));
+
+    expect(result.missingItems).toEqual([
+      { kind: "top", description: "אין טופ במלאי", originItemId: "item-no-top" },
+    ]);
+    // The flag is still structured intake data, and never a task (ADR 0003).
+    expect(result.intakeResponses).toEqual([
+      { itemId: "item-no-top", label: "אין טופ במלאי", value: "כן" },
+    ]);
+    expect(result.tasks).toEqual([]);
+  });
+
+  it("creates no missing item when the flag is left unanswered", () => {
+    const items = [
+      item({
+        id: "item-no-top",
+        sortOrder: 0,
+        itemKind: "field",
+        fieldLabel: "אין טופ במלאי",
+        config: config({ missing_item_kind: "top" }),
+      }),
+    ];
+
+    const result = generateWorkOrder(
+      baseInput({
+        items,
+        responses: [{ itemId: "item-no-top", fieldValue: "   " }],
+      }),
+    );
+
+    expect(result.missingItems).toEqual([]);
+  });
+
+  it("flags one missing item per answered flag", () => {
+    const items = [
+      item({
+        id: "item-no-top",
+        sortOrder: 0,
+        itemKind: "field",
+        fieldLabel: "אין טופ במלאי",
+        config: config({ missing_item_kind: "top" }),
+      }),
+      item({
+        id: "item-no-skin",
+        sortOrder: 1,
+        itemKind: "field",
+        fieldLabel: "אין עור במלאי",
+        config: config({ missing_item_kind: "skin" }),
+      }),
+    ];
+    const responses: ItemResponse[] = [
+      { itemId: "item-no-top", fieldValue: "כן" },
+      { itemId: "item-no-skin", fieldValue: "כן" },
+    ];
+
+    const result = generateWorkOrder(baseInput({ items, responses }));
+
+    expect(result.missingItems.map((missing) => missing.kind)).toEqual([
+      "top",
+      "skin",
+    ]);
+  });
+
+  it("ignores a missing_item_kind the schema wouldn't accept", () => {
+    const items = [
+      item({
+        id: "item-1",
+        sortOrder: 0,
+        itemKind: "field",
+        fieldLabel: "אין תחרה",
+        // Config is tenant data (jsonb), so a typo must not reach the insert.
+        config: { missing_item_kind: "lace" } as never,
+      }),
+    ];
+
+    const result = generateWorkOrder(
+      baseInput({ items, responses: [{ itemId: "item-1", fieldValue: "כן" }] }),
+    );
+
+    expect(result.missingItems).toEqual([]);
+  });
+
+  it("falls back to field_key as the missing item's description", () => {
+    const items = [
+      item({
+        id: "item-1",
+        sortOrder: 0,
+        itemKind: "field",
+        fieldKey: "no_skin",
+        config: config({ missing_item_kind: "skin" }),
+      }),
+    ];
+
+    const result = generateWorkOrder(
+      baseInput({ items, responses: [{ itemId: "item-1", fieldValue: "כן" }] }),
+    );
+
+    expect(result.missingItems[0].description).toBe("no_skin");
+  });
+
+  it("only treats field items as missing-item flags", () => {
+    const items = [
+      item({
+        id: "section-1",
+        sortOrder: 0,
+        itemKind: "section",
+        config: config({ missing_item_kind: "top", section_title: "מלאי" }),
+      }),
+    ];
+
+    const result = generateWorkOrder(
+      baseInput({ items, responses: [{ itemId: "section-1", fieldValue: "כן" }] }),
+    );
+
+    expect(result.missingItems).toEqual([]);
+  });
+
   it("reproduces the seeded 'New Wig' template shape end to end", () => {
     const stageColor = "stage-color";
     const stageHandTying = "stage-hand-tying";

@@ -44,7 +44,22 @@ human working in this repo. Read it first.
 > needing a data rewrite); and a new Approvals view (`src/app/(app)/approvals`) — business-wide
 > for any `approveTasks` role, since `approver_staff_member_id` is never actually populated
 > anywhere. Out of scope this slice: the tablet "who's at this station" switcher (each user is
-> just their own login) and the bulk-assign/reprioritize dialog (screen inventory #43). The
+> just their own login) and the bulk-assign/reprioritize dialog (screen inventory #43). Slice 8
+> added the operational glue — the **missing-items** UI on top of the Slice 6 table
+> (`src/lib/missing-items/`, `src/app/(app)/missing-items`: list + filters, create-manually and
+> handle-status dialogs), **auto-creation from intake** via the new
+> `intake_template_items.config.missing_item_kind` flag (ADR 0011, architecture §6.5-§7.4 — the
+> generator stays pure and returns `missingItems`, the confirm action inserts them best-effort,
+> and `scripts/seed-work-definition.ts` seeds the "no top"/"no skin" boolean fields, idempotently
+> so an already-seeded DB picks them up); **role-tailored dashboards**
+> (`src/lib/dashboard/queries.ts`, `src/components/domain/kpi-card.tsx` — office roles get order/
+> sprint KPIs + attention widgets, workers get their queue snapshot); and the in-app **feedback
+> box** (`feedback_items` + RLS, `src/lib/feedback/`,
+> `src/components/feedback/feedback-dialog.tsx`, wired into the top bar and the tablet bottom bar,
+> open to every role and append-only since v1 has no triage UI). Missing-item creation and status
+> changes write `activity` verbs against the owning order. Note `vitest.config.mts` now stubs
+> `server-only`: a client component importing a Server Action (the feedback dialog) drags the
+> `"use server"` module graph into the unit-test bundle. The
 > design is specified in `docs/`; implementation follows the specs there.
 
 ## Start here (read in this order)
@@ -152,6 +167,10 @@ seed:dev`, and `npm run test:integration`. Check with `npx supabase status`. Env
 - **Server-only admin client.** `src/lib/supabase/admin.ts` (service-role, bypasses RLS) imports
   `server-only`. Running it from plain Node needs the `react-server` export condition: `npm run
 seed:dev` passes `--conditions=react-server --experimental-strip-types`, and the integration
-  vitest config aliases `server-only` to a no-op stub. The `.ts` import extension in the seed script
-  is why `tsconfig` sets `allowImportingTsExtensions`.
+ vitest config aliases `server-only` to a no-op stub. The `.ts` import extension in the seed script
+ is why `tsconfig` sets `allowImportingTsExtensions`.
+- **Plain Node can't resolve the `@/` alias.** Modules the seed scripts import directly (notably
+ `src/lib/work-orders/generate.ts`) must reach cross-domain **values** through a relative path with
+ the `.ts` extension; `import type` is fine either way, since types are erased. Symptom if you get
+ it wrong: `ERR_MODULE_NOT_FOUND: Cannot find package '@/lib'` from `npm run seed:*`.
 - **Dev login** (from `npm run seed:dev`): `admin@wiggy.local` / `wiggy-dev-password` (local only).

@@ -40,6 +40,11 @@
 - **Secretary →** **Work Orders** list with a prominent **+ New Order** CTA.
 - **Admin →** **Dashboard** + full Settings access.
 
+**Home is role-tailored, not one shared screen.** Every role can open it (table above), so its
+content follows the role: office roles (manager/admin/secretary) see order + sprint KPIs and
+attention widgets (unhandled missing items, approvals awaiting them, orders due soon, each gated
+on the permission behind it); workers see a snapshot of their own queue with a link into My Work.
+
 ## Global elements
 - **+ New Order** CTA (office roles), **Feedback** (all), **Profile/account** (all).
 - Deferred: notifications center, global search.

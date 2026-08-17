@@ -47,6 +47,7 @@ dev seed credentials below.
 | `npm run test:integration` | Run RLS integration tests against local Supabase                  |
 | `npm run gen:types`        | Regenerate `src/lib/supabase/database.types.ts` from the local DB |
 | `npm run seed:dev`         | Seed a dev business + admin user (idempotent)                     |
+| `npm run seed:demo`        | Add demo customers/orders/tasks on top of the dev seed (local)     |
 | `npm run format`           | Format the codebase with Prettier                                 |
 | `npm run format:check`     | Check formatting without writing                                  |
 
@@ -83,13 +84,18 @@ npm run seed:dev          # seed a dev tenant + admin (see credentials below)
 `npm run seed:dev` creates one business, one admin user, an admin
 membership, and the Slice 2 work-definition catalog for that business (8
 work stages, 3 staff members, 8 task types across 2 task groups, and one
-"New Wig" intake template with 7 items — see `scripts/seed-work-definition.ts`).
+"New Wig" intake template with 9 items, two of which are the "no top / no skin"
+missing-stock flags — see `scripts/seed-work-definition.ts`).
 It is idempotent (safe to re-run). Dev-only credentials:
 
 - **Email:** `admin@wiggy.local`
 - **Password:** `wiggy-dev-password`
 
 These credentials are for local development only. Never use them anywhere real.
+
+`npm run seed:demo` then fills that business with browsable demo data
+(customers, work orders at several statuses, tasks across the board, a sprint,
+missing items) so the board, queue and dashboard aren't empty. Also idempotent.
 
 ## Auth flows
 

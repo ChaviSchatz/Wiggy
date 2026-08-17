@@ -145,9 +145,12 @@ describe("work-definition catalog under RLS", () => {
       .eq("intake_template_id", template.data!.id)
       .order("sort_order");
     expect(templateItems.error).toBeNull();
-    expect(templateItems.data).toHaveLength(7);
+    expect(templateItems.data).toHaveLength(9);
+    // Items 3-4 are the "no top / no skin" missing-stock flags (Slice 8).
     expect(templateItems.data?.map((item) => item.item_kind)).toEqual([
       "section",
+      "field",
+      "field",
       "field",
       "field",
       "task_group",

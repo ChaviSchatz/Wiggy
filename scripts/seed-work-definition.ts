@@ -128,6 +128,36 @@ const TASK_GROUPS = [
 ] as const;
 type TaskGroupKey = (typeof TASK_GROUPS)[number]["key"];
 
+/**
+ * The "no top / no skin" intake flags (architecture §4.4, §6.5): boolean
+ * fields whose `config.missing_item_kind` makes confirming the intake create a
+ * tracked `missing_items` row.
+ */
+const MISSING_STOCK_FIELDS = [
+  { fieldKey: "no_top", fieldLabel: "אין טופ במלאי", missingItemKind: "top" },
+  { fieldKey: "no_skin", fieldLabel: "אין עור במלאי", missingItemKind: "skin" },
+] as const;
+
+function missingStockFieldRow(
+  templateId: string,
+  field: (typeof MISSING_STOCK_FIELDS)[number],
+  sortOrder: number,
+) {
+  return {
+    intake_template_id: templateId,
+    sort_order: sortOrder,
+    item_kind: "field",
+    field_key: field.fieldKey,
+    field_label: field.fieldLabel,
+    field_type: "boolean",
+    config: {
+      mandatory: false,
+      visible: true,
+      missing_item_kind: field.missingItemKind,
+    },
+  };
+}
+
 export async function seedWorkDefinition(
   supabase: AdminClient,
   businessId: string,
@@ -338,12 +368,13 @@ async function seedNewWigIntakeTemplate(
 
   const existingItems = await supabase
     .from("intake_template_items")
-    .select("id", { count: "exact", head: true })
+    .select("id, field_key, sort_order")
     .eq("intake_template_id", templateId);
   if (existingItems.error) throw existingItems.error;
 
-  if ((existingItems.count ?? 0) > 0) {
+  if ((existingItems.data ?? []).length > 0) {
     console.log(`Intake template "${templateName}" already has items.`);
+    await ensureMissingStockFields(supabase, templateId, existingItems.data);
     return;
   }
 
@@ -372,9 +403,11 @@ async function seedNewWigIntakeTemplate(
       field_type: "textarea",
       config: { mandatory: false, visible: true },
     },
+    missingStockFieldRow(templateId, MISSING_STOCK_FIELDS[0], 3),
+    missingStockFieldRow(templateId, MISSING_STOCK_FIELDS[1], 4),
     {
       intake_template_id: templateId,
-      sort_order: 3,
+      sort_order: 5,
       item_kind: "task_group",
       task_group_id: taskGroupIds.color_group,
       config: {
@@ -386,7 +419,7 @@ async function seedNewWigIntakeTemplate(
     },
     {
       intake_template_id: templateId,
-      sort_order: 4,
+      sort_order: 6,
       item_kind: "task_type",
       task_type_id: taskTypeIds.hand_tying,
       config: {
@@ -397,7 +430,7 @@ async function seedNewWigIntakeTemplate(
     },
     {
       intake_template_id: templateId,
-      sort_order: 5,
+      sort_order: 7,
       item_kind: "task_group",
       task_group_id: taskGroupIds.wash_and_styling_group,
       config: {
@@ -409,7 +442,7 @@ async function seedNewWigIntakeTemplate(
     },
     {
       intake_template_id: templateId,
-      sort_order: 6,
+      sort_order: 8,
       item_kind: "section",
       config: {
         section_title: "עבודה נוספת",
@@ -423,4 +456,34 @@ async function seedNewWigIntakeTemplate(
   const inserted = await supabase.from("intake_template_items").insert(items);
   if (inserted.error) throw inserted.error;
   console.log(`Seeded ${items.length} intake template items.`);
+}
+
+/**
+ * Appends the missing-stock flags to a template that was seeded before they
+ * existed, so an already-seeded dev database picks them up without a reset.
+ */
+async function ensureMissingStockFields(
+  supabase: AdminClient,
+  templateId: string,
+  existingItems: { field_key: string | null; sort_order: number }[],
+) {
+  const existingKeys = new Set(
+    existingItems.map((item) => item.field_key).filter(Boolean),
+  );
+  const absent = MISSING_STOCK_FIELDS.filter(
+    (field) => !existingKeys.has(field.fieldKey),
+  );
+  if (absent.length === 0) return;
+
+  const maxSortOrder = Math.max(
+    ...existingItems.map((item) => item.sort_order),
+    -1,
+  );
+  const rows = absent.map((field, index) =>
+    missingStockFieldRow(templateId, field, maxSortOrder + 1 + index),
+  );
+
+  const inserted = await supabase.from("intake_template_items").insert(rows);
+  if (inserted.error) throw inserted.error;
+  console.log(`Added ${rows.length} missing-stock intake fields.`);
 }

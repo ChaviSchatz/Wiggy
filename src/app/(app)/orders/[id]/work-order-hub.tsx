@@ -21,6 +21,7 @@ export type HubPermissions = {
   canApprove: boolean;
   canWorkTasks: boolean;
   canManageBoard: boolean;
+  canManageMissingItems: boolean;
 };
 
 export function WorkOrderHub({
@@ -51,7 +52,10 @@ export function WorkOrderHub({
         reachedStageIds={reachedStageIds}
       />
 
-      <WarningsSection missingItems={data.missingItems} />
+      <WarningsSection
+        missingItems={data.missingItems}
+        canManageMissingItems={permissions.canManageMissingItems}
+      />
 
       <TaskSection
         workOrderId={data.order.id}

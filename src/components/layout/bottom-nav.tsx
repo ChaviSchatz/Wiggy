@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
 import type { Role } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { visibleBottomNavItems } from "./nav-items";
@@ -33,6 +34,19 @@ export function BottomNav({ role }: { role: Role }) {
             <span>{t(key)}</span>
           </>
         );
+
+        if (key === "feedback") {
+          return (
+            <FeedbackDialog
+              key={key}
+              trigger={
+                <button type="button" className={itemClass(false)}>
+                  {content}
+                </button>
+              }
+            />
+          );
+        }
 
         if (!href) {
           return (
