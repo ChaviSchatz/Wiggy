@@ -36,20 +36,40 @@ export function HistorySection({ activity }: { activity: ActivityEntry[] }) {
   );
 }
 
+/** Falls back to the raw enum value if it's ever not one of the known statuses. */
+function translateStatus(
+  tStatus: ReturnType<typeof useTranslations>,
+  status: string,
+): string {
+  try {
+    return tStatus(status);
+  } catch {
+    return status;
+  }
+}
+
 function ActivityLine({ entry }: { entry: ActivityEntry }) {
   const t = useTranslations("pages.orders.detail.hub.history.verbs");
+  const tStatus = useTranslations("pages.orders.status");
   const payload = (entry.payload ?? {}) as Record<string, unknown>;
 
   switch (entry.verb) {
-    case "order_status_changed":
+    case "order_status_changed": {
+      // `payload.from`/`payload.to` are the raw work_orders.status enum
+      // values -- translate them to their Hebrew labels (same catalog the
+      // header's status badge uses, `pages.orders.status.*`) rather than
+      // interpolating the DB code straight into the sentence.
+      const fromKey = String(payload.from ?? "");
+      const toKey = String(payload.to ?? "");
       return (
         <>
           {t("order_status_changed", {
-            from: String(payload.from ?? ""),
-            to: String(payload.to ?? ""),
+            from: translateStatus(tStatus, fromKey),
+            to: translateStatus(tStatus, toKey),
           })}
         </>
       );
+    }
     case "task_returned_for_rework":
       return (
         <>

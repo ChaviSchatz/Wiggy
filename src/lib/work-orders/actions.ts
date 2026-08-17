@@ -302,6 +302,67 @@ export async function markDeliveredAction(
   return { success: true };
 }
 
+/**
+ * Where a manually-added task's `sequence_order` should land: right after
+ * every existing task whose stage is the same or earlier, and before any
+ * task in a later stage (architecture §6.4 -- `sequence_order` derives from
+ * the task's work-stage sort order, same as initial generation in
+ * `generate.ts`'s `sequenceTasks`). Appending at the order's global max
+ * regardless of stage would let an earlier-stage task added mid-order get
+ * wrongly gated by `computeAvailability` on later-stage work that hasn't
+ * finished yet (src/lib/availability.ts: "every earlier-sequence_order task
+ * ... is done"). Existing tasks that land after the new one are shifted by
+ * one to make room; there's no unique constraint on `sequence_order`, so
+ * these updates are safe to fire in parallel.
+ */
+async function nextSequenceOrderForStage(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  workOrderId: string,
+  newTaskWorkStageId: string,
+): Promise<number> {
+  const { data: existingTasks, error: existingTasksError } = await supabase
+    .from("runtime_tasks")
+    .select("id, work_stage_id, sequence_order")
+    .eq("work_order_id", workOrderId)
+    .order("sequence_order", { ascending: true });
+  if (existingTasksError) throw existingTasksError;
+
+  const stageIds = Array.from(
+    new Set([
+      ...(existingTasks ?? []).map((t) => t.work_stage_id),
+      newTaskWorkStageId,
+    ]),
+  );
+  const { data: stages, error: stagesError } = await supabase
+    .from("work_stages")
+    .select("id, sort_order")
+    .in("id", stageIds);
+  if (stagesError) throw stagesError;
+
+  const sortOrderByStageId = new Map(
+    (stages ?? []).map((s) => [s.id, s.sort_order]),
+  );
+  const newStageSortOrder = sortOrderByStageId.get(newTaskWorkStageId) ?? 0;
+
+  const tasksAfter = (existingTasks ?? []).filter(
+    (t) => (sortOrderByStageId.get(t.work_stage_id) ?? 0) > newStageSortOrder,
+  );
+  const sequenceOrder = (existingTasks?.length ?? 0) - tasksAfter.length;
+
+  if (tasksAfter.length > 0) {
+    await Promise.all(
+      tasksAfter.map((t) =>
+        supabase
+          .from("runtime_tasks")
+          .update({ sequence_order: t.sequence_order + 1 })
+          .eq("id", t.id),
+      ),
+    );
+  }
+
+  return sequenceOrder;
+}
+
 export type AddManualTaskInput = {
   workOrderId: string;
   taskTypeId: string | null;
@@ -344,14 +405,11 @@ export async function addManualTaskAction(
     source = "other";
   }
 
-  const { data: maxSequenceRow } = await supabase
-    .from("runtime_tasks")
-    .select("sequence_order")
-    .eq("work_order_id", input.workOrderId)
-    .order("sequence_order", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  const sequenceOrder = (maxSequenceRow?.sequence_order ?? -1) + 1;
+  const sequenceOrder = await nextSequenceOrderForStage(
+    supabase,
+    input.workOrderId,
+    workStageId,
+  );
 
   const { data: task, error } = await supabase
     .from("runtime_tasks")
