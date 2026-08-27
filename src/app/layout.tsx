@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
-import { Heebo } from "next/font/google";
+import { Heebo, Rubik } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 
 import { defaultLocale, dir } from "@/i18n/config";
 import "./globals.css";
 
+/** UI text: body, labels, metadata, controls, tables. */
 const heebo = Heebo({
   subsets: ["hebrew", "latin"],
   variable: "--font-heebo",
+  display: "swap",
+});
+
+/** Display text: page titles, section headings, KPI numerals, wordmark. */
+const rubik = Rubik({
+  subsets: ["hebrew", "latin"],
+  variable: "--font-rubik",
   display: "swap",
 });
 
@@ -28,7 +36,11 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={defaultLocale} dir={dir} className={heebo.variable}>
+    <html
+      lang={defaultLocale}
+      dir={dir}
+      className={`${heebo.variable} ${rubik.variable}`}
+    >
       <body className="font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
           {children}

@@ -59,7 +59,31 @@ human working in this repo. Read it first.
 > open to every role and append-only since v1 has no triage UI). Missing-item creation and status
 > changes write `activity` verbs against the owning order. Note `vitest.config.mts` now stubs
 > `server-only`: a client component importing a Server Action (the feedback dialog) drags the
-> `"use server"` module graph into the unit-test bundle. The
+> `"use server"` module graph into the unit-test bundle.
+>
+> A dedicated UX/UI pass then **re-specified the visual layer for the whole product** —
+> `docs/ui/design-language.md` and `docs/ui/design-system.md` were rewritten and
+> `docs/ui/screen-designs.md` was added. The brand moved to a deep plum `#672B62` (still exposed as
+> the `mauve-*` token family, so call sites did not churn), the desktop side nav became a dark plum
+> surface with the brand inside it, Rubik joined Heebo for titles and numerals, status colours became
+> AA-compliant soft-background/deep-foreground pairs, shadows collapsed to "none, except things that
+> float", and urgency was fixed at two levels plus blocked (ADR 0012).
+>
+> **Implemented so far:** the token layer (`src/app/globals.css` + `tailwind.config.ts` — palette,
+> type scale with weight/tracking baked into each step, radii, the single `overlay` shadow, and a
+> fixed `z-index` scale), Rubik alongside Heebo, the app chrome (dark plum `SideNav` carrying brand
+> and current user, `TopBar` reduced to actions over the main column, `BottomNav` with 44px targets),
+> the shared `StatusChip` (the one domain-status -> colour mapping, which
+> `src/lib/work-orders/labels.ts` now delegates to) and `KanbanColumn`, and the **production board**
+> end to end. Because every screen resolves colour through the token layer, the whole app picked up
+> the new palette; adding the missing `mauve-200`/`peach-200`/`sage-300` steps also fixed three files
+> that referenced undefined classes and were silently falling back to `border-line`.
+>
+> **Not yet implemented:** the per-screen structural work in `docs/ui/screen-designs.md` for
+> everything except the board — notably `PageHeader` is still bypassed by hand-rolled `<h1>`s in
+> `sprint-header.tsx` and `hub-header.tsx`, the orders list still renders a "normal" urgency label
+> where ADR 0012 says it should render nothing, and the other screens keep their current structure.
+> Treat `docs/ui/` as the target and expect those screens to differ until that work lands. The
 > design is specified in `docs/`; implementation follows the specs there.
 
 ## Start here (read in this order)
@@ -74,10 +98,14 @@ human working in this repo. Read it first.
 7. `docs/ui/information-architecture.md` — navigation, role visibility, landing pages, device strategy.
 8. `docs/ui/design-language.md` — visual direction ("warm operational studio") + avatar/identity rules.
 9. `docs/ui/design-system.md` — build-ready tokens, components, page archetypes, interaction patterns.
-10. `docs/ui/work-order-hub.md` — the central order screen (hybrid presentation + content).
-11. `docs/plan/v1-implementation-plan.md` — the v1 build plan (vertical slices).
-12. `context-files/Wiggy Summary Document - English Translation.md` — original product spec (input,
+10. `docs/ui/screen-designs.md` — the design of every screen, composed from the design-system parts.
+11. `docs/ui/work-order-hub.md` — the central order screen (hybrid presentation + content).
+12. `docs/plan/v1-implementation-plan.md` — the v1 build plan (vertical slices).
+13. `context-files/Wiggy Summary Document - English Translation.md` — original product spec (input,
     partly superseded by the docs above; the `docs/` folder wins on any conflict).
+
+The three UI-design files form one chain: `design-language.md` fixes **intent**, `design-system.md`
+fixes **values**, `screen-designs.md` fixes **per-screen composition**. The more specific file wins.
 
 ## Rules of engagement (AI-native project)
 

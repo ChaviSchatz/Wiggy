@@ -1,9 +1,14 @@
 import { cn } from "@/lib/utils";
 
+/**
+ * Calm, stable monogram grounds. Deliberately excludes `danger`, so a worker's
+ * initials can never be mistaken for an alert.
+ */
 const MONOGRAM_COLORS = [
   "bg-mauve-100 text-mauve-600",
   "bg-sage-100 text-sage-600",
-  "bg-peach-100 text-danger-600",
+  "bg-info-100 text-info-600",
+  "bg-peach-100 text-peach-600",
 ];
 
 function colorForName(name: string): string {
@@ -20,10 +25,19 @@ function initials(name: string): string {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`;
 }
 
+const DIMENSIONS = {
+  sm: "size-7 text-meta",
+  md: "size-[34px] text-body",
+  lg: "size-11 text-body-lg",
+} as const;
+
 /**
  * Circular worker avatar (design-language.md "Identity & media rules"):
  * workers always render an avatar, monogram fallback with a stable colour.
  * Never used for client identity, which is text-only.
+ *
+ * The light ring is what lets the same avatar read cleanly on white content
+ * and on the dark side navigation.
  */
 export function Avatar({
   name,
@@ -32,16 +46,16 @@ export function Avatar({
 }: {
   /** `null` renders the unassigned state (dashed ring, no monogram). */
   name: string | null;
-  size?: "sm" | "md";
+  size?: keyof typeof DIMENSIONS;
   className?: string;
 }) {
-  const dimension = size === "sm" ? "size-7 text-xs" : "size-9 text-sm";
+  const dimension = DIMENSIONS[size];
 
   if (!name) {
     return (
       <span
         className={cn(
-          "inline-flex shrink-0 items-center justify-center rounded-full border-2 border-dashed border-line text-muted",
+          "inline-flex shrink-0 items-center justify-center rounded-full border-2 border-dashed border-line-strong text-muted",
           dimension,
           className,
         )}
@@ -53,7 +67,7 @@ export function Avatar({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-full font-medium",
+        "inline-flex shrink-0 items-center justify-center rounded-full font-semibold ring-1 ring-inset ring-white/70",
         colorForName(name),
         dimension,
         className,

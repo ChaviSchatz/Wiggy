@@ -154,6 +154,14 @@
       "unlock": "פתיחה",
       "start": "התחלה",
       "done": "סיום",
+      "dueLabel": "תאריך יעד",
+      "columnEmpty": "אין משימות בשלב זה",
+      "legend": {
+        "title": "מקרא",
+        "urgent": "דחוף",
+        "normal": "רגיל",
+        "blocked": "חסום"
+      },
       "reassign": "שיוך עובד/ת",
       "undo": "ביטול",
       "undoStartMessage": "המשימה הותחלה.",

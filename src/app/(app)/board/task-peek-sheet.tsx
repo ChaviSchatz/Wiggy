@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+import { StatusChip } from "@/components/domain/status-chip";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  priorityBadgeVariant,
-  statusBadgeVariant,
-} from "@/lib/work-orders/labels";
 import type { Availability } from "@/lib/availability";
 import type { BoardTask } from "@/lib/board/queries";
 
@@ -57,14 +54,20 @@ export function TaskPeekSheet({
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted">{t("peek.status")}</span>
-                <Badge variant={statusBadgeVariant(task.status)}>
-                  {tTaskStatus(task.status)}
-                </Badge>
+                <StatusChip
+                  kind="task"
+                  status={task.status}
+                  label={tTaskStatus(task.status)}
+                />
               </div>
               {availability === "blocked" ? (
                 <div className="flex items-center justify-between">
                   <span className="text-muted">{t("peek.availability")}</span>
-                  <Badge variant="neutral">{t("blocked")}</Badge>
+                  <StatusChip
+                    kind="availability"
+                    status="blocked"
+                    label={t("blocked")}
+                  />
                 </div>
               ) : null}
               <div className="flex items-center justify-between">
@@ -79,9 +82,7 @@ export function TaskPeekSheet({
                   <span className="text-muted">
                     {t("peek.requiresApproval")}
                   </span>
-                  <Badge variant={priorityBadgeVariant("urgent")}>
-                    {t("peek.yes")}
-                  </Badge>
+                  <Badge variant="warning">{t("peek.yes")}</Badge>
                 </div>
               ) : null}
               {task.description ? (
