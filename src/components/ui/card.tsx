@@ -2,6 +2,11 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * A resting surface, so it carries **no shadow** (design-system.md §3): a
+ * hairline `line` border on the `bg` ground is what separates it from the page.
+ * For a section container with a header, reach for `Panel` instead.
+ */
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -9,7 +14,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-card border border-line bg-card text-card-foreground shadow-sm",
+      "rounded-card border border-line bg-card text-card-foreground",
       className,
     )}
     {...props}
@@ -35,10 +40,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(
-      "text-lg font-semibold leading-none tracking-tight",
-      className,
-    )}
+    className={cn("font-display text-section text-ink", className)}
     {...props}
   />
 ));
@@ -48,7 +50,7 @@ const CardDescription = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("text-sm text-muted", className)} {...props} />
+  <div ref={ref} className={cn("text-body text-muted", className)} {...props} />
 ));
 CardDescription.displayName = "CardDescription";
 

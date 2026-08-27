@@ -17,6 +17,8 @@ export type BoardTask = Tables<"runtime_tasks"> & {
   customerName: string | null;
   assignedStaffMemberName: string | null;
   taskTypeName: string | null;
+  /** The card shows the task's own `due_at` and falls back to this (ADR 0012). */
+  orderDueAt: string | null;
 };
 
 /**
@@ -57,7 +59,7 @@ export async function fetchBoardTasks(
     workOrderIds.length > 0
       ? supabase
           .from("work_orders")
-          .select("id, number, work_order_kind, customer_id")
+          .select("id, number, work_order_kind, customer_id, due_at")
           .in("id", workOrderIds)
       : Promise.resolve({ data: [], error: null }),
     staffIds.length > 0
@@ -117,6 +119,7 @@ export async function fetchBoardTasks(
       taskTypeName: task.task_type_id
         ? (taskTypeNameById.get(task.task_type_id) ?? null)
         : null,
+      orderDueAt: order?.due_at ?? null,
     };
   });
 }

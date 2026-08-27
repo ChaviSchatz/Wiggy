@@ -15,7 +15,7 @@ warm-studio tokens; Hebrew-first RTL via next-intl. See `docs/architecture.md`.
 **Tech Stack:** Next.js, TypeScript, Supabase, TanStack Query, Tailwind, shadcn/ui, next-intl,
 lucide, Vitest + Testing Library, Playwright.
 
-**References:** `docs/architecture.md` · `docs/ui/{screen-inventory,information-architecture,design-language,design-system,work-order-hub}.md` · `docs/domains/*` · ADRs 0001–0010.
+**References:** `docs/architecture.md` · `docs/ui/{screen-inventory,information-architecture,design-language,design-system,screen-designs,work-order-hub}.md` · `docs/domains/*` · ADRs 0001–0012.
 
 ---
 

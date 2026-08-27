@@ -304,12 +304,20 @@ export async function cancelOrderAction(
   if (!user) return { success: false, error: "forbidden" };
 
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase
+  const { data: cancelled, error } = await supabase
     .from("work_orders")
     .update({ status: "cancelled" })
     .eq("id", workOrderId)
-    .not("status", "in", "(completed,cancelled)");
+    .not("status", "in", "(completed,cancelled)")
+    .select("id");
   if (error) return { success: false, error: "generic" };
+  // A completed/already-cancelled order matches nothing, and PostgREST
+  // reports no error for that -- without the row count this reported
+  // success and logged an `order_cancelled` entry for an order it never
+  // touched. Mirrors markDeliveredAction, which already checks.
+  if (!cancelled || cancelled.length === 0) {
+    return { success: false, error: "invalidTransition" };
+  }
 
   await logActivity(supabase, {
     businessId: user.businessId,

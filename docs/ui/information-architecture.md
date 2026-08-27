@@ -61,5 +61,7 @@ on the permission behind it); workers see a snapshot of their own queue with a l
   Worker My Work (tablet, bottom bar).
 - `docs/wireframes/sprint-and-queue.html`, `docs/wireframes/intake-to-board.html` — earlier flows.
 
-> Final visual design (spacing, type, color system, components) is refined during build using
-> shadcn/ui + Tailwind; these wireframes fix structure and behaviour, not final styling.
+> These wireframes fix **structure and behaviour**, not styling. Visual design is no longer "refined
+> during build": spacing, type, colour, and components are fixed in `docs/ui/design-system.md`, and
+> per-screen composition in `docs/ui/screen-designs.md`. Where a wireframe and those files disagree on
+> appearance, the design files win; where they disagree on structure or navigation, this file wins.

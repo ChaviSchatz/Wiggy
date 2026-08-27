@@ -15,16 +15,18 @@ export function BottomNav({ role }: { role: Role }) {
   const pathname = usePathname();
   const items = visibleBottomNavItems(role);
 
+  // >=44px touch target (design-system.md §3) -- this bar is the tablet and
+  // phone navigation, so the target floor applies to every entry.
   const itemClass = (active: boolean) =>
     cn(
-      "flex flex-1 flex-col items-center justify-center gap-1 py-2 text-xs font-medium transition-colors",
-      active ? "text-mauve-600" : "text-muted hover:text-ink",
+      "flex min-h-[44px] flex-1 flex-col items-center justify-center gap-1 py-2 text-meta font-medium transition-colors",
+      active ? "bg-mauve-100 text-mauve-600" : "text-muted hover:text-ink",
     );
 
   return (
     <nav
       aria-label={tA11y("secondaryNav")}
-      className="fixed inset-x-0 bottom-0 z-20 flex border-t border-line bg-surface lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-bottom flex border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       {items.map(({ key, href, icon: Icon }) => {
         const active = href ? pathname === href : false;

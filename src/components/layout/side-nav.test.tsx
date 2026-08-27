@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
+import type { CurrentUser } from "@/lib/auth/types";
+import type { Role } from "@/lib/roles";
 import messages from "../../../messages/he.json";
 import { SideNav } from "./side-nav";
 
@@ -17,9 +19,25 @@ function renderWithIntl(ui: React.ReactNode) {
   );
 }
 
+function userWithRole(role: Role): CurrentUser {
+  return {
+    id: "user-1",
+    email: "test@wiggy.local",
+    fullName: "שרה כהן",
+    avatarUrl: null,
+    businessId: "business-1",
+    businessName: "מספרת דוגמה",
+    role,
+  };
+}
+
+function renderSideNav(role: Role) {
+  return renderWithIntl(<SideNav user={userWithRole(role)} role={role} />);
+}
+
 describe("SideNav", () => {
   it("renders every nav label from the i18n catalog for an admin", () => {
-    renderWithIntl(<SideNav role="admin" />);
+    renderSideNav("admin");
 
     for (const label of Object.values(messages.nav)) {
       expect(screen.getByText(label)).toBeInTheDocument();
@@ -27,14 +45,14 @@ describe("SideNav", () => {
   });
 
   it("marks the active route with aria-current", () => {
-    renderWithIntl(<SideNav role="admin" />);
+    renderSideNav("admin");
 
     const dashboardLink = screen.getByText(messages.nav.dashboard).closest("a");
     expect(dashboardLink).toHaveAttribute("aria-current", "page");
   });
 
   it("hides office-only sections from a worker", () => {
-    renderWithIntl(<SideNav role="worker" />);
+    renderSideNav("worker");
 
     expect(screen.getByText(messages.nav.dashboard)).toBeInTheDocument();
     expect(screen.getByText(messages.nav.myWork)).toBeInTheDocument();
@@ -51,7 +69,7 @@ describe("SideNav", () => {
   });
 
   it("shows the secretary's order/customer sections but not sprint/settings", () => {
-    renderWithIntl(<SideNav role="secretary" />);
+    renderSideNav("secretary");
 
     expect(screen.getByText(messages.nav.orders)).toBeInTheDocument();
     expect(screen.getByText(messages.nav.customers)).toBeInTheDocument();

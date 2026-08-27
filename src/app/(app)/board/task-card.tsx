@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Lock, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { StatusChip } from "@/components/domain/status-chip";
 import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Availability } from "@/lib/availability";
@@ -13,10 +14,14 @@ import type { BoardTask } from "@/lib/board/queries";
 const STARTABLE = new Set(["pending", "returned_for_rework"]);
 
 /**
- * One task, one card (ADR 0010): identity leads with customer name (or
- * order kind for customer-less orders) + order number, never a client
- * avatar; the assignee avatar is the worker (tap -> reassign); the everyday
- * action (Start/Done) is inline, no drawer needed for it.
+ * One task, one card (ADR 0010). Composition is fixed in
+ * docs/ui/screen-designs.md §6: identity leads with the customer name (or order
+ * kind for customer-less orders), the task title is the second line, and the
+ * footer carries assignee / due date / state.
+ *
+ * Deliberately absent: any photo or thumbnail, the order kind, the stage name,
+ * and an overflow menu. The column already *is* the stage, and photos belong to
+ * the peek and the hub.
  */
 export function TaskCard({
   task,
@@ -50,14 +55,23 @@ export function TaskCard({
 
   const isBlocked = availability === "blocked";
   const identity = task.customerName ?? tKind(task.orderKind);
+  // The task's own date wins; the order's is the fallback; neither means the
+  // slot renders nothing at all (ADR 0012).
+  const dueAt = task.due_at ?? task.orderDueAt;
+
+  // Resolved after mount so server and client agree on the first render.
+  const [isLate, setIsLate] = useState(false);
+  useEffect(() => {
+    setIsLate(dueAt !== null && new Date(dueAt).getTime() < Date.now());
+  }, [dueAt]);
 
   return (
     <div
       className={cn(
-        "rounded-card border p-3 shadow-sm transition-opacity",
+        "rounded-card border border-line border-s-2 border-s-mauve-100 bg-surface p-3 transition-all",
         isBlocked
-          ? "bg-mauve-100/30 border-line opacity-70"
-          : "border-line bg-surface",
+          ? "opacity-70"
+          : "hover:-translate-y-px hover:border-line-strong",
       )}
     >
       <button
@@ -65,22 +79,27 @@ export function TaskCard({
         onClick={onOpenPeek}
         className="block w-full text-start"
       >
-        <p className="flex items-center gap-1.5 text-sm font-medium text-ink">
-          <span>
+        <p className="flex items-center gap-1.5">
+          <span className="min-w-0 truncate text-identity text-ink">
             {identity}{" "}
-            <span className="font-normal text-muted">#{task.orderNumber}</span>
+            <span className="font-normal tabular-nums text-muted">
+              #{task.orderNumber}
+            </span>
           </span>
           {task.priority ? (
-            <span aria-label={tCommon("priorityLabel")} title={tCommon("priorityLabel")}>
+            <span
+              aria-label={tCommon("priorityLabel")}
+              title={tCommon("priorityLabel")}
+            >
               <Star
-                className="size-3.5 shrink-0 text-peach-500"
+                className="size-3.5 shrink-0 text-danger-500"
                 fill="currentColor"
                 aria-hidden
               />
             </span>
           ) : null}
         </p>
-        <p className="text-sm text-ink">{task.title}</p>
+        <p className="text-body text-ink">{task.title}</p>
       </button>
 
       <div className="mt-3 flex items-center justify-between gap-2">
@@ -94,44 +113,61 @@ export function TaskCard({
           <Avatar name={task.assignedStaffMemberName} size="sm" />
         </button>
 
-        {isBlocked ? (
-          <div className="flex items-center gap-2">
-            <Badge variant="neutral">
-              <Lock className="me-1 size-3" aria-hidden />
-              {t("blocked")}
-            </Badge>
-            {canManageBoard ? (
-              <Button size="sm" variant="outline" onClick={onToggleOverride}>
-                {t("unlock")}
+        <div className="flex items-center gap-2">
+          {dueAt ? (
+            <span
+              className={cn(
+                "tabular-nums text-meta",
+                isLate ? "font-medium text-danger-600" : "text-muted",
+              )}
+              title={t("dueLabel")}
+            >
+              {new Date(dueAt).toLocaleDateString("he-IL", {
+                day: "2-digit",
+                month: "2-digit",
+              })}
+            </span>
+          ) : null}
+
+          {isBlocked ? (
+            <>
+              <StatusChip
+                kind="availability"
+                status="blocked"
+                label={t("blocked")}
+                icon={<Lock className="size-3" aria-hidden />}
+              />
+              {canManageBoard ? (
+                <Button size="sm" variant="outline" onClick={onToggleOverride}>
+                  {t("unlock")}
+                </Button>
+              ) : null}
+            </>
+          ) : STARTABLE.has(task.status) ? (
+            <Button size="sm" variant="outline" onClick={onStart}>
+              {t("start")}
+            </Button>
+          ) : task.status === "in_progress" ? (
+            <Button size="sm" onClick={onComplete}>
+              {t("done")}
+            </Button>
+          ) : task.status === "awaiting_approval" && canApprove ? (
+            <div className="flex items-center gap-1">
+              <Button size="sm" variant="outline" onClick={onReturn}>
+                {t("returnAction")}
               </Button>
-            ) : null}
-          </div>
-        ) : STARTABLE.has(task.status) ? (
-          <Button size="sm" variant="outline" onClick={onStart}>
-            {t("start")}
-          </Button>
-        ) : task.status === "in_progress" ? (
-          <Button size="sm" onClick={onComplete}>
-            {t("done")}
-          </Button>
-        ) : task.status === "awaiting_approval" && canApprove ? (
-          <div className="flex items-center gap-1">
-            <Button size="sm" variant="outline" onClick={onReturn}>
-              {t("returnAction")}
-            </Button>
-            <Button size="sm" onClick={onApprove}>
-              {t("approveAction")}
-            </Button>
-          </div>
-        ) : (
-          <Badge
-            variant={
-              task.status === "awaiting_approval" ? "warning" : "neutral"
-            }
-          >
-            {tTaskStatus(task.status)}
-          </Badge>
-        )}
+              <Button size="sm" onClick={onApprove}>
+                {t("approveAction")}
+              </Button>
+            </div>
+          ) : (
+            <StatusChip
+              kind="task"
+              status={task.status}
+              label={tTaskStatus(task.status)}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

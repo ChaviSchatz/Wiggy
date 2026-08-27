@@ -1,20 +1,16 @@
 import type { BadgeVariant } from "@/components/ui/badge";
+import { statusVariant } from "@/components/domain/status-chip";
 
-/** Colour mapping only -- the actual label text always comes from i18n. */
+/**
+ * Thin adapters over the one status -> colour mapping in `StatusChip`. Kept so
+ * existing `<Badge variant={...}>` call sites keep working; new code should
+ * render `<StatusChip>` directly rather than resolving a variant by hand.
+ */
+
 export function statusBadgeVariant(status: string): BadgeVariant {
-  switch (status) {
-    case "completed":
-    case "ready_for_handoff":
-      return "success";
-    case "cancelled":
-      return "danger";
-    case "on_hold":
-      return "warning";
-    default:
-      return "neutral";
-  }
+  return statusVariant("order", status) ?? "neutral";
 }
 
 export function priorityBadgeVariant(priority: string): BadgeVariant {
-  return priority === "urgent" ? "warning" : "neutral";
+  return statusVariant("urgency", priority) ?? "neutral";
 }

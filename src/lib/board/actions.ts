@@ -14,6 +14,7 @@ import { computeAppendRank } from "@/lib/queue/append-rank";
 import { can } from "@/lib/roles";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { recomputeOrderStatus } from "@/lib/work-orders/recompute";
+import { canUndoComplete, canUndoStart } from "./transitions";
 
 export type TaskActionResult =
   { success: true } | { success: false; error: string };
@@ -160,28 +161,39 @@ export async function undoStartTaskAction(
   if (!user) return { success: false, error: "forbidden" };
 
   const supabase = await createServerSupabaseClient();
-  const { data: existingTask } = await supabase
+  const { data: existingTask, error: fetchError } = await supabase
     .from("runtime_tasks")
-    .select("work_order_id")
+    .select("id, work_order_id, status")
     .eq("id", taskId)
     .maybeSingle();
+  if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (!canUndoStart(existingTask.status as TaskStatus)) {
+    return { success: false, error: "invalidTransition" };
+  }
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("runtime_tasks")
     .update({ status: "pending", started_at: null })
     .eq("id", taskId)
-    .eq("status", "in_progress");
+    .eq("status", "in_progress")
+    .select("id");
   if (error) return { success: false, error: "generic" };
-
-  if (existingTask) {
-    await afterTaskChange(supabase, {
-      businessId: user.businessId,
-      actorUserId: user.id,
-      verb: "task_start_undone",
-      taskId,
-      workOrderId: existingTask.work_order_id,
-    });
+  // The `.eq("status", ...)` above is a compare-and-swap against someone
+  // else advancing the task between the fetch and the update. PostgREST
+  // reports no error when it simply matches nothing, so the row count is
+  // the only signal -- without it this reported success and wrote a
+  // `task_start_undone` entry for a transition that never happened.
+  if (!updated || updated.length === 0) {
+    return { success: false, error: "invalidTransition" };
   }
+
+  await afterTaskChange(supabase, {
+    businessId: user.businessId,
+    actorUserId: user.id,
+    verb: "task_start_undone",
+    taskId,
+    workOrderId: existingTask.work_order_id,
+  });
   return { success: true };
 }
 
@@ -226,7 +238,11 @@ export async function completeTaskAction(
   return { success: true };
 }
 
-/** Undo of completeTaskAction, within the UndoToast grace window. */
+/**
+ * Undo of completeTaskAction, within the UndoToast grace window. Refuses an
+ * approval-gated task that already reached `done` -- that is an approver's
+ * decision, not this worker's completion (see `canUndoComplete`).
+ */
 export async function undoCompleteTaskAction(
   taskId: string,
 ): Promise<TaskActionResult> {
@@ -234,28 +250,42 @@ export async function undoCompleteTaskAction(
   if (!user) return { success: false, error: "forbidden" };
 
   const supabase = await createServerSupabaseClient();
-  const { data: existingTask } = await supabase
+  const { data: existingTask, error: fetchError } = await supabase
     .from("runtime_tasks")
-    .select("work_order_id")
+    .select("id, work_order_id, status, requires_approval")
     .eq("id", taskId)
     .maybeSingle();
+  if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (
+    !canUndoComplete(
+      existingTask.status as TaskStatus,
+      existingTask.requires_approval,
+    )
+  ) {
+    return { success: false, error: "invalidTransition" };
+  }
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("runtime_tasks")
     .update({ status: "in_progress", completed_at: null })
     .eq("id", taskId)
-    .in("status", ["done", "awaiting_approval"]);
+    // Compare-and-swap on the exact status we just validated, so an approval
+    // landing between the fetch and the update loses the race instead of
+    // being silently undone. See the row-count note in undoStartTaskAction.
+    .eq("status", existingTask.status)
+    .select("id");
   if (error) return { success: false, error: "generic" };
-
-  if (existingTask) {
-    await afterTaskChange(supabase, {
-      businessId: user.businessId,
-      actorUserId: user.id,
-      verb: "task_complete_undone",
-      taskId,
-      workOrderId: existingTask.work_order_id,
-    });
+  if (!updated || updated.length === 0) {
+    return { success: false, error: "invalidTransition" };
   }
+
+  await afterTaskChange(supabase, {
+    businessId: user.businessId,
+    actorUserId: user.id,
+    verb: "task_complete_undone",
+    taskId,
+    workOrderId: existingTask.work_order_id,
+  });
   return { success: true };
 }
 

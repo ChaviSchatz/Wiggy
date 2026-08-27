@@ -4,20 +4,76 @@
 
 @layer base {
   :root {
-    /* Warm "operational studio" theme tokens */
-    --bg: #faf7f5;
-    --surface: #ffffff;
-    --ink: #2e2a2e;
-    --muted: #7a727a;
-    --line: #e9e2e7;
+    /*
+     * "Warm operational studio" tokens — docs/ui/design-system.md §1.
+     * Never hardcode a colour, radius, or shadow in a component; add or
+     * change it here and every surface follows.
+     */
 
-    --mauve-600: #7c5e7d;
-    --mauve-100: #efe7ef;
-    --sage-600: #5f8a73;
-    --sage-100: #e6efe9;
-    --peach-500: #e0916b;
-    --peach-100: #f8e9df;
-    --danger-600: #c0553b;
+    /* Surfaces */
+    --bg: #fcfbfc;
+    --surface: #ffffff;
+    --surface-soft: #fdfbfd;
+    --cream: #fffdf9;
+
+    /* Text and lines */
+    --ink: #351f33;
+    --muted: #7d6e7b;
+    --faint: #9b8f99;
+    --line: #ebe5eb;
+    --line-strong: #dfd4df;
+    --hairline: #c7a8c3;
+
+    /*
+     * Brand. The family is named `mauve` for historical reasons; the values
+     * are plum. Read `mauve` as "brand".
+     */
+    --mauve-100: #f4eaf3;
+    --mauve-200: #ead9e8;
+    --mauve-600: #672b62;
+    --mauve-700: #572252;
+    --mauve-900: #482044;
+
+    /*
+     * Status triplets: `-100` soft ground, `-500` mid-tone for dots and
+     * borders, `-600` deepened foreground for text. The `-600` steps clear
+     * WCAG AA (>=4.5:1) against their own `-100` ground; the `-500` steps do
+     * not, so they must never carry text.
+     */
+    --sage-100: #eaf5ee;
+    --sage-200: #c9e3d4;
+    --sage-300: #a9cfbb;
+    --sage-500: #4d936b;
+    --sage-600: #3a7852;
+
+    --peach-100: #fff1df;
+    --peach-200: #f5e2c9;
+    --peach-500: #c17d31;
+    --peach-600: #99611f;
+
+    --danger-100: #fbe9e9;
+    --danger-200: #f2dada;
+    --danger-500: #ca6060;
+    --danger-600: #b34545;
+
+    --info-100: #edf2f8;
+    --info-200: #d8e3f0;
+    --info-500: #6481aa;
+    --info-600: #526e96;
+
+    --idle-100: #f2eff2;
+    --idle-200: #e4dfe4;
+    --idle-500: #7b707a;
+    --idle-600: #736874;
+
+    /* Side navigation — the one inverted surface in the product. */
+    --sidebar: #5b2557;
+    --sidebar-fg: rgb(255 255 255 / 0.9);
+    --sidebar-fg-dim: rgb(255 255 255 / 0.68);
+    --sidebar-hover: rgb(255 255 255 / 0.08);
+    --sidebar-active: rgb(255 255 255 / 0.14);
+    --sidebar-line: rgb(255 255 255 / 0.12);
+    --sidebar-mark: #ead9e8;
 
     /* Semantic tokens consumed by shadcn/ui primitives */
     --background: var(--bg);
@@ -27,12 +83,25 @@
     --primary: var(--mauve-600);
     --primary-foreground: #ffffff;
     --border: var(--line);
-    --input: var(--line);
+    --input: var(--line-strong);
     --ring: var(--mauve-600);
 
-    /* Radii */
-    --radius-card: 16px;
-    --radius-control: 10px;
+    /* Radii — scale with the element (control -> card -> panel -> container) */
+    --radius-xs: 9px;
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    /* Aliases kept so existing call sites stay valid. */
+    --radius-control: var(--radius-xs);
+    --radius-card: var(--radius-sm);
+
+    /*
+     * Depth. Resting surfaces have no shadow — a hairline border on `bg` is
+     * what separates them. `--shadow-overlay` is only for things that
+     * genuinely float: dialogs, drawers, popovers, toasts.
+     */
+    --shadow-overlay: 0 16px 34px rgb(69 35 66 / 0.11);
+    --scrim: rgb(45 24 43 / 0.3);
   }
 }
 
@@ -43,5 +112,11 @@
 
   body {
     @apply bg-bg text-ink;
+  }
+
+  /* Numerals that sit in columns or get compared line up. */
+  th,
+  td {
+    font-variant-numeric: tabular-nums;
   }
 }

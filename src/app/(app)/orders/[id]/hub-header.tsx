@@ -107,7 +107,7 @@ export function HubHeader({
       {canManageOrder ? (
         <div className="flex flex-wrap gap-2 border-t border-line pt-3">
           <Button size="sm" variant="outline" onClick={onEditIntake}>
-            {th("editIntake")}
+            {th("editIntake.button")}
           </Button>
           {order.status === "ready_for_handoff" ? (
             <MarkDeliveredDialog workOrderId={order.id} />

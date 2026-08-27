@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { KanbanColumn } from "@/components/domain/kanban-column";
 import { ReturnForReworkDialog } from "@/components/tasks/return-for-rework-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { UndoToast } from "@/components/ui/undo-toast";
@@ -211,40 +212,35 @@ export function ProductionBoard({
           description={t("emptyDescription")}
         />
       ) : (
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-3 overflow-x-auto pb-4">
           {stages.map((stage) => {
             const stageTasks = tasksByStage.get(stage.id) ?? [];
             return (
-              <div key={stage.id} className="w-72 shrink-0">
-                <div className="mb-2 flex items-center justify-between px-1">
-                  <h2 className="text-sm font-semibold text-ink">
-                    {stage.name}
-                  </h2>
-                  <span className="text-xs text-muted">
-                    {stageTasks.length}
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  {stageTasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      availability={
-                        availabilityByTaskId.get(task.id) ?? "available"
-                      }
-                      canManageBoard={canManageBoard}
-                      canApprove={canApprove}
-                      onOpenPeek={() => setPeekTask(task)}
-                      onOpenAssignee={() => setAssigneeTask(task)}
-                      onStart={() => handleStart(task)}
-                      onComplete={() => handleComplete(task)}
-                      onToggleOverride={() => handleToggleOverride(task)}
-                      onApprove={() => handleApprove(task)}
-                      onReturn={() => setReturnTaskId(task.id)}
-                    />
-                  ))}
-                </div>
-              </div>
+              <KanbanColumn
+                key={stage.id}
+                title={stage.name}
+                count={stageTasks.length}
+                emptyLabel={t("columnEmpty")}
+              >
+                {stageTasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    availability={
+                      availabilityByTaskId.get(task.id) ?? "available"
+                    }
+                    canManageBoard={canManageBoard}
+                    canApprove={canApprove}
+                    onOpenPeek={() => setPeekTask(task)}
+                    onOpenAssignee={() => setAssigneeTask(task)}
+                    onStart={() => handleStart(task)}
+                    onComplete={() => handleComplete(task)}
+                    onToggleOverride={() => handleToggleOverride(task)}
+                    onApprove={() => handleApprove(task)}
+                    onReturn={() => setReturnTaskId(task.id)}
+                  />
+                ))}
+              </KanbanColumn>
             );
           })}
         </div>

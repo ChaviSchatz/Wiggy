@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { CONTROL_FOCUS, CONTROL_FRAME, CONTROL_HEIGHT } from "./control";
 
 const Input = React.forwardRef<
   HTMLInputElement,
@@ -9,7 +10,10 @@ const Input = React.forwardRef<
   <input
     type={type}
     className={cn(
-      "flex h-10 w-full rounded-control border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:opacity-50",
+      "flex px-3 py-2",
+      CONTROL_FRAME,
+      CONTROL_HEIGHT,
+      CONTROL_FOCUS,
       className,
     )}
     ref={ref}
