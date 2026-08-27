@@ -215,6 +215,17 @@ Distinctions: **`skipped`** = intentionally not needed (normal); **`cancelled`**
 **`deferred`** = *manual* pause. A **`blocked`** state is **reserved** for the future dependency
 engine (§8) and is **not** implemented now.
 
+**Undo is a bounded reversal, not a transition of its own.** The board's `UndoToast` reverses the
+step the actor just took: `in_progress → pending` (undo start) and `done | awaiting_approval →
+in_progress` (undo complete). Two limits, enforced server-side in `src/lib/board/transitions.ts`
+because the toast's grace window is a UI affordance and cannot stop a stale client:
+- A task that **requires approval and already reached `done`** was approved by someone else, so
+  undo is refused — there is no `done → in_progress` edge for that path, and reopening it would
+  strand the `task_approvals` row. The way back is `awaiting_approval → returned_for_rework`.
+- Every undo is a **compare-and-swap** on the status it validated. If the task moved on in the
+  meantime the undo loses the race and reports `invalidTransition` — it never writes an `activity`
+  entry for a transition that did not happen.
+
 ### 7.2 Work order states (mostly derived from task states)
 States: `draft`, `confirmed`, `active`, `ready_for_handoff`, `completed`, `on_hold`, `cancelled`.
 
