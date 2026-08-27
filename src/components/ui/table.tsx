@@ -2,6 +2,14 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Flat and dense (design-system.md §4): a `surface-soft` header, 1px `line` row
+ * separators, and a `surface` hover tint. No per-row card and no vertical
+ * rules — the row separators carry the structure on their own.
+ *
+ * Every tint here is a flat token rather than an opacity modifier, so a row
+ * renders the same colour whatever happens to sit behind the table.
+ */
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
@@ -9,7 +17,7 @@ const Table = React.forwardRef<
   <div className="w-full overflow-x-auto rounded-card border border-line">
     <table
       ref={ref}
-      className={cn("w-full text-start text-sm", className)}
+      className={cn("w-full text-start text-body", className)}
       {...props}
     />
   </div>
@@ -22,7 +30,7 @@ const TableHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={cn("bg-mauve-100/50 text-muted", className)}
+    className={cn("bg-surface-soft text-muted", className)}
     {...props}
   />
 ));
@@ -46,7 +54,7 @@ const TableRow = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tr
     ref={ref}
-    className={cn("hover:bg-mauve-100/40 transition-colors", className)}
+    className={cn("transition-colors hover:bg-surface", className)}
     {...props}
   />
 ));
@@ -59,7 +67,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-11 px-4 text-start align-middle text-xs font-medium",
+      "h-11 px-4 text-start align-middle text-label",
       className,
     )}
     {...props}
