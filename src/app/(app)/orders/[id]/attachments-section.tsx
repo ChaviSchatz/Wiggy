@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { FormMessage } from "@/components/ui/form-message";
 import { Label } from "@/components/ui/label";
+import { VoiceRecorderDialog } from "@/components/attachments/voice-recorder-dialog";
 import { uploadAttachmentAction } from "@/lib/attachments/actions";
 import type { AttachmentWithUrl } from "@/lib/attachments/queries";
 
@@ -30,9 +31,36 @@ export function AttachmentsSection({
   attachments: AttachmentWithUrl[];
 }) {
   const t = useTranslations("pages.orders.detail.hub.attachments");
+  const router = useRouter();
   const [uploadKind, setUploadKind] = useState<"file" | "photo" | "voice" | null>(
     null,
   );
+  // The voice button records on the device (screen inventory #27); the file
+  // picker stays reachable from inside the recorder for browsers that can't
+  // record (insecure context, no MediaRecorder).
+  const [recording, setRecording] = useState(false);
+  const [recordError, setRecordError] = useState<string | undefined>();
+  const [savingRecording, startSaving] = useTransition();
+
+  function handleSaveRecording(file: File) {
+    setRecordError(undefined);
+    const formData = new FormData();
+    formData.set("file", file);
+    formData.set("parentType", "work_order");
+    formData.set("parentId", workOrderId);
+    formData.set("workOrderId", workOrderId);
+    formData.set("kind", "voice");
+
+    startSaving(async () => {
+      const result = await uploadAttachmentAction(formData);
+      if (!result.success) {
+        setRecordError(result.error);
+        return;
+      }
+      setRecording(false);
+      router.refresh();
+    });
+  }
 
   const files = attachments.filter((a) => a.kind === "file" || a.kind === "photo");
   const voice = attachments.filter((a) => a.kind === "voice");
@@ -87,7 +115,16 @@ export function AttachmentsSection({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("audioTitle")}</CardTitle>
-          <Button size="sm" variant="outline" onClick={() => setUploadKind("voice")}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-2"
+            onClick={() => {
+              setRecordError(undefined);
+              setRecording(true);
+            }}
+          >
+            <Mic className="size-4" aria-hidden />
             {t("addVoice")}
           </Button>
         </CardHeader>
@@ -111,6 +148,21 @@ export function AttachmentsSection({
           )}
         </CardContent>
       </Card>
+
+      <VoiceRecorderDialog
+        open={recording}
+        onOpenChange={(open) => {
+          setRecording(open);
+          if (!open) setRecordError(undefined);
+        }}
+        onSave={handleSaveRecording}
+        onUploadInstead={() => {
+          setRecording(false);
+          setUploadKind("voice");
+        }}
+        pending={savingRecording}
+        uploadError={recordError}
+      />
 
       <UploadAttachmentDialog
         workOrderId={workOrderId}
@@ -166,7 +218,9 @@ function UploadAttachmentDialog({
             {kind === "photo"
               ? t("addPhoto")
               : kind === "voice"
-                ? t("addVoice")
+                ? // Not `addVoice` -- that button now opens the recorder. This
+                  // dialog is the file-upload fallback reached from inside it.
+                  t("record.uploadTitle")
                 : t("addFile")}
           </DialogTitle>
         </DialogHeader>

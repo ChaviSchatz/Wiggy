@@ -85,6 +85,18 @@ human working in this repo. Read it first.
 > where ADR 0012 says it should render nothing, and the other screens keep their current structure.
 > Treat `docs/ui/` as the target and expect those screens to differ until that work lands. The
 > design is specified in `docs/`; implementation follows the specs there.
+>
+> A follow-up pass closed **screen inventory #27 ("Record/upload voice note")**, which until then
+> only ever opened a file picker. `src/components/attachments/voice-recorder-dialog.tsx` now records
+> on the device via `MediaRecorder`, with the pure decisions (container/codec choice, file naming,
+> the elapsed counter) split into `src/lib/attachments/recording.ts` so they are unit-testable
+> without faking browser media APIs. `getUserMedia` exists only in a **secure context**, so a tablet
+> pointed at a plain-HTTP LAN address cannot record by browser policy — every unsupported path
+> therefore falls back to the original file upload rather than dead-ending. The same pass fixed a
+> duplicate `editIntake` key in `messages/he.json` (a string label and a dialog namespace shared one
+> key; JSON last-wins made the object shadow the label, so the hub header rendered the raw key path
+> as its button). `src/i18n/messages.test.ts` now guards the catalog against duplicate keys, which
+> `JSON.parse` cannot reveal on its own.
 
 ## Start here (read in this order)
 
