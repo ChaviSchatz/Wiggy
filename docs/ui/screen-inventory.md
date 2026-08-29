@@ -73,7 +73,7 @@ types/groups, intake templates, and staff are seeded via migrations for the firs
 43. Bulk assign / reprioritize (dialog) **[v1]**
 
 ## 8. Configuration / admin (data seeded for v1; editors [config])
-44. Settings hub / admin home **[config]**
+44. Settings hub / admin home **[config]** — **built**
 45. Work stages — list + create/edit/reorder **[config]**
 46. Task types catalog — list **[config]**
 47. Task type create/edit (defaults: stage, duration, approval, staff, instructions) **[config]**
@@ -82,10 +82,10 @@ types/groups, intake templates, and staff are seeded via migrations for the firs
 50. Intake templates — list **[config]**
 51. **Intake template builder** (ordered items: task type / task group / field / section; add/remove/reorder) **[config]**
 52. Intake item config (per-item dialog: mandatory, visible, default-selected, selection mode, display style, help text, allow "Other", generates-tasks) **[config]**
-53. Staff members — list + create/edit **[config]**
+53. Staff members — list + create/edit (deactivate, never delete) **[config]** — **built**
 54. Users & roles — list, invite/create, assign role, link to staff **[config/admin]**
 55. Branding settings (name, logo, colors) **[config/admin]**
-56. Business/tenant settings (timezone, locale, sprint cadence) **[config/admin]**
+56. Business/tenant settings (timezone, sprint cadence; locale deferred — only `he` exists) **[config/admin]** — **built**
 57. Feedback management (admin view of submitted feedback) **[config]**
 
 ## 9. Cross-cutting / system
