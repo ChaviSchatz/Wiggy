@@ -105,6 +105,20 @@ describe("getCurrentUserFromClient", () => {
     expect(user?.businessId).toBe(worker.businessId);
   });
 
+  it("carries a usable business timezone even when the tenant never set one", async () => {
+    const [worker] = seeded;
+
+    const user = await getCurrentUserFromClient(worker.client);
+
+    // `businesses.timezone` has a schema default, so a tenant that never
+    // opened Settings still resolves to a real IANA zone. Every date
+    // computation (sprint dates, "completed today") depends on this.
+    expect(user?.timezone).toBeTruthy();
+    expect(
+      () => new Intl.DateTimeFormat("en-CA", { timeZone: user!.timezone }),
+    ).not.toThrow();
+  });
+
   it("returns a profile with no display name for a first-login user", async () => {
     const [, fresh] = seeded;
 

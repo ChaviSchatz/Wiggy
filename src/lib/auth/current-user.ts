@@ -41,7 +41,7 @@ export async function getCurrentUserFromClient(
 
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, name")
+    .select("id, name, timezone")
     .eq("id", membership.business_id)
     .maybeSingle();
 
@@ -54,6 +54,7 @@ export async function getCurrentUserFromClient(
     avatarUrl: profile.avatar_url,
     businessId: business.id,
     businessName: business.name,
+    timezone: business.timezone,
     role: membership.role,
   };
 }
