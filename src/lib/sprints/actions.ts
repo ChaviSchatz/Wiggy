@@ -9,6 +9,7 @@ import { computeAppendRank } from "@/lib/queue/append-rank";
 import { rankBetween } from "@/lib/queue/rank";
 import { can } from "@/lib/roles";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { addCalendarDays, businessDateString } from "@/lib/time/business-time";
 
 export type SprintActionResult =
   | { success: true }
@@ -43,15 +44,17 @@ export async function createSprintAction(
     .maybeSingle();
   const cadenceDays = settings?.sprint_cadence_days ?? 7;
 
-  const startsOn = new Date();
-  const endsOn = new Date(startsOn);
-  endsOn.setDate(endsOn.getDate() + cadenceDays);
+  // The salon's calendar day, not the server's. `toISOString().slice(0, 10)`
+  // is UTC, so a sprint created between midnight and 03:00 in Israel used to
+  // be stamped with *yesterday's* date (architecture §7.5).
+  const startsOn = businessDateString(new Date(), user.timezone);
+  const endsOn = addCalendarDays(startsOn, cadenceDays);
 
   const { error } = await supabase.from("sprints").insert({
     business_id: user.businessId,
     name: name?.trim() || null,
-    starts_on: startsOn.toISOString().slice(0, 10),
-    ends_on: endsOn.toISOString().slice(0, 10),
+    starts_on: startsOn,
+    ends_on: endsOn,
     status: "active",
   });
   if (error) return { success: false, error: "generic" };

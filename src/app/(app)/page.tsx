@@ -53,6 +53,7 @@ export default async function DashboardPage() {
       supabase,
       user.businessId,
       staffMemberId,
+      user.timezone,
     );
     return <WorkerDashboardView data={data} />;
   }
