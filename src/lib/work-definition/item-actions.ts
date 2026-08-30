@@ -7,6 +7,7 @@ import { can } from "@/lib/roles";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { IntakeItemConfig } from "@/lib/work-orders/types";
 import { serializeOptions } from "./field-types";
+import { defaultConfigFor } from "./item-config";
 import { renumberItems } from "./reorder";
 import {
   hasItemErrors,
@@ -154,7 +155,16 @@ export async function addTemplateItemAction(
     field_label: isField ? input.fieldLabel.trim() : null,
     field_type: isField ? input.fieldType : null,
     options: isField ? serializeOptions(input.optionsText) : null,
-    config: readConfig(formData, input.itemKind),
+    // Defaults, not `readConfig`: the add dialog only identifies the item,
+    // and reading absent checkboxes would write `visible: false`, which the
+    // intake wizard treats as "hide this field" -- so a newly added field
+    // would never appear. Tuning happens in the config dialog (#52).
+    config: {
+      ...defaultConfigFor(input.itemKind),
+      ...(input.itemKind === "section"
+        ? { section_title: input.sectionTitle.trim() }
+        : {}),
+    },
   });
   if (error) return { success: false, errors: {}, formError: "generic" };
 

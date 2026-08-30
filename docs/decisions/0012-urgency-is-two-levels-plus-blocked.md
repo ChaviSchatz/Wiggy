@@ -3,6 +3,7 @@
 **Status:** Accepted
 
 ## Context
+
 The UX/UI exploration for the production board arrived with an urgency legend of four states —
 urgent, medium, on time, waiting. That is a reasonable thing for a designer to draw: four dot colours
 make a board look legible at a glance.
@@ -17,13 +18,14 @@ So the question the comp raises is a product one: do we introduce a graded urgen
 lateness become an urgency level?
 
 ## Decision
+
 **Urgency stays two-valued, and the board's urgency vocabulary is exactly three visual states.**
 
 - **`work_orders.priority` remains `normal | urgent`.** No third level, no numeric scale.
 - **The three states a card can express are `urgent`, `normal`, and `blocked`.** `urgent` is the
   order-level flag someone deliberately set. `blocked` is derived from sequence availability, not
-  from urgency, and it renders as a lock rather than as a hot colour — it means *cannot be worked on*,
-  not *worry about this*.
+  from urgency, and it renders as a lock rather than as a hot colour — it means _cannot be worked on_,
+  not _worry about this_.
 - **`normal` renders as nothing.** No grey "normal" chip on every card and every row. A chip that
   appears on everything communicates nothing and spends the view's colour budget.
 - **`runtime_tasks.priority` never renders as urgency.** It orders a worker's queue and stays
@@ -34,6 +36,7 @@ lateness become an urgency level?
   add a legend entry.
 
 ## Why
+
 - **A middle level has no definition and no owner.** Nobody at the salon can say what makes a wig
   "medium" rather than "normal", so in practice the middle bucket either stays empty or absorbs
   everything — and either way it teaches people to ignore the field.
@@ -47,11 +50,12 @@ lateness become an urgency level?
   look broken rather than calm.
 
 ## Alternatives considered
+
 - **Add a three-level enum** (`low | normal | urgent` or `normal | medium | urgent`). A small
   migration, and it matches the comp exactly. Rejected: it ships a field with no agreed definition,
   and grading work the salon does not grade is a planning-engine concern that is explicitly deferred.
 - **Derive four urgency bands from `due_at`** (late / due soon / on time / no date). Tempting because
-  it needs no schema change. Rejected as an *urgency* model: it conflates a deadline with a
+  it needs no schema change. Rejected as an _urgency_ model: it conflates a deadline with a
   prioritisation decision, and it would silently reclassify work as dates pass, which is the kind of
   moving target ADR 0008 avoided by keeping sequencing linear and explicit. The due date is still
   shown — as a date.
@@ -60,6 +64,7 @@ lateness become an urgency level?
   visibly change a task's urgency.
 
 ## Consequences
+
 - The board legend has **three** entries, not four, and the sprint and My Work surfaces use the same
   three.
 - `StatusChip` maps `urgent → danger`, `blocked → idle` with a lock, and `normal → nothing rendered`.

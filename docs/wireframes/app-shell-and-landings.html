@@ -1,182 +1,603 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="he" dir="rtl">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>WigFlow — Wireframe: App shell &amp; landing pages</title>
-<style>
-  :root{
-    --bg:#eceef2; --panel:#fff; --ink:#1f2430; --muted:#6b7280; --line:#d7dbe3;
-    --accent:#3b5bdb; --accent-soft:#e7ecff; --chip:#f1f3f9; --ok:#2f9e44; --warn:#e8590c;
-    --nav:#111827; --navink:#c7cdd9; --navact:#3b5bdb;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:"Segoe UI",Arial,"Noto Sans Hebrew",sans-serif;font-size:13.5px;line-height:1.5;padding:22px}
-  .caption{max-width:1180px;margin:0 auto 8px;font-weight:700;font-size:14px}
-  .caption span{font-weight:400;color:var(--muted);font-size:12px}
-  .device{max-width:1180px;margin:0 auto 30px;background:var(--panel);border:1px solid #c4cad4;
-    border-radius:14px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.06)}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WigFlow — Wireframe: App shell &amp; landing pages</title>
+    <style>
+      :root {
+        --bg: #eceef2;
+        --panel: #fff;
+        --ink: #1f2430;
+        --muted: #6b7280;
+        --line: #d7dbe3;
+        --accent: #3b5bdb;
+        --accent-soft: #e7ecff;
+        --chip: #f1f3f9;
+        --ok: #2f9e44;
+        --warn: #e8590c;
+        --nav: #111827;
+        --navink: #c7cdd9;
+        --navact: #3b5bdb;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Segoe UI", Arial, "Noto Sans Hebrew", sans-serif;
+        font-size: 13.5px;
+        line-height: 1.5;
+        padding: 22px;
+      }
+      .caption {
+        max-width: 1180px;
+        margin: 0 auto 8px;
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .caption span {
+        font-weight: 400;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .device {
+        max-width: 1180px;
+        margin: 0 auto 30px;
+        background: var(--panel);
+        border: 1px solid #c4cad4;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+      }
 
-  /* ---- desktop shell ---- */
-  .d-top{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:#fbfcfe}
-  .logo{width:26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
-  .cta{background:var(--accent);color:#fff;border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:600}
-  .top-r{margin-inline-start:auto;display:flex;gap:10px;align-items:center;color:var(--muted);font-size:12px}
-  .avatar{width:26px;height:26px;border-radius:50%;background:#dfe3ea;display:grid;place-items:center;font-weight:700;color:#495057}
-  .d-body{display:grid;grid-template-columns:1fr 210px}
-  .side{background:var(--nav);color:var(--navink);padding:12px 10px;min-height:520px}
-  .side .item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:8px;font-size:13px;margin-bottom:3px}
-  .side .item .ic{width:18px;text-align:center;opacity:.9}
-  .side .item.active{background:var(--navact);color:#fff}
-  .side .grp{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin:12px 6px 5px}
-  .main{padding:18px}
-  .h{font-size:18px;font-weight:700;margin:0 0 3px}
-  .sub{color:var(--muted);font-size:12px;margin-bottom:16px}
-  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
-  .kpi{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}
-  .kpi .n{font-size:24px;font-weight:800}
-  .kpi .l{font-size:11.5px;color:var(--muted)}
-  .kpi.warn .n{color:var(--warn)} .kpi.acc .n{color:var(--accent)}
-  .cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .card{border:1px solid var(--line);border-radius:10px;padding:13px}
-  .card h3{margin:0 0 9px;font-size:13px}
-  .li{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #eef1f5;font-size:12.5px}
-  .li:first-of-type{border-top:0}
-  .pill{font-size:10px;border-radius:20px;padding:1px 8px;border:1px solid var(--line);background:var(--chip);color:var(--muted)}
-  .pill.appr{background:#fff4e6;border-color:#ffd8a8;color:#e8590c}
-  .pill.block{background:#f8f9fa;color:#868e96}
-  .pill.miss{background:#fff0f6;border-color:#fcc2d7;color:#c2255c}
-  .grow{flex:1}
-  .qa{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-  .qbtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px;font-size:12.5px;font-weight:600}
-  .qbtn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+      /* ---- desktop shell ---- */
+      .d-top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--line);
+        background: #fbfcfe;
+      }
+      .logo {
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        background: var(--accent);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+      }
+      .cta {
+        background: var(--accent);
+        color: #fff;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 12.5px;
+        font-weight: 600;
+      }
+      .top-r {
+        margin-inline-start: auto;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #dfe3ea;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        color: #495057;
+      }
+      .d-body {
+        display: grid;
+        grid-template-columns: 1fr 210px;
+      }
+      .side {
+        background: var(--nav);
+        color: var(--navink);
+        padding: 12px 10px;
+        min-height: 520px;
+      }
+      .side .item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 11px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 3px;
+      }
+      .side .item .ic {
+        width: 18px;
+        text-align: center;
+        opacity: 0.9;
+      }
+      .side .item.active {
+        background: var(--navact);
+        color: #fff;
+      }
+      .side .grp {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6b7280;
+        margin: 12px 6px 5px;
+      }
+      .main {
+        padding: 18px;
+      }
+      .h {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 3px;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 16px;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .kpi {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        background: #fff;
+      }
+      .kpi .n {
+        font-size: 24px;
+        font-weight: 800;
+      }
+      .kpi .l {
+        font-size: 11.5px;
+        color: var(--muted);
+      }
+      .kpi.warn .n {
+        color: var(--warn);
+      }
+      .kpi.acc .n {
+        color: var(--accent);
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 13px;
+      }
+      .card h3 {
+        margin: 0 0 9px;
+        font-size: 13px;
+      }
+      .li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 0;
+        border-top: 1px solid #eef1f5;
+        font-size: 12.5px;
+      }
+      .li:first-of-type {
+        border-top: 0;
+      }
+      .pill {
+        font-size: 10px;
+        border-radius: 20px;
+        padding: 1px 8px;
+        border: 1px solid var(--line);
+        background: var(--chip);
+        color: var(--muted);
+      }
+      .pill.appr {
+        background: #fff4e6;
+        border-color: #ffd8a8;
+        color: #e8590c;
+      }
+      .pill.block {
+        background: #f8f9fa;
+        color: #868e96;
+      }
+      .pill.miss {
+        background: #fff0f6;
+        border-color: #fcc2d7;
+        color: #c2255c;
+      }
+      .grow {
+        flex: 1;
+      }
+      .qa {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .qbtn {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 9px;
+        padding: 9px 13px;
+        font-size: 12.5px;
+        font-weight: 600;
+      }
+      .qbtn.primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
 
-  /* ---- tablet shell ---- */
-  .tablet{max-width:860px}
-  .t-top{display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid var(--line);background:#fbfcfe}
-  .station{margin-inline-start:auto;background:var(--accent-soft);border:1px solid #c3cffb;color:var(--accent);
-    border-radius:20px;padding:5px 12px;font-size:12.5px;font-weight:600}
-  .t-main{padding:16px;min-height:430px}
-  .bigcard{border:2px solid var(--line);border-radius:12px;padding:15px;margin-bottom:12px}
-  .bigcard.now{border-color:#a5d8ff;background:#f3faff}
-  .bigcard.next{border-color:#b2f2bb;background:#f5fdf7}
-  .bigcard .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
-  .bigcard .ttl{font-size:17px;font-weight:700}
-  .bigcard .meta{font-size:12.5px;color:var(--muted);margin-top:3px}
-  .bigcard .btns{margin-top:11px;display:flex;gap:10px}
-  .bbtn{border-radius:10px;padding:11px 18px;font-size:14px;font-weight:700;border:1px solid var(--line);background:#fff}
-  .bbtn.go{background:var(--ok);color:#fff;border-color:var(--ok)}
-  .bbtn.start{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .qlist .row{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:9px;font-size:14px}
-  .qlist .row.blocked{opacity:.55;border-style:dashed}
-  .rank{width:24px;height:24px;border-radius:6px;background:var(--chip);border:1px solid var(--line);display:grid;place-items:center;font-size:12px;color:var(--muted)}
-  .sec{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 8px}
-  .lock{font-size:11px;color:#868e96;border:1px solid var(--line);border-radius:20px;padding:1px 8px;background:#f8f9fa}
-  .done{font-size:12px;color:var(--ok);border:1px solid #b2f2bb;background:#ebfbee;border-radius:20px;padding:1px 8px}
-  .t-bottom{display:flex;border-top:1px solid var(--line);background:#fff}
-  .t-bottom .tab{flex:1;text-align:center;padding:12px 0;font-size:12px;color:var(--muted)}
-  .t-bottom .tab .ic{display:block;font-size:20px;margin-bottom:2px}
-  .t-bottom .tab.active{color:var(--accent);font-weight:700}
-</style>
-</head>
-<body>
-
-<!-- ============ DESKTOP: MANAGER DASHBOARD ============ -->
-<div class="caption">A · Desktop shell — Manager Dashboard (Fradi) <span>· right side nav (RTL) · command center landing</span></div>
-<div class="device">
-  <div class="d-top">
-    <div class="logo">W</div><b>WigFlow</b>
-    <span class="cta">+ הזמנה חדשה · New Order</span>
-    <div class="top-r"><span>🔔</span><span>משוב</span><span class="avatar">F</span> Fradi</div>
-  </div>
-  <div class="d-body">
-    <div class="main">
-      <h1 class="h">בוקר טוב, Fradi 👋 <span style="font-size:13px;font-weight:400;color:var(--muted)">— Dashboard</span></h1>
-      <div class="sub">Sprint · שבוע 31 · 27.7–2.8 · יום 3 מתוך 7</div>
-      <div class="kpis">
-        <div class="kpi acc"><div class="n">18</div><div class="l">Active orders · הזמנות פעילות</div></div>
-        <div class="kpi warn"><div class="n">4</div><div class="l">Urgent · דחוף</div></div>
-        <div class="kpi warn"><div class="n">6</div><div class="l">Awaiting approval · ממתין לאישור</div></div>
-        <div class="kpi"><div class="n">3</div><div class="l">Missing tops/skins · חוסרים</div></div>
-        <div class="kpi acc"><div class="n">62%</div><div class="l">Sprint progress</div></div>
-      </div>
-      <div class="qa">
-        <span class="qbtn primary">Sprint planning · תכנון ספרינט</span>
-        <span class="qbtn">Approvals · אישורים (6)</span>
-        <span class="qbtn">+ New Order</span>
-      </div>
-      <div class="cards">
-        <div class="card">
-          <h3>Needs your attention · דורש טיפול</h3>
-          <div class="li"><span class="grow">Final review — WO-1039 (Miriam L.)</span><span class="pill appr">approval</span></div>
-          <div class="li"><span class="grow">Final review — WO-1031 (Ruth S.)</span><span class="pill appr">approval</span></div>
-          <div class="li"><span class="grow">Hand tying — WO-1042</span><span class="pill block">blocked</span></div>
-          <div class="li"><span class="grow">Top missing — WO-1050 (Sara B.)</span><span class="pill miss">missing</span></div>
+      /* ---- tablet shell ---- */
+      .tablet {
+        max-width: 860px;
+      }
+      .t-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--line);
+        background: #fbfcfe;
+      }
+      .station {
+        margin-inline-start: auto;
+        background: var(--accent-soft);
+        border: 1px solid #c3cffb;
+        color: var(--accent);
+        border-radius: 20px;
+        padding: 5px 12px;
+        font-size: 12.5px;
+        font-weight: 600;
+      }
+      .t-main {
+        padding: 16px;
+        min-height: 430px;
+      }
+      .bigcard {
+        border: 2px solid var(--line);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 12px;
+      }
+      .bigcard.now {
+        border-color: #a5d8ff;
+        background: #f3faff;
+      }
+      .bigcard.next {
+        border-color: #b2f2bb;
+        background: #f5fdf7;
+      }
+      .bigcard .lbl {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .bigcard .ttl {
+        font-size: 17px;
+        font-weight: 700;
+      }
+      .bigcard .meta {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .bigcard .btns {
+        margin-top: 11px;
+        display: flex;
+        gap: 10px;
+      }
+      .bbtn {
+        border-radius: 10px;
+        padding: 11px 18px;
+        font-size: 14px;
+        font-weight: 700;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+      .bbtn.go {
+        background: var(--ok);
+        color: #fff;
+        border-color: var(--ok);
+      }
+      .bbtn.start {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .qlist .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 9px;
+        font-size: 14px;
+      }
+      .qlist .row.blocked {
+        opacity: 0.55;
+        border-style: dashed;
+      }
+      .rank {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        background: var(--chip);
+        border: 1px solid var(--line);
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .sec {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin: 14px 0 8px;
+      }
+      .lock {
+        font-size: 11px;
+        color: #868e96;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 1px 8px;
+        background: #f8f9fa;
+      }
+      .done {
+        font-size: 12px;
+        color: var(--ok);
+        border: 1px solid #b2f2bb;
+        background: #ebfbee;
+        border-radius: 20px;
+        padding: 1px 8px;
+      }
+      .t-bottom {
+        display: flex;
+        border-top: 1px solid var(--line);
+        background: #fff;
+      }
+      .t-bottom .tab {
+        flex: 1;
+        text-align: center;
+        padding: 12px 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .t-bottom .tab .ic {
+        display: block;
+        font-size: 20px;
+        margin-bottom: 2px;
+      }
+      .t-bottom .tab.active {
+        color: var(--accent);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============ DESKTOP: MANAGER DASHBOARD ============ -->
+    <div class="caption">
+      A · Desktop shell — Manager Dashboard (Fradi)
+      <span>· right side nav (RTL) · command center landing</span>
+    </div>
+    <div class="device">
+      <div class="d-top">
+        <div class="logo">W</div>
+        <b>WigFlow</b>
+        <span class="cta">+ הזמנה חדשה · New Order</span>
+        <div class="top-r">
+          <span>🔔</span><span>משוב</span><span class="avatar">F</span> Fradi
         </div>
-        <div class="card">
-          <h3>Today's sprint · הספרינט היום</h3>
-          <div class="li"><span class="avatar" style="width:22px;height:22px;font-size:11px">S</span><span class="grow">Sarah</span><span class="pill">3 tasks · 1 available</span></div>
-          <div class="li"><span class="avatar" style="width:22px;height:22px;font-size:11px">M</span><span class="grow">Miri</span><span class="pill">2 tasks · 2 available</span></div>
-          <div class="li"><span class="avatar" style="width:22px;height:22px;font-size:11px">D</span><span class="grow">Dvora</span><span class="pill">4 tasks · 2 available</span></div>
-          <div class="li"><span class="grow" style="color:var(--muted)">Backlog · unassigned</span><span class="pill">9</span></div>
+      </div>
+      <div class="d-body">
+        <div class="main">
+          <h1 class="h">
+            בוקר טוב, Fradi 👋
+            <span style="font-size: 13px; font-weight: 400; color: var(--muted)"
+              >— Dashboard</span
+            >
+          </h1>
+          <div class="sub">Sprint · שבוע 31 · 27.7–2.8 · יום 3 מתוך 7</div>
+          <div class="kpis">
+            <div class="kpi acc">
+              <div class="n">18</div>
+              <div class="l">Active orders · הזמנות פעילות</div>
+            </div>
+            <div class="kpi warn">
+              <div class="n">4</div>
+              <div class="l">Urgent · דחוף</div>
+            </div>
+            <div class="kpi warn">
+              <div class="n">6</div>
+              <div class="l">Awaiting approval · ממתין לאישור</div>
+            </div>
+            <div class="kpi">
+              <div class="n">3</div>
+              <div class="l">Missing tops/skins · חוסרים</div>
+            </div>
+            <div class="kpi acc">
+              <div class="n">62%</div>
+              <div class="l">Sprint progress</div>
+            </div>
+          </div>
+          <div class="qa">
+            <span class="qbtn primary">Sprint planning · תכנון ספרינט</span>
+            <span class="qbtn">Approvals · אישורים (6)</span>
+            <span class="qbtn">+ New Order</span>
+          </div>
+          <div class="cards">
+            <div class="card">
+              <h3>Needs your attention · דורש טיפול</h3>
+              <div class="li">
+                <span class="grow">Final review — WO-1039 (Miriam L.)</span
+                ><span class="pill appr">approval</span>
+              </div>
+              <div class="li">
+                <span class="grow">Final review — WO-1031 (Ruth S.)</span
+                ><span class="pill appr">approval</span>
+              </div>
+              <div class="li">
+                <span class="grow">Hand tying — WO-1042</span
+                ><span class="pill block">blocked</span>
+              </div>
+              <div class="li">
+                <span class="grow">Top missing — WO-1050 (Sara B.)</span
+                ><span class="pill miss">missing</span>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Today's sprint · הספרינט היום</h3>
+              <div class="li">
+                <span
+                  class="avatar"
+                  style="width: 22px; height: 22px; font-size: 11px"
+                  >S</span
+                ><span class="grow">Sarah</span
+                ><span class="pill">3 tasks · 1 available</span>
+              </div>
+              <div class="li">
+                <span
+                  class="avatar"
+                  style="width: 22px; height: 22px; font-size: 11px"
+                  >M</span
+                ><span class="grow">Miri</span
+                ><span class="pill">2 tasks · 2 available</span>
+              </div>
+              <div class="li">
+                <span
+                  class="avatar"
+                  style="width: 22px; height: 22px; font-size: 11px"
+                  >D</span
+                ><span class="grow">Dvora</span
+                ><span class="pill">4 tasks · 2 available</span>
+              </div>
+              <div class="li">
+                <span class="grow" style="color: var(--muted)"
+                  >Backlog · unassigned</span
+                ><span class="pill">9</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="side">
+          <div class="item active">
+            <span class="ic">▤</span> Dashboard · בית
+          </div>
+          <div class="item">
+            <span class="ic">◧</span> Production Board · לוח
+          </div>
+          <div class="item">
+            <span class="ic">▦</span> Sprint Planning · ספרינט
+          </div>
+          <div class="item"><span class="ic">✔</span> Approvals · אישורים</div>
+          <div class="grp">Office · משרד</div>
+          <div class="item"><span class="ic">▤</span> Work Orders · הזמנות</div>
+          <div class="item"><span class="ic">☺</span> Customers · לקוחות</div>
+          <div class="item">
+            <span class="ic">!</span> Missing Items · חוסרים
+          </div>
+          <div class="grp">Admin · ניהול</div>
+          <div class="item"><span class="ic">⚙</span> Settings · הגדרות</div>
         </div>
       </div>
     </div>
-    <div class="side">
-      <div class="item active"><span class="ic">▤</span> Dashboard · בית</div>
-      <div class="item"><span class="ic">◧</span> Production Board · לוח</div>
-      <div class="item"><span class="ic">▦</span> Sprint Planning · ספרינט</div>
-      <div class="item"><span class="ic">✔</span> Approvals · אישורים</div>
-      <div class="grp">Office · משרד</div>
-      <div class="item"><span class="ic">▤</span> Work Orders · הזמנות</div>
-      <div class="item"><span class="ic">☺</span> Customers · לקוחות</div>
-      <div class="item"><span class="ic">!</span> Missing Items · חוסרים</div>
-      <div class="grp">Admin · ניהול</div>
-      <div class="item"><span class="ic">⚙</span> Settings · הגדרות</div>
-    </div>
-  </div>
-</div>
 
-<!-- ============ TABLET: WORKER MY WORK ============ -->
-<div class="caption">B · Tablet shell — Worker “My Work” (shared station tablet) <span>· bottom-bar nav · big touch targets</span></div>
-<div class="device tablet">
-  <div class="t-top">
-    <div class="logo">W</div><b>My Work · המשימות שלי</b>
-    <span class="station">תחנה: תפירה · Active: Sarah ▾</span>
-  </div>
-  <div class="t-main">
-    <div class="bigcard now">
-      <div class="lbl">Now · עכשיו</div>
-      <div class="ttl">Machine sewing — WO-1042</div>
-      <div class="meta">Miriam L. · Machine Sewing · started 09:20</div>
-      <div class="btns"><span class="bbtn go">✓ Done · סיום</span><span class="bbtn">Defer · דחייה</span></div>
+    <!-- ============ TABLET: WORKER MY WORK ============ -->
+    <div class="caption">
+      B · Tablet shell — Worker “My Work” (shared station tablet)
+      <span>· bottom-bar nav · big touch targets</span>
     </div>
-    <div class="bigcard next">
-      <div class="lbl">Next · הבא</div>
-      <div class="ttl">Machine sewing — WO-1051</div>
-      <div class="meta">Dvora K. · available ✓</div>
-      <div class="btns"><span class="bbtn start">▶ Start · התחלה</span></div>
+    <div class="device tablet">
+      <div class="t-top">
+        <div class="logo">W</div>
+        <b>My Work · המשימות שלי</b>
+        <span class="station">תחנה: תפירה · Active: Sarah ▾</span>
+      </div>
+      <div class="t-main">
+        <div class="bigcard now">
+          <div class="lbl">Now · עכשיו</div>
+          <div class="ttl">Machine sewing — WO-1042</div>
+          <div class="meta">Miriam L. · Machine Sewing · started 09:20</div>
+          <div class="btns">
+            <span class="bbtn go">✓ Done · סיום</span
+            ><span class="bbtn">Defer · דחייה</span>
+          </div>
+        </div>
+        <div class="bigcard next">
+          <div class="lbl">Next · הבא</div>
+          <div class="ttl">Machine sewing — WO-1051</div>
+          <div class="meta">Dvora K. · available ✓</div>
+          <div class="btns">
+            <span class="bbtn start">▶ Start · התחלה</span>
+          </div>
+        </div>
+        <div class="sec">Up next · בתור</div>
+        <div class="qlist">
+          <div class="row">
+            <span class="rank">3</span
+            ><span class="grow">Machine sewing — WO-1060</span
+            ><span
+              class="done"
+              style="background: #e7f5ff; border-color: #a5d8ff; color: #1c7ed6"
+              >available</span
+            >
+          </div>
+          <div class="row blocked">
+            <span class="rank">4</span
+            ><span class="grow">Hand tying — WO-1042</span
+            ><span class="lock">🔒 waiting: sewing</span>
+          </div>
+          <div class="row blocked">
+            <span class="rank">5</span
+            ><span class="grow">Hand tying — WO-1051</span
+            ><span class="lock">🔒 waiting: sewing</span>
+          </div>
+        </div>
+        <div class="sec">Done today · הושלם היום</div>
+        <div class="qlist">
+          <div class="row">
+            <span class="grow">Machine sewing — WO-1039</span
+            ><span class="done">✓ done 08:55</span>
+          </div>
+        </div>
+      </div>
+      <div class="t-bottom">
+        <div class="tab active"><span class="ic">☑</span>My Work</div>
+        <div class="tab"><span class="ic">◧</span>Board</div>
+        <div class="tab"><span class="ic">✎</span>Feedback</div>
+        <div class="tab"><span class="ic">☺</span>Profile</div>
+      </div>
     </div>
-    <div class="sec">Up next · בתור</div>
-    <div class="qlist">
-      <div class="row"><span class="rank">3</span><span class="grow">Machine sewing — WO-1060</span><span class="done" style="background:#e7f5ff;border-color:#a5d8ff;color:#1c7ed6">available</span></div>
-      <div class="row blocked"><span class="rank">4</span><span class="grow">Hand tying — WO-1042</span><span class="lock">🔒 waiting: sewing</span></div>
-      <div class="row blocked"><span class="rank">5</span><span class="grow">Hand tying — WO-1051</span><span class="lock">🔒 waiting: sewing</span></div>
-    </div>
-    <div class="sec">Done today · הושלם היום</div>
-    <div class="qlist"><div class="row"><span class="grow">Machine sewing — WO-1039</span><span class="done">✓ done 08:55</span></div></div>
-  </div>
-  <div class="t-bottom">
-    <div class="tab active"><span class="ic">☑</span>My Work</div>
-    <div class="tab"><span class="ic">◧</span>Board</div>
-    <div class="tab"><span class="ic">✎</span>Feedback</div>
-    <div class="tab"><span class="ic">☺</span>Profile</div>
-  </div>
-</div>
 
-<p style="text-align:center;font-size:12px;color:var(--muted);max-width:1180px;margin:0 auto">
-  Structural wireframe · illustrates `docs/ui/information-architecture.md` · final styling = build (shadcn/ui + Tailwind).
-</p>
-</body>
+    <p
+      style="
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+        max-width: 1180px;
+        margin: 0 auto;
+      "
+    >
+      Structural wireframe · illustrates `docs/ui/information-architecture.md` ·
+      final styling = build (shadcn/ui + Tailwind).
+    </p>
+  </body>
 </html>

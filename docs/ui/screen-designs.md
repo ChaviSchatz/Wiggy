@@ -221,15 +221,15 @@ generates tasks, or through "add manual task" on the hub.
 
 One card per task (ADR 0010). Composition, in order:
 
-| Slot | Content | Treatment |
-|---|---|---|
-| Identity | Customer name, or order kind when the order has no customer | `text-identity`, truncated to one line |
-| Code | Order number beside the identity | `text-meta` `muted`, `tabular-nums` |
-| Urgency mark | Filled star when the order is urgent | `danger-500`, inline with identity |
-| Task | The task title | `text-body` `ink` |
-| Assignee | Worker `Avatar` at `sm`, tap to reassign | inline-start of the footer |
-| Due | Task due date, falling back to the order's, omitted when neither is set | `text-meta` `muted`, `tabular-nums`, inline-end |
-| State | Inline `Start`/`Done` action, or a `StatusChip` when no action applies | inline-end of the footer |
+| Slot         | Content                                                                 | Treatment                                       |
+| ------------ | ----------------------------------------------------------------------- | ----------------------------------------------- |
+| Identity     | Customer name, or order kind when the order has no customer             | `text-identity`, truncated to one line          |
+| Code         | Order number beside the identity                                        | `text-meta` `muted`, `tabular-nums`             |
+| Urgency mark | Filled star when the order is urgent                                    | `danger-500`, inline with identity              |
+| Task         | The task title                                                          | `text-body` `ink`                               |
+| Assignee     | Worker `Avatar` at `sm`, tap to reassign                                | inline-start of the footer                      |
+| Due          | Task due date, falling back to the order's, omitted when neither is set | `text-meta` `muted`, `tabular-nums`, inline-end |
+| State        | Inline `Start`/`Done` action, or a `StatusChip` when no action applies  | inline-end of the footer                        |
 
 A 2px `mauve-100` rule runs down the leading edge. Hover moves the border to `line-strong` and
 translates `-1px`. No shadow.
@@ -283,7 +283,7 @@ Sections in the fixed order the queue derivation produces: **Current**, **Next**
 `Current` takes a 2px `mauve-600` border, because it is the one thing the worker should be doing.
 `Completed` takes a `sage` treatment. `Blocked` is reduced-opacity with a dashed border and states its
 reason in words — deferred, or waiting on the preceding task — rather than as a bare lock icon, since
-this is the surface where the worker needs to know *why* they cannot proceed.
+this is the surface where the worker needs to know _why_ they cannot proceed.
 
 Items are `WorkCard` in its queue variant — the widest of the three, with a ≥44px primary action and
 a `WorkImage` thumbnail where a reference photo exists, since recognising the physical wig matters
@@ -346,11 +346,11 @@ does not exist.
 
 ## 10. Responsive posture
 
-| Range | Chrome | Content |
-|---|---|---|
-| `≥lg` | Side nav + top bar over the main column | Full layouts; board scrolls horizontally |
-| `md–lg` | Bottom nav + sticky top bar | Two-column layouts collapse to one; board keeps horizontal scroll |
-| `<md` | Bottom nav + compact top bar | Single column; tables become stacked rows led by identity; secondary metadata drops rather than wrapping |
+| Range   | Chrome                                  | Content                                                                                                  |
+| ------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `≥lg`   | Side nav + top bar over the main column | Full layouts; board scrolls horizontally                                                                 |
+| `md–lg` | Bottom nav + sticky top bar             | Two-column layouts collapse to one; board keeps horizontal scroll                                        |
+| `<md`   | Bottom nav + compact top bar            | Single column; tables become stacked rows led by identity; secondary metadata drops rather than wrapping |
 
 Below `md`, a table row becomes a row of its own led by the identity line, with the two most
 important columns beneath it and the rest available on the detail screen. Hierarchy is preserved by

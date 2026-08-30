@@ -11,7 +11,7 @@ manager triaging the day, a worker at a station with a wig in one hand. The inte
 like a well-kept studio: calm, warm, precise, unhurried.
 
 Human, calm, professional, refined. Information-dense but never noisy. The restraint is the point:
-colour and weight are budgeted, so when something *is* coloured or bold it means something.
+colour and weight are budgeted, so when something _is_ coloured or bold it means something.
 
 **Explicitly not:** a generic SaaS dashboard. Not an AI-generated purple-gradient interface. Not
 childish, overly feminine, decorative, or luxury-for-luxury's-sake. Never sterile.
@@ -48,7 +48,7 @@ Two families, each with a clear job:
 Hebrew-first, so line-height stays comfortable and never cramps. Numerals are tabular wherever they
 line up in columns or compare — codes, dates, counts, times.
 
-Text never goes below 12px. Dense comps are read as *hierarchy* guidance, not as a licence to
+Text never goes below 12px. Dense comps are read as _hierarchy_ guidance, not as a licence to
 shrink past legibility on a production floor.
 
 ## Shape, depth, and motion
@@ -103,7 +103,7 @@ There are **two visually distinct media types that must never be conflated:**
 ### Reference / work photos — squared, only when present
 
 - Style, colour, and reference images live on the order as **attachments**. Their purpose is work
-  reference — "what am I making" — *not* personal identity.
+  reference — "what am I making" — _not_ personal identity.
 - Rendered as **squared / rounded-rect thumbnails**, **only when they exist** (no placeholder, no
   reserved empty slot), and **clearly distinct in shape** from the circular worker avatars so the
   two are never mistaken.
