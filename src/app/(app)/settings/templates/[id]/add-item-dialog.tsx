@@ -19,6 +19,7 @@ import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { FIELD_TYPES } from "@/lib/work-definition/field-types";
 import { addTemplateItemAction } from "@/lib/work-definition/item-actions";
 import type { CatalogOption } from "@/lib/work-definition/template-items";
@@ -107,23 +108,45 @@ export function AddItemDialog({
         <form onSubmit={onSubmit} className="space-y-4">
           <input type="hidden" name="itemKind" value={kind} />
 
-          <div className="space-y-1.5">
-            <Label htmlFor="add-item-kind">{t("builder.add.chooseKind")}</Label>
-            <select
-              id="add-item-kind"
-              value={kind}
-              onChange={(event) =>
-                setKind(event.target.value as IntakeItemKind)
-              }
-              className={SELECT_CLASS}
-            >
+          {/* Radio cards rather than a select: all four kinds and their
+              explanations are visible at the moment the choice is made,
+              which is the only place a non-technical manager gets taught
+              what they mean. */}
+          <fieldset>
+            <legend className="mb-1.5 text-label text-ink">
+              {t("builder.add.chooseKind")}
+            </legend>
+            <div className="space-y-2">
               {ITEM_KINDS.map((option) => (
-                <option key={option} value={option}>
-                  {t(`builder.kind.${option}`)}
-                </option>
+                <label
+                  key={option}
+                  className={cn(
+                    "flex cursor-pointer gap-3 rounded-control border p-3 transition-colors",
+                    kind === option
+                      ? "border-mauve-600 bg-mauve-100"
+                      : "border-line hover:border-line-strong",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="item-kind-choice"
+                    value={option}
+                    checked={kind === option}
+                    onChange={() => setKind(option)}
+                    className="mt-1 shrink-0 accent-mauve-600"
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-identity text-ink">
+                      {t(`builder.kind.${option}`)}
+                    </span>
+                    <span className="mt-0.5 block text-meta text-muted">
+                      {t(`builder.kindHelp.${option}`)}
+                    </span>
+                  </span>
+                </label>
               ))}
-            </select>
-          </div>
+            </div>
+          </fieldset>
 
           {kind === "task_type" || kind === "task_group" ? (
             <div className="space-y-1.5">

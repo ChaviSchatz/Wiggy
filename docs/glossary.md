@@ -55,30 +55,34 @@ Shared vocabulary for WigFlow. Use these exact terms in code, docs, and UI keys.
 > App-shell strings come from i18n catalogs; this table is the canonical mapping. Tenant-entered
 > content is stored as entered and not translated (ADR 0005).
 
-| English                          | Hebrew                     |
-| -------------------------------- | -------------------------- |
-| Wig                              | פאה                        |
-| Work order                       | הזמנת עבודה                |
-| Customer                         | לקוח / לקוחה               |
-| Task                             | משימה                      |
-| Work stage                       | שלב עבודה                  |
-| Production board                 | לוח ייצור                  |
-| Intake                           | קליטה                      |
-| Intake form                      | טופס קליטה                 |
-| Staff member                     | איש/אשת צוות               |
-| Approval                         | אישור                      |
-| Sewing                           | תפירה                      |
-| Hand tying                       | קשירה ידנית                |
-| Color                            | צבע                        |
-| Wash / Styling                   | חפיפה / עיצוב              |
-| Final review                     | ביקורת סופית               |
-| Pickup / Delivery                | איסוף / מסירה              |
-| Draft                            | טיוטה                      |
-| Pending                          | ממתין                      |
-| In progress                      | בביצוע                     |
-| Done                             | הושלם                      |
-| Missing items                    | פריטים חסרים               |
-| Missing top / skin               | טופ חסר / עור חסר          |
-| Open / Found / Ordered / Handled | פתוח / נמצא / הוזמן / טופל |
-| Responsible                      | אחראי/ת                    |
-| Feedback                         | משוב                       |
+| English                           | Hebrew                     |
+| --------------------------------- | -------------------------- |
+| Wig                               | פאה                        |
+| Work order                        | הזמנת עבודה                |
+| Customer                          | לקוח / לקוחה               |
+| Task                              | משימה                      |
+| Work stage                        | שלב עבודה                  |
+| Production board                  | לוח ייצור                  |
+| Intake                            | קליטה                      |
+| Intake form                       | טופס קליטה                 |
+| Intake template item — heading    | כותרת                      |
+| Intake template item — question   | שאלה                       |
+| Intake template item — task       | משימה                      |
+| Intake template item — task group | קבוצת משימות               |
+| Staff member                      | איש/אשת צוות               |
+| Approval                          | אישור                      |
+| Sewing                            | תפירה                      |
+| Hand tying                        | קשירה ידנית                |
+| Color                             | צבע                        |
+| Wash / Styling                    | חפיפה / עיצוב              |
+| Final review                      | ביקורת סופית               |
+| Pickup / Delivery                 | איסוף / מסירה              |
+| Draft                             | טיוטה                      |
+| Pending                           | ממתין                      |
+| In progress                       | בביצוע                     |
+| Done                              | הושלם                      |
+| Missing items                     | פריטים חסרים               |
+| Missing top / skin                | טופ חסר / עור חסר          |
+| Open / Found / Ordered / Handled  | פתוח / נמצא / הוזמן / טופל |
+| Responsible                       | אחראי/ת                    |
+| Feedback                          | משוב                       |

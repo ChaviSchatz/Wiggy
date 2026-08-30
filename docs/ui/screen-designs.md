@@ -316,8 +316,17 @@ These are seeded rather than edited in v1, so the design commitment is narrow: t
 `DataTable`, `FormField`, and `Dialog` parts as every other list, and a reorderable list uses the same
 explicit up/down controls as sprint planning rather than introducing a second reordering idiom.
 
-The intake template builder (51) is the one genuinely novel surface here and will get its own spec when
-it is built. Branding (55) is where a tenant will eventually override the brand token, which is another
+The intake template builder (51) was the one genuinely novel surface here, and its design is now
+fixed: **the list is the form**. Each row renders the real, read-only intake control via the shared
+`IntakeItemField` — the same component the New Order wizard uses — so the preview cannot drift from
+what the customer actually sees, and there is no separate "preview" mode to translate in your head.
+
+A row is three layers: a quiet kind chip (כותרת / שאלה / משימה / קבוצת משימות, plain language rather
+than `field`/`section`), the rendered control, then a meta line carrying only what a control cannot
+show — required, pre-selected, generates a task, and in `warning` tone the two consequences a manager
+would not otherwise expect: a missing-stock flag, and an item that generates nothing at all.
+Explanations live in the add dialog's radio cards, where the choice is actually made, rather than in
+permanent page chrome. Branding (55) is where a tenant will eventually override the brand token, which is another
 reason the brand exists as one token rather than as scattered classes.
 
 ---
