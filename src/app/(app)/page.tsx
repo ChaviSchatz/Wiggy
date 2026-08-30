@@ -132,14 +132,20 @@ function OfficeDashboardView({
           >
             {t("quickActions.board")}
           </Link>
-          <Link href="/orders/new" className={cn(buttonVariants({ size: "sm" }))}>
+          <Link
+            href="/orders/new"
+            className={cn(buttonVariants({ size: "sm" }))}
+          >
             <Plus className="size-4" aria-hidden />
             {t("quickActions.newOrder")}
           </Link>
         </div>
       ) : (
         <div className="flex flex-wrap gap-2">
-          <Link href="/orders/new" className={cn(buttonVariants({ size: "sm" }))}>
+          <Link
+            href="/orders/new"
+            className={cn(buttonVariants({ size: "sm" }))}
+          >
             <Plus className="size-4" aria-hidden />
             {t("quickActions.newOrder")}
           </Link>
@@ -318,7 +324,9 @@ function WorkerDashboardView({ data }: { data: WorkerDashboard }) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">{t("worker.currentTitle")}</CardTitle>
+              <CardTitle className="text-base">
+                {t("worker.currentTitle")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {data.inProgress.length === 0 ? (

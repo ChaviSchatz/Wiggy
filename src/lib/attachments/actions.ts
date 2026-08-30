@@ -9,7 +9,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/supabase/database.types";
 
 export type AttachmentActionResult =
-  | { success: true } | { success: false; error: string };
+  { success: true } | { success: false; error: string };
 
 type ParentType = Tables<"attachments">["parent_type"];
 type AttachmentKind = Tables<"attachments">["kind"];
@@ -80,7 +80,8 @@ export async function uploadAttachmentAction(
       businessId: user.businessId,
       actorUserId: user.id,
       verb: "attachment_added",
-      subjectType: parentType === "runtime_task" ? "runtime_task" : "work_order",
+      subjectType:
+        parentType === "runtime_task" ? "runtime_task" : "work_order",
       subjectId: parentId,
       workOrderId,
       payload: { fileName: file.name, kind },

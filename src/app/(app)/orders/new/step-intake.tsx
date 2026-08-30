@@ -3,16 +3,19 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 
+import { IntakeItemField } from "@/components/intake/intake-item-field";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import type { ItemResponse, ResolvedIntakeItem } from "@/lib/work-orders/types";
 
 /**
  * Screen inventory #18 / architecture §6: dynamic render of one intake
  * template's items, driving the same `ItemResponse[]` shape the generator
  * (`src/lib/work-orders/generate.ts`) consumes directly.
+ *
+ * The per-item rendering lives in `@/components/intake/intake-item-field`
+ * because the template builder (screen #51) renders the very same component
+ * read-only as its preview -- one definition, so the builder cannot show a
+ * form that differs from the one the customer fills in.
  */
 export function StepIntake({
   items,
@@ -88,198 +91,6 @@ export function StepIntake({
         </Button>
         <Button onClick={onNext}>{t("next")}</Button>
       </div>
-    </div>
-  );
-}
-
-function IntakeItemField({
-  item,
-  response,
-  onFieldValue,
-  onOtherText,
-  onTaskTypeSelected,
-  onGroupSelectionChange,
-}: {
-  item: ResolvedIntakeItem;
-  response: ItemResponse | undefined;
-  onFieldValue: (value: string) => void;
-  onOtherText: (value: string) => void;
-  onTaskTypeSelected: (selected: boolean) => void;
-  onGroupSelectionChange: (ids: string[]) => void;
-}) {
-  const t = useTranslations("pages.orders.wizard.intake");
-
-  return (
-    <div className="space-y-3 rounded-control border border-line p-4">
-      {item.itemKind === "section" ? (
-        <div className="space-y-1">
-          {item.config.section_title ? (
-            <p className="font-medium text-ink">{item.config.section_title}</p>
-          ) : null}
-          {item.config.help_text ? (
-            <p className="text-sm text-muted">{item.config.help_text}</p>
-          ) : null}
-        </div>
-      ) : null}
-
-      {item.itemKind === "field" ? (
-        <div className="space-y-1.5">
-          <Label htmlFor={`field-${item.id}`}>
-            {item.fieldLabel ?? item.fieldKey}
-          </Label>
-          {item.config.help_text ? (
-            <p className="text-sm text-muted">{item.config.help_text}</p>
-          ) : null}
-          <FieldInput
-            id={`field-${item.id}`}
-            fieldType={item.fieldType}
-            value={response?.fieldValue ?? ""}
-            onChange={onFieldValue}
-          />
-        </div>
-      ) : null}
-
-      {item.itemKind === "task_type" && item.taskType ? (
-        <label className="flex cursor-pointer items-center gap-2">
-          <input
-            type="checkbox"
-            className="accent-mauve-600"
-            checked={
-              item.config.mandatory
-                ? true
-                : (response?.taskTypeSelected ?? false)
-            }
-            disabled={item.config.mandatory}
-            onChange={(event) => onTaskTypeSelected(event.target.checked)}
-          />
-          <span className="text-sm text-ink">
-            {item.taskType.name}
-            {item.config.mandatory ? (
-              <span className="text-muted"> ({t("required")})</span>
-            ) : null}
-          </span>
-        </label>
-      ) : null}
-
-      {item.itemKind === "task_group" && item.taskGroupTaskTypes ? (
-        <TaskGroupField
-          item={item}
-          selectedIds={response?.selectedGroupTaskTypeIds ?? []}
-          onChange={onGroupSelectionChange}
-        />
-      ) : null}
-
-      {item.config.allow_other ? (
-        <div className="space-y-1.5">
-          <Label htmlFor={`other-${item.id}`}>{t("otherLabel")}</Label>
-          <Textarea
-            id={`other-${item.id}`}
-            value={response?.otherText ?? ""}
-            onChange={(event) => onOtherText(event.target.value)}
-            placeholder={t("otherPlaceholder")}
-          />
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function FieldInput({
-  id,
-  fieldType,
-  value,
-  onChange,
-}: {
-  id: string;
-  fieldType: string | null;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const t = useTranslations("pages.orders.wizard.intake");
-
-  // A boolean field stores the affirmative *label* rather than "true": the
-  // value is snapshotted verbatim into `intake_responses` and shown on the hub
-  // (and the generator only cares whether it's non-empty -- §6.5).
-  if (fieldType === "boolean") {
-    return (
-      <label className="flex cursor-pointer items-center gap-2">
-        <input
-          id={id}
-          type="checkbox"
-          className="accent-mauve-600"
-          checked={value.trim().length > 0}
-          onChange={(event) => onChange(event.target.checked ? t("yes") : "")}
-        />
-        <span className="text-sm text-ink">{t("yes")}</span>
-      </label>
-    );
-  }
-
-  if (fieldType === "textarea") {
-    return (
-      <Textarea
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      />
-    );
-  }
-  return (
-    <Input
-      id={id}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-    />
-  );
-}
-
-function TaskGroupField({
-  item,
-  selectedIds,
-  onChange,
-}: {
-  item: ResolvedIntakeItem;
-  selectedIds: string[];
-  onChange: (ids: string[]) => void;
-}) {
-  const t = useTranslations("pages.orders.wizard.intake");
-  const taskTypes = item.taskGroupTaskTypes ?? [];
-
-  if (item.config.selection_mode === "all") {
-    return (
-      <p className="text-sm text-muted">
-        {t("groupAll", { names: taskTypes.map((tt) => tt.name).join(", ") })}
-      </p>
-    );
-  }
-
-  const isSingle = item.config.selection_mode === "single";
-
-  return (
-    <div className="space-y-1.5">
-      {taskTypes.map((taskType) => (
-        <label
-          key={taskType.id}
-          className="flex cursor-pointer items-center gap-2"
-        >
-          <input
-            type={isSingle ? "radio" : "checkbox"}
-            name={isSingle ? `group-${item.id}` : undefined}
-            className="accent-mauve-600"
-            checked={selectedIds.includes(taskType.id)}
-            onChange={(event) => {
-              if (isSingle) {
-                onChange(event.target.checked ? [taskType.id] : []);
-              } else if (event.target.checked) {
-                onChange([...selectedIds, taskType.id]);
-              } else {
-                onChange(selectedIds.filter((id) => id !== taskType.id));
-              }
-            }}
-          />
-          <span className="text-sm text-ink">{taskType.name}</span>
-        </label>
-      ))}
     </div>
   );
 }

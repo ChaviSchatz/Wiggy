@@ -122,7 +122,7 @@ async function confirmIntake(tenant: Tenant, intakeTemplateId: string) {
 
   const { data: template } = await tenant.client
     .from("intake_templates")
-    .select("work_order_kind")
+    .select("name, work_order_kind")
     .eq("id", intakeTemplateId)
     .single();
 
@@ -132,6 +132,7 @@ async function confirmIntake(tenant: Tenant, intakeTemplateId: string) {
       business_id: tenant.businessId,
       intake_template_id: intakeTemplateId,
       work_order_kind: template!.work_order_kind,
+      template_name: template!.name,
       number: number!,
       intake_responses: generated.intakeResponses,
     })
@@ -208,13 +209,15 @@ describe("next_work_order_number", () => {
 });
 
 describe("confirm intake -> generated work order + runtime tasks", () => {
-  it("creates the order with a JSON snapshot of intake_responses and the right work_order_kind", async () => {
+  it("creates the order with a JSON snapshot of intake_responses and the template name", async () => {
     const [a] = tenants;
     const templateId = templateIdByBusinessId[a.businessId];
 
     const { order, generated } = await confirmIntake(a, templateId);
 
-    expect(order.work_order_kind).toBe("customer");
+    // The order's display identity is a *snapshot* of the template name, so
+    // renaming the template later does not rewrite orders already placed.
+    expect(order.template_name).toBe("פאה חדשה");
     expect(order.status).toBe("confirmed");
     expect(order.intake_responses).toEqual(generated.intakeResponses);
     expect(

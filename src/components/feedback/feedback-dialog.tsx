@@ -83,7 +83,9 @@ export function FeedbackDialog({ trigger }: { trigger: React.ReactNode }) {
         ) : (
           <form onSubmit={onSubmit} className="space-y-4">
             {formError ? (
-              <FormMessage variant="error">{t(`errors.${formError}`)}</FormMessage>
+              <FormMessage variant="error">
+                {t(`errors.${formError}`)}
+              </FormMessage>
             ) : null}
             <input type="hidden" name="pagePath" value={pathname} />
 
@@ -109,7 +111,9 @@ export function FeedbackDialog({ trigger }: { trigger: React.ReactNode }) {
                 ))}
               </div>
               {errors.kind ? (
-                <p className="text-sm text-danger-600">{t("errors.kindInvalid")}</p>
+                <p className="text-sm text-danger-600">
+                  {t("errors.kindInvalid")}
+                </p>
               ) : null}
             </fieldset>
 

@@ -92,7 +92,7 @@ an active/inactive `Toggle` row, then `primary` save and `outline` cancel.
 side.
 
 Details render as label/value rows with the label in `muted` at a fixed inline-size, so values align
-down the column. Order history rows lead with order kind and code, and carry a `StatusChip`.
+down the column. Order history rows lead with the template name and code, and carry a `StatusChip`.
 
 ---
 
@@ -102,7 +102,7 @@ down the column. Order history rows lead with order kind and code, and carry a `
 
 **Archetype A.** `PageHeader` + `FilterBar` (search, status, urgency) + `DataTable` + `Pagination`.
 
-Columns: customer, order kind, code, created, due, status, urgency. Status and urgency are
+Columns: customer (or template name when there is none), code, created, due, status, urgency. Status and urgency are
 `StatusChip`s; normal urgency renders as nothing at all rather than a grey "normal" chip, because a
 chip on every row stops chips carrying information.
 
@@ -114,7 +114,7 @@ in a heading.
 
 - **Step 1 — customer.** Search-and-select, or create inline. Results are selectable rows with a
   `mauve-100` hover ground and a 2px `mauve-600` border when selected.
-- **Step 2 — intake template.** Selectable cards, one per order kind, same selection treatment.
+- **Step 2 — intake template.** Selectable cards, one per active template, same selection treatment.
 - **Step 3 — intake.** Rendered from `intake_template_items`, so its structure is data, not layout.
   Sections become `Panel`s, fields become `FormField`s, task and group selections become checkbox and
   radio groups. "Other" free-text sits with the group it belongs to (ADR 0006).
@@ -134,7 +134,7 @@ panel rhythm to hold. Detailed content spec stays in `docs/ui/work-order-hub.md`
 composition.
 
 `BackLink` to the board, then `PageHeader` where the title is the customer name and the subtitle
-carries order kind, code, and dates. Status and urgency `StatusChip`s sit in the header actions slot
+carries the template name, code, and dates. Status and urgency `StatusChip`s sit in the header actions slot
 alongside contact `IconButton`s.
 
 Then, in order: `Stepper`; next-action `Panel` on a `cream` ground because it is advisory rather than
@@ -221,20 +221,20 @@ generates tasks, or through "add manual task" on the hub.
 
 One card per task (ADR 0010). Composition, in order:
 
-| Slot | Content | Treatment |
-|---|---|---|
-| Identity | Customer name, or order kind when the order has no customer | `text-identity`, truncated to one line |
-| Code | Order number beside the identity | `text-meta` `muted`, `tabular-nums` |
-| Urgency mark | Filled star when the order is urgent | `danger-500`, inline with identity |
-| Task | The task title | `text-body` `ink` |
-| Assignee | Worker `Avatar` at `sm`, tap to reassign | inline-start of the footer |
-| Due | Task due date, falling back to the order's, omitted when neither is set | `text-meta` `muted`, `tabular-nums`, inline-end |
-| State | Inline `Start`/`Done` action, or a `StatusChip` when no action applies | inline-end of the footer |
+| Slot         | Content                                                                 | Treatment                                       |
+| ------------ | ----------------------------------------------------------------------- | ----------------------------------------------- |
+| Identity     | Customer name, or template name when the order has no customer          | `text-identity`, truncated to one line          |
+| Code         | Order number beside the identity                                        | `text-meta` `muted`, `tabular-nums`             |
+| Urgency mark | Filled star when the order is urgent                                    | `danger-500`, inline with identity              |
+| Task         | The task title                                                          | `text-body` `ink`                               |
+| Assignee     | Worker `Avatar` at `sm`, tap to reassign                                | inline-start of the footer                      |
+| Due          | Task due date, falling back to the order's, omitted when neither is set | `text-meta` `muted`, `tabular-nums`, inline-end |
+| State        | Inline `Start`/`Done` action, or a `StatusChip` when no action applies  | inline-end of the footer                        |
 
 A 2px `mauve-100` rule runs down the leading edge. Hover moves the border to `line-strong` and
 translates `-1px`. No shadow.
 
-**Not on the card:** no photo or thumbnail, no order kind, no stage name, no overflow menu. Order kind
+**Not on the card:** no photo or thumbnail, no template name, no stage name, no overflow menu. The template name
 is omitted because the task title is the actionable thing and the card is already carrying two lines
 of identity; it is one tap away in the peek. Stage is omitted because the column already is the stage.
 Photos belong to the peek and the hub.
@@ -283,7 +283,7 @@ Sections in the fixed order the queue derivation produces: **Current**, **Next**
 `Current` takes a 2px `mauve-600` border, because it is the one thing the worker should be doing.
 `Completed` takes a `sage` treatment. `Blocked` is reduced-opacity with a dashed border and states its
 reason in words — deferred, or waiting on the preceding task — rather than as a bare lock icon, since
-this is the surface where the worker needs to know *why* they cannot proceed.
+this is the surface where the worker needs to know _why_ they cannot proceed.
 
 Items are `WorkCard` in its queue variant — the widest of the three, with a ≥44px primary action and
 a `WorkImage` thumbnail where a reference photo exists, since recognising the physical wig matters
@@ -316,8 +316,17 @@ These are seeded rather than edited in v1, so the design commitment is narrow: t
 `DataTable`, `FormField`, and `Dialog` parts as every other list, and a reorderable list uses the same
 explicit up/down controls as sprint planning rather than introducing a second reordering idiom.
 
-The intake template builder (51) is the one genuinely novel surface here and will get its own spec when
-it is built. Branding (55) is where a tenant will eventually override the brand token, which is another
+The intake template builder (51) was the one genuinely novel surface here, and its design is now
+fixed: **the list is the form**. Each row renders the real, read-only intake control via the shared
+`IntakeItemField` — the same component the New Order wizard uses — so the preview cannot drift from
+what the customer actually sees, and there is no separate "preview" mode to translate in your head.
+
+A row is three layers: a quiet kind chip (כותרת / שאלה / משימה / קבוצת משימות, plain language rather
+than `field`/`section`), the rendered control, then a meta line carrying only what a control cannot
+show — required, pre-selected, generates a task, and in `warning` tone the two consequences a manager
+would not otherwise expect: a missing-stock flag, and an item that generates nothing at all.
+Explanations live in the add dialog's radio cards, where the choice is actually made, rather than in
+permanent page chrome. Branding (55) is where a tenant will eventually override the brand token, which is another
 reason the brand exists as one token rather than as scattered classes.
 
 ---
@@ -346,11 +355,11 @@ does not exist.
 
 ## 10. Responsive posture
 
-| Range | Chrome | Content |
-|---|---|---|
-| `≥lg` | Side nav + top bar over the main column | Full layouts; board scrolls horizontally |
-| `md–lg` | Bottom nav + sticky top bar | Two-column layouts collapse to one; board keeps horizontal scroll |
-| `<md` | Bottom nav + compact top bar | Single column; tables become stacked rows led by identity; secondary metadata drops rather than wrapping |
+| Range   | Chrome                                  | Content                                                                                                  |
+| ------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `≥lg`   | Side nav + top bar over the main column | Full layouts; board scrolls horizontally                                                                 |
+| `md–lg` | Bottom nav + sticky top bar             | Two-column layouts collapse to one; board keeps horizontal scroll                                        |
+| `<md`   | Bottom nav + compact top bar            | Single column; tables become stacked rows led by identity; secondary metadata drops rather than wrapping |
 
 Below `md`, a table row becomes a row of its own led by the identity line, with the two most
 important columns beneath it and the rest available on the detail screen. Hierarchy is preserved by

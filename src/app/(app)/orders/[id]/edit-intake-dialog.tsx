@@ -70,16 +70,25 @@ export function EditIntakeDialog({
                   id={`intake-${entry.itemId}`}
                   value={values[entry.itemId] ?? ""}
                   onChange={(e) =>
-                    setValues((prev) => ({ ...prev, [entry.itemId]: e.target.value }))
+                    setValues((prev) => ({
+                      ...prev,
+                      [entry.itemId]: e.target.value,
+                    }))
                   }
                 />
               </div>
             ))}
           </div>
         )}
-        {error ? <FormMessage variant="error">{t("errors.generic")}</FormMessage> : null}
+        {error ? (
+          <FormMessage variant="error">{t("errors.generic")}</FormMessage>
+        ) : null}
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
             {t("cancel")}
           </Button>
           {entries.length > 0 ? (

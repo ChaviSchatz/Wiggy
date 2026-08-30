@@ -44,7 +44,9 @@ export function SprintFilterBar({
       <select
         aria-label={t("stageLabel")}
         value={filters.stageId}
-        onChange={(event) => onChange({ ...filters, stageId: event.target.value })}
+        onChange={(event) =>
+          onChange({ ...filters, stageId: event.target.value })
+        }
         className={selectClass}
       >
         <option value="">{t("stageAll")}</option>
@@ -58,7 +60,9 @@ export function SprintFilterBar({
       <select
         aria-label={t("employeeLabel")}
         value={filters.staffId}
-        onChange={(event) => onChange({ ...filters, staffId: event.target.value })}
+        onChange={(event) =>
+          onChange({ ...filters, staffId: event.target.value })
+        }
         className={selectClass}
       >
         <option value="">{t("employeeAll")}</option>
@@ -72,7 +76,9 @@ export function SprintFilterBar({
       <select
         aria-label={t("typeLabel")}
         value={filters.taskTypeId}
-        onChange={(event) => onChange({ ...filters, taskTypeId: event.target.value })}
+        onChange={(event) =>
+          onChange({ ...filters, taskTypeId: event.target.value })
+        }
         className={selectClass}
       >
         <option value="">{t("typeAll")}</option>
@@ -86,7 +92,9 @@ export function SprintFilterBar({
       <select
         aria-label={t("statusLabel")}
         value={filters.status}
-        onChange={(event) => onChange({ ...filters, status: event.target.value })}
+        onChange={(event) =>
+          onChange({ ...filters, status: event.target.value })
+        }
         className={selectClass}
       >
         <option value="">{t("statusAll")}</option>

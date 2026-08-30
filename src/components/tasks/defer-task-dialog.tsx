@@ -77,7 +77,9 @@ export function DeferTaskDialog({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="defer-resume-date">{t("deferResumeDateLabel")}</Label>
+            <Label htmlFor="defer-resume-date">
+              {t("deferResumeDateLabel")}
+            </Label>
             <input
               id="defer-resume-date"
               type="date"
@@ -89,7 +91,11 @@ export function DeferTaskDialog({
         </div>
         {error ? (
           <FormMessage variant="error">
-            {t(error === "reasonRequired" ? "errors.reasonRequired" : "errors.generic")}
+            {t(
+              error === "reasonRequired"
+                ? "errors.reasonRequired"
+                : "errors.generic",
+            )}
           </FormMessage>
         ) : null}
         <DialogFooter>

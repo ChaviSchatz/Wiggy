@@ -23,7 +23,9 @@ export type FeedbackFieldErrors = Partial<
   Record<keyof FeedbackInput, "required" | "invalid" | "tooLong">
 >;
 
-export function validateFeedbackInput(input: FeedbackInput): FeedbackFieldErrors {
+export function validateFeedbackInput(
+  input: FeedbackInput,
+): FeedbackFieldErrors {
   const errors: FeedbackFieldErrors = {};
 
   const kind = input.kind.trim();

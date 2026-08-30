@@ -11,11 +11,7 @@ import { cn } from "@/lib/utils";
  * i18n namespace; only the colour decision lives here.
  */
 export type StatusKind =
-  | "task"
-  | "order"
-  | "missingItem"
-  | "urgency"
-  | "availability";
+  "task" | "order" | "missingItem" | "urgency" | "availability";
 
 /** `null` means "render nothing" -- see `urgency: normal` and ADR 0012. */
 const VARIANTS: Record<StatusKind, Record<string, BadgeVariant | null>> = {

@@ -112,6 +112,29 @@ human working in this repo. Read it first.
 > `src/lib/time/business-time.ts`) — it previously existed but nothing read it, so a sprint created
 > after midnight in Israel started on the wrong date. `default_locale` is deliberately absent from
 > the UI: only `he` exists, so a selector would do nothing.
+>
+> The **second `[config]` slice** then shipped — screens #50 (intake templates list), #51 (template
+> builder) and #52 (item config), so **the tenant now defines their own order types**. The New Order
+> wizard was always a multi-template picker; only one template was seeded, which is why the salon
+> saw one option. Templates can be created, edited, duplicated (copy lands **inactive**) and
+> deactivated. `intake_templates` gained `insert`/`update` but **no `delete`**
+> (`20260830140000_intake_template_editor_rls.sql`): `work_orders.intake_template_id` is
+> `on delete restrict`, so Postgres refuses anyway. `intake_template_items` gained all three,
+> because `runtime_tasks.origin_item_id` is `on delete set null` and is written but never read — and
+> its policies **join through the parent**, since that table has no `business_id` of its own.
+> Reordering renumbers the whole list rather than swapping (`src/lib/work-definition/reorder.ts`):
+> `sort_order` defaults to 0, so duplicates are possible and a swap would silently no-op — the
+> opposite trade-off to sprint's fractional ranks, because a template holds ten items, not a lane.
+> `field_type` is now a **code-defined set of four** (`text`/`textarea`/`boolean`/`select`) validated
+> in `src/lib/work-definition/field-types.ts` — the module the Slice 2 migration comment anticipated
+> — and shared with the intake wizard, which renders `select` for the first time (`options` and
+> `display_style: dropdown` existed in the schema from Slice 2 but nothing ever read them).
+> `work_order_kind` is **gone from the UI**. It was a fixed five-value vocabulary rendered through
+> `t("kind.<value>")`, and nothing branched on it — its only job was labelling an order with no
+> customer. The tenant already names her order types by naming templates, so orders now snapshot
+> `work_orders.template_name` at generation and display `customerName ?? templateName`. The column
+> survives on both tables (NOT NULL + check) but is vestigial and defaulted; don't add readers.
+> Task types and groups (#46–49) remain read-only and deferred.
 
 ## Start here (read in this order)
 
@@ -222,10 +245,10 @@ seed:dev`, and `npm run test:integration`. Check with `npx supabase status`. Env
 - **Server-only admin client.** `src/lib/supabase/admin.ts` (service-role, bypasses RLS) imports
   `server-only`. Running it from plain Node needs the `react-server` export condition: `npm run
 seed:dev` passes `--conditions=react-server --experimental-strip-types`, and the integration
- vitest config aliases `server-only` to a no-op stub. The `.ts` import extension in the seed script
- is why `tsconfig` sets `allowImportingTsExtensions`.
+  vitest config aliases `server-only` to a no-op stub. The `.ts` import extension in the seed script
+  is why `tsconfig` sets `allowImportingTsExtensions`.
 - **Plain Node can't resolve the `@/` alias.** Modules the seed scripts import directly (notably
- `src/lib/work-orders/generate.ts`) must reach cross-domain **values** through a relative path with
- the `.ts` extension; `import type` is fine either way, since types are erased. Symptom if you get
- it wrong: `ERR_MODULE_NOT_FOUND: Cannot find package '@/lib'` from `npm run seed:*`.
+  `src/lib/work-orders/generate.ts`) must reach cross-domain **values** through a relative path with
+  the `.ts` extension; `import type` is fine either way, since types are erased. Symptom if you get
+  it wrong: `ERR_MODULE_NOT_FOUND: Cannot find package '@/lib'` from `npm run seed:*`.
 - **Dev login** (from `npm run seed:dev`): `admin@wiggy.local` / `wiggy-dev-password` (local only).

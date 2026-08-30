@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/lib/supabase/database.types";
-import type { ActivityPayload, ActivitySubjectType, ActivityVerb } from "./types";
+import type {
+  ActivityPayload,
+  ActivitySubjectType,
+  ActivityVerb,
+} from "./types";
 
 export type LogActivityInput = {
   businessId: string;
@@ -37,7 +41,8 @@ export async function logActivity(
     // `ActivityPayload` is intentionally loose (Record<string, unknown>) for
     // callers; the jsonb column accepts anything JSON-serializable, so this
     // cast just bridges the generated `Json` type at the actual DB boundary.
-    payload: (input.payload ?? {}) as Database["public"]["Tables"]["activity"]["Insert"]["payload"],
+    payload: (input.payload ??
+      {}) as Database["public"]["Tables"]["activity"]["Insert"]["payload"],
   });
   if (error) {
     console.error("logActivity failed", { verb: input.verb, error });

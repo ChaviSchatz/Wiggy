@@ -49,12 +49,11 @@ export function TaskCard({
   onReturn: () => void;
 }) {
   const t = useTranslations("pages.board");
-  const tKind = useTranslations("pages.orders.kind");
   const tTaskStatus = useTranslations("pages.orders.taskStatus");
   const tCommon = useTranslations("common");
 
   const isBlocked = availability === "blocked";
-  const identity = task.customerName ?? tKind(task.orderKind);
+  const identity = task.customerName ?? task.templateName ?? "";
   // The task's own date wins; the order's is the fallback; neither means the
   // slot renders nothing at all (ADR 0012).
   const dueAt = task.due_at ?? task.orderDueAt;
@@ -68,7 +67,7 @@ export function TaskCard({
   return (
     <div
       className={cn(
-        "rounded-card border border-line border-s-2 border-s-mauve-100 bg-surface p-3 transition-all",
+        "rounded-card border border-s-2 border-line border-s-mauve-100 bg-surface p-3 transition-all",
         isBlocked
           ? "opacity-70"
           : "hover:-translate-y-px hover:border-line-strong",
@@ -117,7 +116,7 @@ export function TaskCard({
           {dueAt ? (
             <span
               className={cn(
-                "tabular-nums text-meta",
+                "text-meta tabular-nums",
                 isLate ? "font-medium text-danger-600" : "text-muted",
               )}
               title={t("dueLabel")}

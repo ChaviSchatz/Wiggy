@@ -46,7 +46,9 @@ function ActivityLine({ entry }: { entry: ActivityEntry }) {
   const payload = (entry.payload ?? {}) as Record<string, unknown>;
 
   const kindLabel = (value: unknown) =>
-    isMissingItemKind(String(value)) ? tWarnings(`kind.${value}`) : String(value);
+    isMissingItemKind(String(value))
+      ? tWarnings(`kind.${value}`)
+      : String(value);
   const statusLabel = (value: unknown) =>
     isMissingItemStatus(String(value))
       ? tWarnings(`status.${value}`)
@@ -65,17 +67,25 @@ function ActivityLine({ entry }: { entry: ActivityEntry }) {
     case "task_returned_for_rework":
       return (
         <>
-          {t("task_returned_for_rework", { reason: String(payload.reason ?? "") })}
+          {t("task_returned_for_rework", {
+            reason: String(payload.reason ?? ""),
+          })}
         </>
       );
     case "task_deferred":
-      return <>{t("task_deferred", { reason: String(payload.reason ?? "") })}</>;
+      return (
+        <>{t("task_deferred", { reason: String(payload.reason ?? "") })}</>
+      );
     case "attachment_added":
       return (
-        <>{t("attachment_added", { fileName: String(payload.fileName ?? "") })}</>
+        <>
+          {t("attachment_added", { fileName: String(payload.fileName ?? "") })}
+        </>
       );
     case "missing_item_created":
-      return <>{t("missing_item_created", { kind: kindLabel(payload.kind) })}</>;
+      return (
+        <>{t("missing_item_created", { kind: kindLabel(payload.kind) })}</>
+      );
     case "missing_item_status_changed":
       return (
         <>

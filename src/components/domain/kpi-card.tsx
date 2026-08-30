@@ -36,16 +36,21 @@ export function KpiCard({
     <Card
       className={cn(
         "h-full p-4",
-        href && "transition-colors hover:border-mauve-600/40",
+        href && "hover:border-mauve-600/40 transition-colors",
       )}
     >
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm text-muted">{label}</p>
         {Icon ? (
-          <Icon className={cn("size-5 shrink-0", TONE_CLASS[tone])} aria-hidden />
+          <Icon
+            className={cn("size-5 shrink-0", TONE_CLASS[tone])}
+            aria-hidden
+          />
         ) : null}
       </div>
-      <p className={cn("mt-2 text-3xl font-bold tabular-nums", TONE_CLASS[tone])}>
+      <p
+        className={cn("mt-2 text-3xl font-bold tabular-nums", TONE_CLASS[tone])}
+      >
         {value}
       </p>
       {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}

@@ -47,6 +47,8 @@ export type ResolvedIntakeItem = {
   fieldKey: string | null;
   fieldLabel: string | null;
   fieldType: string | null;
+  /** Values for a `select` field; empty for every other type. */
+  options: string[];
   config: IntakeItemConfig;
   /** Populated when `itemKind === "task_type"`. */
   taskType: TaskType | null;

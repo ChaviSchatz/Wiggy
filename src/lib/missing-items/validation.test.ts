@@ -21,7 +21,9 @@ describe("validateMissingItemInput", () => {
   });
 
   it("requires a work order", () => {
-    expect(validateMissingItemInput({ ...validInput, workOrderId: "  " })).toEqual({
+    expect(
+      validateMissingItemInput({ ...validInput, workOrderId: "  " }),
+    ).toEqual({
       workOrderId: "required",
     });
   });

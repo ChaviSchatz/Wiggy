@@ -80,14 +80,18 @@ export function SprintPlanningBoard({
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
-      if (filters.stageId && task.work_stage_id !== filters.stageId) return false;
-      if (filters.taskTypeId && task.task_type_id !== filters.taskTypeId) return false;
+      if (filters.stageId && task.work_stage_id !== filters.stageId)
+        return false;
+      if (filters.taskTypeId && task.task_type_id !== filters.taskTypeId)
+        return false;
       if (filters.status && task.status !== filters.status) return false;
       return true;
     });
   }, [tasks, filters]);
 
-  const backlogTasks = filteredTasks.filter((task) => !task.assigned_staff_member_id);
+  const backlogTasks = filteredTasks.filter(
+    (task) => !task.assigned_staff_member_id,
+  );
   const visibleStaff = filters.staffId
     ? staff.filter((member) => member.id === filters.staffId)
     : staff;
@@ -105,7 +109,9 @@ export function SprintPlanningBoard({
   );
 
   function updateTask(taskId: string, patch: Partial<BoardTask>) {
-    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, ...patch } : t)));
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, ...patch } : t)),
+    );
   }
 
   async function handleAssign(task: BoardTask, staffMemberId: string | null) {
@@ -137,7 +143,11 @@ export function SprintPlanningBoard({
 
   return (
     <div>
-      <SprintHeader sprint={sprint} cadenceDays={cadenceDays} openTaskCount={tasks.length} />
+      <SprintHeader
+        sprint={sprint}
+        cadenceDays={cadenceDays}
+        openTaskCount={tasks.length}
+      />
       <SprintFilterBar
         filters={filters}
         onChange={setFilters}
@@ -147,12 +157,17 @@ export function SprintPlanningBoard({
       />
 
       {filteredTasks.length === 0 ? (
-        <EmptyState title={t("emptyTitle")} description={t("emptyDescription")} />
+        <EmptyState
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+        />
       ) : (
         <div className="flex gap-4 overflow-x-auto pb-4">
           <div className="w-72 shrink-0">
             <div className="mb-2 flex items-center justify-between px-1">
-              <h2 className="text-sm font-semibold text-ink">{t("backlogTitle")}</h2>
+              <h2 className="text-sm font-semibold text-ink">
+                {t("backlogTitle")}
+              </h2>
               <span className="text-xs text-muted">{backlogTasks.length}</span>
             </div>
             <div className="space-y-2">
@@ -160,11 +175,15 @@ export function SprintPlanningBoard({
                 <SprintTaskCard
                   key={task.id}
                   task={task}
-                  availability={availabilityByTaskId.get(task.id) ?? "available"}
+                  availability={
+                    availabilityByTaskId.get(task.id) ?? "available"
+                  }
                   staff={staff}
                   canMoveUp={false}
                   canMoveDown={false}
-                  onAssign={(staffMemberId) => handleAssign(task, staffMemberId)}
+                  onAssign={(staffMemberId) =>
+                    handleAssign(task, staffMemberId)
+                  }
                   onMove={() => undefined}
                   onTogglePriority={() => handleTogglePriority(task)}
                 />
@@ -179,7 +198,9 @@ export function SprintPlanningBoard({
             return (
               <div key={member.id} className="w-72 shrink-0">
                 <div className="mb-2 flex items-center justify-between px-1">
-                  <h2 className="text-sm font-semibold text-ink">{member.full_name}</h2>
+                  <h2 className="text-sm font-semibold text-ink">
+                    {member.full_name}
+                  </h2>
                   <span className="text-xs text-muted">{laneTasks.length}</span>
                 </div>
                 <div className="space-y-2">
@@ -188,11 +209,17 @@ export function SprintPlanningBoard({
                       key={task.id}
                       task={task}
                       rank={index + 1}
-                      availability={availabilityByTaskId.get(task.id) ?? "available"}
+                      availability={
+                        availabilityByTaskId.get(task.id) ?? "available"
+                      }
                       staff={staff}
                       canMoveUp={index > 0 && !reorderDisabled}
-                      canMoveDown={index < laneTasks.length - 1 && !reorderDisabled}
-                      onAssign={(staffMemberId) => handleAssign(task, staffMemberId)}
+                      canMoveDown={
+                        index < laneTasks.length - 1 && !reorderDisabled
+                      }
+                      onAssign={(staffMemberId) =>
+                        handleAssign(task, staffMemberId)
+                      }
                       onMove={(direction) => handleMove(task, direction)}
                       onTogglePriority={() => handleTogglePriority(task)}
                     />

@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import type { Availability } from "@/lib/availability";
 import { deriveQueueSections, type QueueTaskInput } from "./derive";
 
-function task(overrides: Partial<QueueTaskInput> & { id: string }): QueueTaskInput {
+function task(
+  overrides: Partial<QueueTaskInput> & { id: string },
+): QueueTaskInput {
   return {
     status: "pending",
     queueRank: null,

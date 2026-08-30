@@ -135,7 +135,11 @@ type TaskGroupKey = (typeof TASK_GROUPS)[number]["key"];
  */
 const MISSING_STOCK_FIELDS = [
   { fieldKey: "no_top", fieldLabel: "אין טופ במלאי", missingItemKind: "top" },
-  { fieldKey: "no_skin", fieldLabel: "אין עור במלאי", missingItemKind: "skin" },
+  {
+    fieldKey: "no_skin",
+    fieldLabel: "אין סקין במלאי",
+    missingItemKind: "skin",
+  },
 ] as const;
 
 function missingStockFieldRow(
@@ -460,13 +464,16 @@ async function seedNewWigIntakeTemplate(
 
 /**
  * Appends the missing-stock flags to a template that was seeded before they
- * existed, so an already-seeded dev database picks them up without a reset.
+ * existed, so an already-seeded dev database picks them up without a reset,
+ * and refreshes their labels when the seeded wording changes.
  */
 async function ensureMissingStockFields(
   supabase: AdminClient,
   templateId: string,
-  existingItems: { field_key: string | null; sort_order: number }[],
+  existingItems: { id: string; field_key: string | null; sort_order: number }[],
 ) {
+  await refreshMissingStockLabels(supabase, existingItems);
+
   const existingKeys = new Set(
     existingItems.map((item) => item.field_key).filter(Boolean),
   );
@@ -486,4 +493,40 @@ async function ensureMissingStockFields(
   const inserted = await supabase.from("intake_template_items").insert(rows);
   if (inserted.error) throw inserted.error;
   console.log(`Added ${rows.length} missing-stock intake fields.`);
+}
+
+/**
+ * Brings already-seeded missing-stock fields up to the current wording.
+ *
+ * These rows live in a tenant-content table, but the seed owns them -- they
+ * are matched by the `field_key` this file defines, never typed by the salon
+ * -- so re-labelling them here is the same idempotent "an already-seeded DB
+ * picks it up" behaviour as adding a missing one. It is what let the
+ * skin/`עור` -> `סקין` rename reach existing databases without a reset.
+ */
+async function refreshMissingStockLabels(
+  supabase: AdminClient,
+  existingItems: { id: string; field_key: string | null }[],
+) {
+  // Widened to plain strings: `field_key` comes back from the database as
+  // `string | null`, not the literal union this file declares.
+  const labelByKey = new Map<string, string>(
+    MISSING_STOCK_FIELDS.map((field) => [field.fieldKey, field.fieldLabel]),
+  );
+
+  for (const item of existingItems) {
+    const wanted = item.field_key ? labelByKey.get(item.field_key) : undefined;
+    if (!wanted) continue;
+
+    const updated = await supabase
+      .from("intake_template_items")
+      .update({ field_label: wanted })
+      .eq("id", item.id)
+      .neq("field_label", wanted)
+      .select("id");
+    if (updated.error) throw updated.error;
+    if (updated.data && updated.data.length > 0) {
+      console.log(`Relabelled missing-stock field "${item.field_key}".`);
+    }
+  }
 }

@@ -31,4 +31,8 @@ export function deriveOrderStatus(
 }
 
 /** Order statuses recompute never touches -- manual-only per §7.2. */
-export const STICKY_ORDER_STATUSES = ["completed", "on_hold", "cancelled"] as const;
+export const STICKY_ORDER_STATUSES = [
+  "completed",
+  "on_hold",
+  "cancelled",
+] as const;

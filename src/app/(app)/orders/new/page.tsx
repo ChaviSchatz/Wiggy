@@ -50,7 +50,6 @@ export default async function NewOrderPage() {
     id: t.id,
     name: t.name,
     description: t.description,
-    workOrderKind: t.work_order_kind,
   }));
 
   return (

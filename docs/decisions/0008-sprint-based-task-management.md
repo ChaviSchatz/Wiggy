@@ -3,49 +3,55 @@
 **Status:** Accepted
 
 ## Context
-The production board shows *where* tasks are in the process, but the production manager (Fradi)
+
+The production board shows _where_ tasks are in the process, but the production manager (Fradi)
 needs an **operational layer** to run the shop: assign ~50–60 open tasks per period to specific
 employees, set each employee's exact working order, and let each employee know what to do next
 without asking. Employees must also see upcoming work that isn't startable yet because earlier
 production steps aren't finished.
 
 ## Decision
-Add a **manually-managed sprint** layer *on top of the existing `runtime_tasks`* — not a separate
+
+Add a **manually-managed sprint** layer _on top of the existing `runtime_tasks`_ — not a separate
 task system:
+
 - A **sprint** is a tenant-configurable time-box (length/cadence set per tenant: e.g. 2 days,
   1 week, 2 weeks). The manager pulls open tasks into the sprint, assigns them to employees, and
   sets each employee's exact order.
 - **Availability is derived automatically** from **linear per-order sequence**: a task is
-  `available` when every earlier-`sequence_order` task in the *same work order* is `done`,
+  `available` when every earlier-`sequence_order` task in the _same work order_ is `done`,
   `skipped`, or `cancelled`; otherwise it is `blocked` (visible in the employee's future queue but
   not startable).
 - Availability is a **derived dimension, not a status** — the task's `status` stays exactly as the
   board shows it (no second, conflicting status system; no duplicate task records).
-- Each employee has a **personal queue**: current task → next (top-ranked *available* task) → rest
+- Each employee has a **personal queue**: current task → next (top-ranked _available_ task) → rest
   of queue by rank → future/blocked (greyed) → completed.
 
 ## Why
+
 - Gives the manager operational control and gives workers a self-service "what's next," now.
 - Single source of truth: the sprint/queue is a view + a few fields over `runtime_tasks`, so the
   board and the queue never diverge.
 - Sets up the future planning engine without pre-building it.
 
 ## Alternatives considered
+
 - **Separate task/queue system** — rejected: duplicate records and conflicting statuses.
 - **Calendar/day-grid view** — parked; unnecessary complexity for now.
 - **Branching dependencies / capacity-aware scheduling now** — deferred to the planning engine.
 
 ## Consequences
+
 - New fields on `runtime_tasks`: `sprint_id?`, `queue_rank` (fractional, per-assignee ordering),
   `priority?` (highlight flag), `availability_override` (manager unlock — see below).
 - Availability is recomputed whenever a task in the order transitions.
 - **Manual availability override:** availability stays strictly **linear**, but a manager can mark a
   specific blocked task as available (`availability_override = true`) for rare real-world
-  parallelism — e.g. hand-tying the *top* while the *base* is still being sewn (~biweekly, only on a
+  parallelism — e.g. hand-tying the _top_ while the _base_ is still being sewn (~biweekly, only on a
   top delay). Recorded in `activity`. This is a targeted manual unlock, **not** the planning
   engine's dynamic resequencing.
 - **Still deferred (planning engine):** capacity/workload math, auto-assignment, dynamic
   reprioritization, branching/parallel dependencies, and sequence-skipping. The current structure
   must not block these. (`docs/architecture.md` §8)
-- Supersedes the parked calendar approach and pulls *sequence-based* availability forward from the
+- Supersedes the parked calendar approach and pulls _sequence-based_ availability forward from the
   planning-engine phase (see `docs/roadmap.md`).

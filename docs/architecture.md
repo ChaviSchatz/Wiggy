@@ -1,11 +1,11 @@
 # WigFlow — Architecture (Technical Foundation)
 
-> **Status:** Living document. This is the *fixed technical foundation* of the system.
+> **Status:** Living document. This is the _fixed technical foundation_ of the system.
 > Product/behaviour decisions live in `docs/decisions/` (ADRs). Domain detail lives in
 > `docs/domains/`. Shared vocabulary lives in `docs/glossary.md`.
 >
 > **Rule:** Every code change that affects structure, data, or behaviour must update the
-> relevant doc here or in `docs/domains/`, and any *product* decision must add/update an ADR.
+> relevant doc here or in `docs/domains/`, and any _product_ decision must add/update an ADR.
 > See `AGENTS.md` for the full rules of engagement.
 
 WigFlow is a **multi-tenant SaaS** for managing task-and-process work in wig-manufacturing
@@ -16,29 +16,32 @@ many salons without code forks. It is **Hebrew-first / RTL**, but built multilin
 
 ## 1. Stack (fixed — not re-litigated)
 
-| Layer | Choice | Notes |
-|-------|--------|-------|
-| UI engine | **React 18** | Base rendering library. |
-| App framework | **Next.js (App Router)** | SSR/RSC, file routing, server actions = the trusted server layer. One deployable. |
-| Components | **shadcn/ui** (on Radix UI) | Copied into the repo and owned; not a locked dependency. |
-| Styling | **Tailwind CSS** | Uses **logical properties** (`ps/pe`, `ms/me`, `text-start/end`) for RTL/LTR. |
-| Backend platform | **Supabase** | Managed **Postgres + Auth + Storage + RLS**. |
-| Data fetching | **TanStack Query** | Client-side caching/refetching. |
-| Language | **TypeScript** | End to end. |
-| Schema source of truth | **Postgres migrations** (Supabase CLI) | TS types generated from the DB schema so app ↔ DB never drift. |
-| i18n | **next-intl** | Message catalogs; default locale `he`, `dir="rtl"`. |
+| Layer                  | Choice                                 | Notes                                                                             |
+| ---------------------- | -------------------------------------- | --------------------------------------------------------------------------------- |
+| UI engine              | **React 18**                           | Base rendering library.                                                           |
+| App framework          | **Next.js (App Router)**               | SSR/RSC, file routing, server actions = the trusted server layer. One deployable. |
+| Components             | **shadcn/ui** (on Radix UI)            | Copied into the repo and owned; not a locked dependency.                          |
+| Styling                | **Tailwind CSS**                       | Uses **logical properties** (`ps/pe`, `ms/me`, `text-start/end`) for RTL/LTR.     |
+| Backend platform       | **Supabase**                           | Managed **Postgres + Auth + Storage + RLS**.                                      |
+| Data fetching          | **TanStack Query**                     | Client-side caching/refetching.                                                   |
+| Language               | **TypeScript**                         | End to end.                                                                       |
+| Schema source of truth | **Postgres migrations** (Supabase CLI) | TS types generated from the DB schema so app ↔ DB never drift.                    |
+| i18n                   | **next-intl**                          | Message catalogs; default locale `he`, `dir="rtl"`.                               |
 
 ### 1.1 Where business logic lives
+
 **Business logic lives in the app layer** (Next.js server actions, TypeScript). We drop down
 to Postgres functions (RPC) **only when there is a concrete reason** (e.g. a transaction that
 must be atomic at the DB level). This keeps logic testable, type-safe, and portable.
 
 ### 1.2 Lock-in posture
+
 The database is plain Postgres (portable via `pg_dump`); Supabase is open-source and
 self-hostable. We **avoid deeply proprietary Supabase features** (Realtime, Edge Functions)
 unless there is a strong, documented need.
 
 ### 1.3 Repository topology & future service extraction
+
 - **Single monolith repo.** One repository holds the full Next.js app (UI + server
   actions/route handlers), the Supabase data layer (migrations, RLS, functions, seed), and
   `docs/`. There are **no** separate frontend/backend/DB repos. Rationale: efficiency and
@@ -46,7 +49,7 @@ unless there is a strong, documented need.
   the planned scale (hundreds of tenants), so **scale is not a reason to split**.
 - **Modularity discipline** (so a future split is lift-and-shift, not a rewrite):
   - Organize code **by domain module** (bounded context: identity, work-definition, work-orders,
-    scheduling, …), *not* by scattering technical layers.
+    scheduling, …), _not_ by scattering technical layers.
   - Each module has a **framework-agnostic domain/service layer** (plain TS) holding business
     logic that **must not import Next.js**. Server actions/route handlers are **thin adapters**
     that call the domain layer.
@@ -70,22 +73,22 @@ unless there is a strong, documented need.
 
 - **Model:** shared database, **row-level tenant isolation**. Every tenant-scoped table has a
   `business_id`.
-- **Enforcement:** **PostgreSQL Row-Level Security (RLS)** is a *blanket guardrail* — a row is
+- **Enforcement:** **PostgreSQL Row-Level Security (RLS)** is a _blanket guardrail_ — a row is
   visible/editable only if the current user has an active `membership` for that row's
   `business_id`. RLS is standard Postgres (not Supabase lock-in) and prevents cross-tenant
   leakage even if app code has a bug. This is defence-in-depth, **not** "logic in the DB."
 - **Business logic** still runs in server actions; RLS is only the isolation net.
 - **Permissions** (which role may do what) live in **one app-layer code module** (the role set
-  + permission map together). `memberships.role` is stored as **plain text validated against
-  that set** (not a Postgres enum), so **adding a role = editing one file** — no migration.
-  Enforced in server actions (the real check) and reflected in the UI.
+  - permission map together). `memberships.role` is stored as **plain text validated against
+    that set** (not a Postgres enum), so **adding a role = editing one file** — no migration.
+    Enforced in server actions (the real check) and reflected in the UI.
 
 ---
 
 ## 3. Domain map (bounded contexts)
 
 1. **Identity & Tenancy** — tenants (`businesses`), users (`profiles`), `memberships` (user↔tenant + role).
-2. **Work Stages & Staff** — `work_stages` (the ordered production phases / board columns; *stations merged in here*) and `staff_members` (people who do work; may lack a login).
+2. **Work Stages & Staff** — `work_stages` (the ordered production phases / board columns; _stations merged in here_) and `staff_members` (people who do work; may lack a login).
 3. **Customers** — customer records; anchor for the future CRM timeline.
 4. **Work Definition (configuration)** — `task_types`, `task_groups`, `task_group_items`, `intake_templates`, `intake_template_items`.
 5. **Work Orders & Runtime** — `work_orders`, `runtime_tasks`, `task_approvals`, `task_comments`.
@@ -99,48 +102,57 @@ See `docs/domains/` for per-domain detail.
 
 ## 4. Core data model
 
-> Fields below are the *shape*; exact columns/types are finalized in migrations. All
+> Fields below are the _shape_; exact columns/types are finalized in migrations. All
 > tenant-scoped tables carry `business_id` + `created_at`/`updated_at` (omitted for brevity).
 
 ### 4.1 Identity & Tenancy
+
 - **`businesses`** — `id, name, slug, logo_url, primary_color, timezone, default_locale (he), is_active`.
 - **`profiles`** — `id (= auth uid), full_name, email, avatar_url`. Tenant-agnostic identity.
 - **`memberships`** — `id, user_id→profiles, business_id→businesses, role (text), is_active`; unique `(user_id, business_id)`.
 
 ### 4.2 Work Stages & Staff
+
 - **`work_stages`** — `id, business_id, key, name, sort_order, color, is_active`. Tenant-configurable-but-governed (admin edits; never per work order). Seeded from a system default set. **Board columns are `work_stages` ordered by `sort_order`.**
 - **`staff_members`** — `id, business_id, full_name, title, default_work_stage_id?, user_id?→profiles (nullable), is_active`. Assignable to tasks; a login is optional. (Capacity fields are planning-engine future.)
 
 ### 4.3 Work Definition (tenant-configurable catalog)
+
 - **`task_types`** — `id, business_id, name, description, default_work_stage_id, default_staff_member_id?, default_duration_minutes?, requires_approval_default (bool), instructions, sort_order, is_active`. **Reusable, standalone. Holds no intake-specific metadata.**
 - **`task_groups`** — `id, business_id, name, description, sort_order, is_active`.
 - **`task_group_items`** — join `(task_group_id, task_type_id, sort_order)`. **Many-to-many** — a task type may live in multiple groups.
-- **`intake_templates`** — `id, business_id, name, work_order_kind, description, is_active`. Not necessarily customer-facing (see ADR 0003 / §9).
-- **`intake_template_items`** — the **single ordered list** that *is* the form. `id, intake_template_id, sort_order, item_kind (task_type | task_group | field | section), task_type_id?, task_group_id?, field_key?, field_label?, field_type?, options?, config(JSON)`.
+- **`intake_templates`** — `id, business_id, name, description, is_active`. The **name is the order type** the tenant defines ("פאה חדשה", "תיקון פאה") — there is no separate code-defined kind. Not necessarily customer-facing (see ADR 0003 / §9). (`work_order_kind` still exists on the table but is vestigial: nothing reads it, and it defaults to `customer`.)
+- **`intake_template_items`** — the **single ordered list** that _is_ the form. `id, intake_template_id, sort_order, item_kind (task_type | task_group | field | section), task_type_id?, task_group_id?, field_key?, field_label?, field_type?, options?, config(JSON)`.
   - `config` = `{ mandatory, visible, default_selected, selection_mode (single|multi|all), display_style (checklist|dropdown|list), section_title, help_text, generates_runtime_tasks, allow_other, other_default_work_stage_id, missing_item_kind }`.
   - `missing_item_kind (top|skin|material)` marks a `field` item as a **missing-stock flag**: answering it creates a `missing_items` row of that kind (§6.5, ADR 0011). Seeded on the "no top" / "no skin" boolean fields.
+  - `field_type` ∈ `{text, textarea, boolean, select}` — **code-defined and validated in the app layer** (`src/lib/work-definition/field-types.ts`), not by a DB enum. `options` holds a `select`'s values. The template builder validates against that set on write and the intake wizard renders from it on read, so the two cannot drift.
+  - **Templates deactivate, never delete** (`work_orders.intake_template_id` is `on delete restrict`); template _items_ can be deleted, because `runtime_tasks.origin_item_id` is `on delete set null` and is written but never read.
 
 ### 4.4 Work Orders & Runtime
-- **`work_orders`** — `id, business_id, customer_id? (nullable), intake_template_id, template_version?, work_order_kind (snapshot), number, status (order-level), priority, due_at, order_received_date, intake_responses (JSON snapshot), notes, created_by`.
+
+- **`work_orders`** — `id, business_id, customer_id? (nullable), intake_template_id, template_version?, template_name (snapshot), number, status (order-level), priority, due_at, order_received_date, intake_responses (JSON snapshot), notes, created_by`.
 - **`runtime_tasks`** — `id, business_id, work_order_id, task_type_id? (null for "Other"), title (snapshot), description (snapshot), work_stage_id (snapshot), sequence_order, status, assigned_staff_member_id?, due_at (nullable in v1), started_at?, completed_at?, requires_approval (snapshot), approver_staff_member_id?, production_notes, source (template|manual|other), origin_item_id?`. **Sprint/queue overlay fields:** `sprint_id?`, `queue_rank`, `priority?`, `availability_override` (see §4.6, §7.3).
 - **`task_approvals`** — approval events (approver, action, reason, timestamps).
 - **`task_comments`** — internal comments on a runtime task.
 - **`missing_items`** (v1) — `id, business_id, work_order_id, kind (top|skin|material), description, status (open|found|ordered|handled), responsible_staff_member_id?, handled_at?, notes`. Auto-created from an intake `missing_item_kind` flag (§6.5) or added manually; surfaced on the dashboard and the order hub until handled or the order completes. `handled_at` is set exactly while `status = handled` (ADR 0011).
 
 ### 4.5 Cross-cutting
+
 - **`attachments`** — polymorphic: `id, business_id, kind (file|photo|voice), parent_type (work_order|runtime_task|customer), parent_id, storage_path, ...`.
 - **`activity`** — append-only unified stream: `id, business_id, actor_user_id?, verb, subject_type, subject_id, work_order_id?, customer_id?, payload(JSON), created_at`. Powers audit log, order history, and the future customer timeline. `subject_type` is `work_order | runtime_task`; events about a child record (a missing item, for instance) are logged against the **order** with the detail in `payload`.
 - **`feedback_items`** (v1) — `id, business_id, submitted_by?→profiles, kind (bug|feature|question), message, page_path?`. The in-app feedback box (screen inventory #58), open to every role. **Append-only:** v1 has no triage UI (#57 is `[config]`), so nothing updates a submission.
 
 ### 4.6 Sprint & task-queue overlay
+
 An operational layer over `runtime_tasks` (ADR 0008/0009; detail in
 `docs/domains/sprint-and-task-queue.md`):
+
 - **`sprints`** — `id, business_id, name?, starts_on, ends_on, status (planning|active|closed)`.
   A **tenant-configurable time-box**; default length/cadence is a per-tenant setting (2 days /
   1 week / 2 weeks / …).
 - **`runtime_tasks` additions:** `sprint_id?` (`null` = backlog), `queue_rank` (fractional,
   per-assignee exact ordering), `priority?` (highlight flag).
-- **No new task table and no new status** — the sprint/queue is a *view + these fields* over
+- **No new task table and no new status** — the sprint/queue is a _view + these fields_ over
   existing tasks. Approvals are not queue items; they are a separate approver surface (ADR 0009).
 
 ---
@@ -148,13 +160,15 @@ An operational layer over `runtime_tasks` (ADR 0008/0009; detail in
 ## 5. Two principles that govern the whole model
 
 ### 5.1 Snapshot on use
-Definitions (task types, intake templates, stages) are *templates*. When a work order is
+
+Definitions (task types, intake templates, stages) are _templates_. When a work order is
 generated, the resolved values are **copied** onto the `work_order` (`intake_responses`,
-`work_order_kind`) and its `runtime_tasks` (title, description, stage, requires_approval,
+`template_name`) and its `runtime_tasks` (title, description, stage, requires_approval,
 duration). **The catalog is read only at generation time and never again.** Editing a template
 later affects **new orders only**; existing orders are immutable snapshots.
 
 ### 5.2 Three-layer defaulting → snapshot
+
 Every operational attribute resolves in this order at generation, then freezes on the task:
 
 ```
@@ -170,6 +184,7 @@ task.
 ## 6. Runtime task generation (algorithm)
 
 On **confirm intake** (`work_order.status: draft → confirmed`):
+
 1. Walk `intake_template_items` in `sort_order`.
 2. For each item:
    - `item_kind = field | section` → save into `work_orders.intake_responses` (structured data / notes). **Never a task.**
@@ -184,6 +199,7 @@ On **confirm intake** (`work_order.status: draft → confirmed`):
 > **a note**, or **explicitly nothing**. There is no hidden checklist. (ADR 0003.)
 
 ### 6.5 Missing-stock flags → `missing_items`
+
 A `field` item whose `config.missing_item_kind` is set is a **missing-stock flag** ("no top in
 stock"). When it is answered (any non-empty value), generation emits a `missing_items` row of that
 kind, with the field's label as its description.
@@ -202,6 +218,7 @@ kind, with the field's label as its description.
 ## 7. State machines
 
 ### 7.1 Runtime task states (system-level; transitions enforced in app code)
+
 States: `pending`, `in_progress`, `awaiting_approval`, `returned_for_rework`, `done`,
 `deferred`, `skipped`, `cancelled`.
 
@@ -212,13 +229,14 @@ States: `pending`, `in_progress`, `awaiting_approval`, `returned_for_rework`, `d
 - almost any → `cancelled`
 
 Distinctions: **`skipped`** = intentionally not needed (normal); **`cancelled`** = voided/aborted.
-**`deferred`** = *manual* pause. A **`blocked`** state is **reserved** for the future dependency
+**`deferred`** = _manual_ pause. A **`blocked`** state is **reserved** for the future dependency
 engine (§8) and is **not** implemented now.
 
 **Undo is a bounded reversal, not a transition of its own.** The board's `UndoToast` reverses the
 step the actor just took: `in_progress → pending` (undo start) and `done | awaiting_approval →
 in_progress` (undo complete). Two limits, enforced server-side in `src/lib/board/transitions.ts`
 because the toast's grace window is a UI affordance and cannot stop a stale client:
+
 - A task that **requires approval and already reached `done`** was approved by someone else, so
   undo is refused — there is no `done → in_progress` edge for that path, and reopening it would
   strand the `task_approvals` row. The way back is `awaiting_approval → returned_for_rework`.
@@ -227,6 +245,7 @@ because the toast's grace window is a UI affordance and cannot stop a stale clie
   entry for a transition that did not happen.
 
 ### 7.2 Work order states (mostly derived from task states)
+
 States: `draft`, `confirmed`, `active`, `ready_for_handoff`, `completed`, `on_hold`, `cancelled`.
 
 - `draft` — intake in progress, not confirmed, no tasks.
@@ -236,12 +255,14 @@ States: `draft`, `confirmed`, `active`, `ready_for_handoff`, `completed`, `on_ho
 - `completed` — delivered/collected (manual), or auto for kinds without handoff.
 - `on_hold` / `cancelled` — manual.
 
-Manual transitions: *confirm intake* (`draft → confirmed`, triggers generation), *on hold/resume*,
-*mark delivered* (`ready_for_handoff → completed`), *cancel*. A server action recalculates the
+Manual transitions: _confirm intake_ (`draft → confirmed`, triggers generation), _on hold/resume_,
+_mark delivered_ (`ready_for_handoff → completed`), _cancel_. A server action recalculates the
 derived order status after every task change. `delivered` is an **order** outcome, never a task state.
 
 ### 7.3 Availability overlay (derived — not a status)
+
 Sequence-based task availability is computed on top of `status` (ADR 0008):
+
 - A task is **`available`** when every earlier-`sequence_order` task in the **same work order** is
   `done`/`skipped`/`cancelled`; otherwise **`blocked`** (visible in the future queue, not
   startable).
@@ -253,15 +274,17 @@ Sequence-based task availability is computed on top of `status` (ADR 0008):
   `activity`; distinct from the planning engine's dynamic resequencing.
 
 ### 7.4 Missing-item lifecycle (`open → found → ordered → handled`)
+
 Deliberately **not a ratchet**: any status may be set from any other, because a salon corrects
 itself ("marked handled, the top never turned up"). What the transition does control is
 `handled_at` — stamped on the way into `handled`, preserved if it was already handled, cleared on
 the way back out. Every change is audited in `activity` against the owning order. (ADR 0011.)
 
 ### 7.5 Business timezone
+
 Anything that describes **the salon's own day** — a sprint's `starts_on`/`ends_on`, the dashboard's
 "completed today" — resolves through `businesses.timezone`, never the server clock
-(`src/lib/time/business-time.ts`). A UTC date slice reports the *previous* day for any tenant east
+(`src/lib/time/business-time.ts`). A UTC date slice reports the _previous_ day for any tenant east
 of Greenwich late in the evening, which is why a sprint created after midnight in Israel used to
 start on the wrong date.
 
@@ -274,7 +297,8 @@ The zone travels on `CurrentUser.timezone`, resolved once per request by `getCur
 ## 8. Deferred: planning engine (dependencies, capacity, automation)
 
 Parked for a dedicated later session (do **not** build now; the model only reserves room):
-- **Branching/parallel dependencies** — explicit `task_dependencies` (within *or* across stages,
+
+- **Branching/parallel dependencies** — explicit `task_dependencies` (within _or_ across stages,
   and cross-order), beyond the **linear per-order availability now in scope** (§7.3).
 - **Due-date computation** from `default_duration` + order due/received dates.
 - **Capacity & workload** — per-worker capacity, buffers, bottleneck detection.
@@ -299,7 +323,12 @@ In scope **today**: linear per-order sequence availability (§7.3) and a **manua
 
 ## 10. Intake is not only for customers
 
-`intake_templates.work_order_kind` ∈ `{ customer, display_wig, internal, missing_item, repair, … }`.
-Customer details are just an **optional section** inside an intake, and `work_orders.customer_id`
-is **nullable** — so internal production, display wigs, and missing-top/skin processes all use
-the *same* intake → runtime-task machinery. (ADR 0003.)
+The tenant defines her own order types by **naming templates** — "פאה חדשה", "תיקון פאה",
+"פאת תצוגה" are all just templates in Settings, not a fixed vocabulary in code. Customer details
+are an **optional section** inside an intake, and `work_orders.customer_id` is **nullable** — so
+internal production, display wigs, and missing-top/skin processes all use the _same_ intake →
+runtime-task machinery. (ADR 0003.)
+
+An order's display identity is its customer name, falling back to `work_orders.template_name` —
+the template's name **snapshotted at generation** (§5.1), so renaming a template later never
+rewrites orders already placed.

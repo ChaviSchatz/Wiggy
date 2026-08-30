@@ -19,7 +19,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FormMessage } from "@/components/ui/form-message";
-import { cancelOrderAction, markDeliveredAction } from "@/lib/work-orders/actions";
+import {
+  cancelOrderAction,
+  markDeliveredAction,
+} from "@/lib/work-orders/actions";
 import {
   priorityBadgeVariant,
   statusBadgeVariant,
@@ -39,7 +42,7 @@ export function HubHeader({
 }) {
   const t = useTranslations("pages.orders");
   const th = useTranslations("pages.orders.detail.hub");
-  const identity = order.customerName ?? t(`kind.${order.work_order_kind}`);
+  const identity = order.customerName ?? order.template_name ?? "";
   const isFinal = FINAL_STATUSES.has(order.status);
 
   return (
@@ -57,7 +60,9 @@ export function HubHeader({
           <h1 className="text-2xl font-semibold text-ink">{identity}</h1>
           <p className="text-sm text-muted">
             {`#${order.number}`}
-            {order.templateName ? ` · ${order.templateName}` : ""}
+            {order.customerName && order.template_name
+              ? ` · ${order.template_name}`
+              : ""}
             {" · "}
             {new Date(order.order_received_date).toLocaleDateString("he-IL")}
             {order.due_at
@@ -172,7 +177,9 @@ function MarkDeliveredDialog({ workOrderId }: { workOrderId: string }) {
           <DialogTitle>{th("markDeliveredTitle")}</DialogTitle>
           <DialogDescription>{th("markDeliveredConfirm")}</DialogDescription>
         </DialogHeader>
-        {error ? <FormMessage variant="error">{th("genericError")}</FormMessage> : null}
+        {error ? (
+          <FormMessage variant="error">{th("genericError")}</FormMessage>
+        ) : null}
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
@@ -219,14 +226,21 @@ function CancelOrderDialog({ workOrderId }: { workOrderId: string }) {
           <DialogTitle>{th("cancelOrderTitle")}</DialogTitle>
           <DialogDescription>{th("cancelOrderConfirm")}</DialogDescription>
         </DialogHeader>
-        {error ? <FormMessage variant="error">{th("genericError")}</FormMessage> : null}
+        {error ? (
+          <FormMessage variant="error">{th("genericError")}</FormMessage>
+        ) : null}
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
               {th("cancelAction")}
             </Button>
           </DialogClose>
-          <Button type="button" variant="danger" onClick={handleConfirm} disabled={pending}>
+          <Button
+            type="button"
+            variant="danger"
+            onClick={handleConfirm}
+            disabled={pending}
+          >
             {th("confirmAction")}
           </Button>
         </DialogFooter>

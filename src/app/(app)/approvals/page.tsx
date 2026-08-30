@@ -13,7 +13,9 @@ export default async function ApprovalsPage() {
 
   const supabase = await createServerSupabaseClient();
   const tasks = await fetchBoardTasks(supabase, user.businessId);
-  const awaitingApproval = tasks.filter((task) => task.status === "awaiting_approval");
+  const awaitingApproval = tasks.filter(
+    (task) => task.status === "awaiting_approval",
+  );
 
   return <ApprovalsList initialTasks={awaitingApproval} />;
 }

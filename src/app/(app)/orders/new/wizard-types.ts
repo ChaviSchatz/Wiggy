@@ -11,7 +11,6 @@ export type TemplateOption = {
   id: string;
   name: string;
   description: string | null;
-  workOrderKind: string;
 };
 
 export type CustomerChoice =

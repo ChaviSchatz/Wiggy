@@ -85,7 +85,12 @@ export function ReturnForReworkDialog({
               {t("returnDialog.cancel")}
             </Button>
           </DialogClose>
-          <Button type="button" variant="danger" onClick={handleSubmit} disabled={pending}>
+          <Button
+            type="button"
+            variant="danger"
+            onClick={handleSubmit}
+            disabled={pending}
+          >
             {pending ? t("returnDialog.saving") : t("returnDialog.confirm")}
           </Button>
         </DialogFooter>

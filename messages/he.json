@@ -259,13 +259,6 @@
         "priority": "עדיפות",
         "receivedDate": "תאריך קבלה"
       },
-      "kind": {
-        "customer": "הזמנת לקוח",
-        "display_wig": "פאת תצוגה",
-        "internal": "הזמנה פנימית",
-        "missing_item": "פריט חסר",
-        "repair": "תיקון"
-      },
       "status": {
         "draft": "טיוטה",
         "confirmed": "אושרה",
@@ -354,7 +347,9 @@
             "cancel": "ביטול",
             "save": "שמירה",
             "saving": "שומר/ת...",
-            "errors": { "generic": "משהו השתבש. נסו שוב." }
+            "errors": {
+              "generic": "משהו השתבש. נסו שוב."
+            }
           },
           "attachments": {
             "filesTitle": "קבצים ותמונות",
@@ -397,7 +392,7 @@
             "title": "התראות ופריטים חסרים",
             "kind": {
               "top": "טופ חסר",
-              "skin": "עור חסר",
+              "skin": "סקין חסר",
               "material": "חומר חסר"
             },
             "status": {
@@ -444,7 +439,9 @@
             "cancel": "ביטול",
             "save": "שמירה",
             "saving": "שומר/ת...",
-            "errors": { "generic": "משהו השתבש. נסו שוב." }
+            "errors": {
+              "generic": "משהו השתבש. נסו שוב."
+            }
           }
         }
       },
@@ -481,7 +478,8 @@
           "otherPlaceholder": "תארו את העבודה הנוספת הנדרשת",
           "groupAll": "כל הפריטים הבאים ייכללו: {names}",
           "back": "הקודם",
-          "next": "הבא"
+          "next": "הבא",
+          "selectNone": "בחרו אפשרות"
         },
         "details": {
           "orderReceivedDateLabel": "תאריך קבלה",
@@ -563,7 +561,7 @@
     },
     "missingItems": {
       "title": "פריטים חסרים",
-      "subtitle": "טופים, עורות וחומרים שחסרים להזמנות פעילות",
+      "subtitle": "טופים, סקינים וחומרים שחסרים להזמנות פעילות",
       "newItem": "פריט חסר חדש",
       "handle": "טיפול",
       "noCustomer": "ללא לקוחה",
@@ -585,7 +583,7 @@
       },
       "kind": {
         "top": "טופ חסר",
-        "skin": "עור חסר",
+        "skin": "סקין חסר",
         "material": "חומר חסר"
       },
       "status": {
@@ -676,6 +674,10 @@
         "business": {
           "title": "הגדרות עסק",
           "description": "אזור זמן וקצב הספרינט."
+        },
+        "templates": {
+          "title": "תבניות קליטה",
+          "description": "סוגי ההזמנות והטפסים שהלקוחה ממלאת."
         }
       },
       "staff": {
@@ -694,7 +696,10 @@
           "status": "סטטוס",
           "actions": "פעולות"
         },
-        "status": { "active": "פעיל/ה", "inactive": "לא פעיל/ה" },
+        "status": {
+          "active": "פעיל/ה",
+          "inactive": "לא פעיל/ה"
+        },
         "none": "—",
         "edit": "עריכה",
         "form": {
@@ -725,7 +730,9 @@
           "submit": "השבתה",
           "submitting": "משבית/ה..."
         },
-        "reactivate": { "action": "הפעלה מחדש" }
+        "reactivate": {
+          "action": "הפעלה מחדש"
+        }
       },
       "business": {
         "title": "הגדרות עסק",
@@ -752,6 +759,142 @@
             "invalidCadence": "יש להזין מספר ימים חיובי.",
             "forbidden": "אין לכם הרשאה לפעולה זו.",
             "generic": "משהו השתבש. נסו שוב."
+          }
+        }
+      },
+      "templates": {
+        "title": "תבניות קליטה",
+        "subtitle": "סוגי ההזמנות והטפסים שלהן",
+        "add": "תבנית חדשה",
+        "emptyTitle": "אין עדיין תבניות",
+        "emptyDescription": "צרו תבנית כדי להוסיף סוג הזמנה חדש.",
+        "columns": {
+          "name": "שם",
+          "items": "פריטים",
+          "status": "סטטוס",
+          "actions": "פעולות"
+        },
+        "status": {
+          "active": "פעילה",
+          "inactive": "לא פעילה"
+        },
+        "edit": "עריכה",
+        "openBuilder": "עריכת הטופס",
+        "duplicate": "שכפול",
+        "activate": "הפעלה",
+        "deactivate": "השבתה",
+        "form": {
+          "createTitle": "תבנית קליטה חדשה",
+          "editTitle": "עריכת פרטי התבנית",
+          "name": "שם התבנית",
+          "description": "תיאור",
+          "cancel": "ביטול",
+          "save": "שמירה",
+          "saving": "שומר/ת...",
+          "errors": {
+            "required": "שדה חובה.",
+            "invalid": "ערך לא תקין.",
+            "forbidden": "אין לכם הרשאה לפעולה זו.",
+            "notFound": "התבנית לא נמצאה.",
+            "generic": "משהו השתבש. נסו שוב."
+          }
+        },
+        "builder": {
+          "back": "חזרה לרשימת התבניות",
+          "addItem": "הוספת פריט",
+          "emptyTitle": "הטופס עדיין ריק",
+          "emptyDescription": "הוסיפו פריטים כדי להרכיב את טופס הקליטה שהלקוחה תמלא.",
+          "moveUp": "העברה למעלה",
+          "moveDown": "העברה למטה",
+          "remove": "הסרה",
+          "removeTitle": "הסרת פריט מהטופס",
+          "removeConfirm": "הפריט יוסר מהטופס. הזמנות קיימות לא יושפעו.",
+          "removeCancel": "ביטול",
+          "removeSubmit": "הסרה",
+          "kind": {
+            "task_type": "משימה",
+            "task_group": "קבוצת משימות",
+            "field": "שאלה",
+            "section": "כותרת"
+          },
+          "add": {
+            "title": "הוספת פריט לטופס",
+            "chooseKind": "סוג הפריט",
+            "referent": "בחירה מהקטלוג",
+            "cancel": "ביטול",
+            "submit": "הוספה",
+            "submitting": "מוסיף/ה..."
+          },
+          "kindHelp": {
+            "section": "מפרידה בין חלקים בטופס. לא נשאלת שאלה.",
+            "field": "הלקוחה עונה, והתשובה נשמרת בהזמנה.",
+            "task_type": "עבודה שהמכון מבצע. בחירה בה יוצרת משימה.",
+            "task_group": "כמה עבודות לבחירה. כל בחירה יוצרת משימה."
+          },
+          "previewNote": "כך בדיוק ייראה הטופס ללקוחה."
+        },
+        "item": {
+          "title": "הגדרות הפריט",
+          "fieldLabel": "תווית",
+          "fieldKey": "מזהה (אופציונלי)",
+          "fieldKeyHelp": "מזהה קבוע לשימוש פנימי. אפשר להשאיר ריק.",
+          "fieldType": "סוג שדה",
+          "options": "אפשרויות",
+          "optionsHelp": "אפשרות אחת בכל שורה.",
+          "sectionTitle": "כותרת המקטע",
+          "helpText": "טקסט עזרה",
+          "visible": "מוצג בטופס",
+          "mandatory": "חובה",
+          "defaultSelected": "מסומן כברירת מחדל",
+          "generatesTasks": "יוצר משימות",
+          "generatesTasksHelp": "אם לא מסומן, הבחירה לא תיצור משימה כלל.",
+          "selectionMode": "אופן הבחירה",
+          "displayStyle": "תצוגה",
+          "allowOther": "מאפשר \"אחר\" (טקסט חופשי)",
+          "otherStage": "שלב ברירת מחדל ל\"אחר\"",
+          "missingItemKind": "סימון חוסר במלאי",
+          "missingItemKindHelp": "מענה על השדה ייצור פריט חסר וידווח בדשבורד.",
+          "missingItemKindNone": "ללא",
+          "fieldTypes": {
+            "text": "טקסט קצר",
+            "textarea": "טקסט ארוך",
+            "boolean": "כן/לא",
+            "select": "בחירה מרשימה"
+          },
+          "selectionModes": {
+            "single": "בחירה אחת",
+            "multi": "בחירה מרובה",
+            "all": "הכל"
+          },
+          "displayStyles": {
+            "checklist": "רשימת סימון",
+            "dropdown": "נפתח",
+            "list": "רשימה"
+          },
+          "noStage": "ללא שלב",
+          "cancel": "ביטול",
+          "save": "שמירה",
+          "saving": "שומר/ת...",
+          "errors": {
+            "required": "שדה חובה.",
+            "invalid": "ערך לא תקין.",
+            "forbidden": "אין לכם הרשאה לפעולה זו.",
+            "notFound": "הפריט לא נמצא.",
+            "generic": "משהו השתבש. נסו שוב."
+          }
+        },
+        "summary": {
+          "mandatory": "חובה",
+          "hidden": "מוסתר מהטופס",
+          "defaultSelected": "מסומן מראש",
+          "generatesTasks": "יוצר משימה",
+          "generatesNothing": "לא יוצר משימה כלל",
+          "missingItem": "מסמן חוסר במלאי · ייצור פריט חסר",
+          "allowOther": "מאפשר טקסט חופשי",
+          "selectionMode": {
+            "single": "בחירה אחת",
+            "multi": "בחירה מרובה",
+            "all": "כל העבודות בקבוצה"
           }
         }
       }

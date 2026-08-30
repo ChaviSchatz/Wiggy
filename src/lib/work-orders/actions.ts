@@ -51,7 +51,7 @@ export async function createWorkOrderAction(
 
   const { data: template, error: templateError } = await supabase
     .from("intake_templates")
-    .select("id, work_order_kind, is_active")
+    .select("id, name, work_order_kind, is_active")
     .eq("id", input.intakeTemplateId)
     .maybeSingle();
   if (templateError || !template || !template.is_active) {
@@ -94,6 +94,10 @@ export async function createWorkOrderAction(
       customer_id: input.customerId,
       intake_template_id: input.intakeTemplateId,
       work_order_kind: template.work_order_kind,
+      // Snapshotted like every other generated value (§5.1): renaming the
+      // template later must not rewrite orders already in flight. This is
+      // the order's display identity wherever it has no customer.
+      template_name: template.name,
       number,
       status: "confirmed",
       priority: input.priority,
@@ -261,7 +265,8 @@ export async function editIntakeAction(
     .select("intake_responses")
     .eq("id", workOrderId)
     .maybeSingle();
-  if (fetchError || !existingOrder) return { success: false, error: "notFound" };
+  if (fetchError || !existingOrder)
+    return { success: false, error: "notFound" };
 
   const previous = (existingOrder.intake_responses ??
     []) as IntakeResponseEntry[];
@@ -396,10 +401,13 @@ export async function addManualTaskAction(
   if (input.taskTypeId) {
     const { data: taskType, error: taskTypeError } = await supabase
       .from("task_types")
-      .select("name, description, default_work_stage_id, requires_approval_default")
+      .select(
+        "name, description, default_work_stage_id, requires_approval_default",
+      )
       .eq("id", input.taskTypeId)
       .maybeSingle();
-    if (taskTypeError || !taskType) return { success: false, error: "notFound" };
+    if (taskTypeError || !taskType)
+      return { success: false, error: "notFound" };
     title = taskType.name;
     description = taskType.description;
     requiresApproval = taskType.requires_approval_default;
@@ -447,7 +455,12 @@ export async function addManualTaskAction(
     workOrderId: input.workOrderId,
     payload: { title, source },
   });
-  await recomputeOrderStatus(supabase, input.workOrderId, user.businessId, user.id);
+  await recomputeOrderStatus(
+    supabase,
+    input.workOrderId,
+    user.businessId,
+    user.id,
+  );
 
   revalidatePath(`/orders/${input.workOrderId}`);
   revalidatePath("/board");

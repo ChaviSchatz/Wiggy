@@ -50,7 +50,7 @@ export function NotesSection({
       </CardHeader>
       <CardContent className="space-y-4">
         {notes ? (
-          <p className="rounded-control bg-mauve-100/40 p-3 text-sm text-ink">
+          <p className="bg-mauve-100/40 rounded-control p-3 text-sm text-ink">
             {notes}
           </p>
         ) : null}
@@ -155,14 +155,20 @@ function AddCommentDialog({
             />
           </div>
         </div>
-        {error ? <FormMessage variant="error">{t("errors.generic")}</FormMessage> : null}
+        {error ? (
+          <FormMessage variant="error">{t("errors.generic")}</FormMessage>
+        ) : null}
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
               {t("cancel")}
             </Button>
           </DialogClose>
-          <Button type="button" onClick={handleSubmit} disabled={pending || !taskId}>
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={pending || !taskId}
+          >
             {pending ? t("saving") : t("save")}
           </Button>
         </DialogFooter>

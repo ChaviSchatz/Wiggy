@@ -1,11 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { fetchActivityForWorkOrder, type ActivityEntry } from "@/lib/activity/queries";
+import {
+  fetchActivityForWorkOrder,
+  type ActivityEntry,
+} from "@/lib/activity/queries";
 import {
   fetchAttachmentsForParent,
   type AttachmentWithUrl,
 } from "@/lib/attachments/queries";
-import { fetchCommentsForWorkOrder, type CommentWithAuthor } from "@/lib/comments/queries";
+import {
+  fetchCommentsForWorkOrder,
+  type CommentWithAuthor,
+} from "@/lib/comments/queries";
 import type { Database, Tables } from "@/lib/supabase/database.types";
 import type { WorkOrder } from "./queries";
 
@@ -123,17 +129,27 @@ export async function getHubData(
   const staffIds = Array.from(
     new Set(
       tasks
-        .flatMap((t) => [t.assigned_staff_member_id, t.approver_staff_member_id])
+        .flatMap((t) => [
+          t.assigned_staff_member_id,
+          t.approver_staff_member_id,
+        ])
         .filter((id): id is string => Boolean(id)),
     ),
   );
   const taskTypeIds = Array.from(
-    new Set(tasks.map((t) => t.task_type_id).filter((id): id is string => Boolean(id))),
+    new Set(
+      tasks
+        .map((t) => t.task_type_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
   );
 
   const [staffNamesResult, taskTypeNamesResult] = await Promise.all([
     staffIds.length > 0
-      ? supabase.from("staff_members").select("id, full_name").in("id", staffIds)
+      ? supabase
+          .from("staff_members")
+          .select("id, full_name")
+          .in("id", staffIds)
       : Promise.resolve({ data: [], error: null }),
     taskTypeIds.length > 0
       ? supabase.from("task_types").select("id, name").in("id", taskTypeIds)
