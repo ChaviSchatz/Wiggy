@@ -5,32 +5,10 @@
 
 import { isFieldType, requiresOptions, serializeOptions } from "./field-types";
 
-/**
- * The five order kinds. Fixed rather than tenant-defined: the value renders
- * through `t("kind.<value>")` and is the identity shown wherever an order has
- * no customer (board cards, My Work, approvals, the hub header), so an
- * invented value would surface as a raw message key. The tenant's free text
- * is the template *name*.
- */
-export const WORK_ORDER_KINDS = [
-  "customer",
-  "display_wig",
-  "internal",
-  "missing_item",
-  "repair",
-] as const;
-
-export type WorkOrderKind = (typeof WORK_ORDER_KINDS)[number];
-
 export type IntakeItemKind = "task_type" | "task_group" | "field" | "section";
-
-export function isWorkOrderKind(value: string): value is WorkOrderKind {
-  return (WORK_ORDER_KINDS as readonly string[]).includes(value);
-}
 
 export type TemplateInput = {
   name: string;
-  workOrderKind: string;
   description: string;
 };
 
@@ -43,7 +21,6 @@ export function validateTemplateInput(
 ): TemplateFieldErrors {
   const errors: TemplateFieldErrors = {};
   if (!input.name.trim()) errors.name = "required";
-  if (!isWorkOrderKind(input.workOrderKind)) errors.workOrderKind = "invalid";
   return errors;
 }
 

@@ -121,7 +121,7 @@ See `docs/domains/` for per-domain detail.
 - **`task_types`** — `id, business_id, name, description, default_work_stage_id, default_staff_member_id?, default_duration_minutes?, requires_approval_default (bool), instructions, sort_order, is_active`. **Reusable, standalone. Holds no intake-specific metadata.**
 - **`task_groups`** — `id, business_id, name, description, sort_order, is_active`.
 - **`task_group_items`** — join `(task_group_id, task_type_id, sort_order)`. **Many-to-many** — a task type may live in multiple groups.
-- **`intake_templates`** — `id, business_id, name, work_order_kind, description, is_active`. Not necessarily customer-facing (see ADR 0003 / §9).
+- **`intake_templates`** — `id, business_id, name, description, is_active`. The **name is the order type** the tenant defines ("פאה חדשה", "תיקון פאה") — there is no separate code-defined kind. Not necessarily customer-facing (see ADR 0003 / §9). (`work_order_kind` still exists on the table but is vestigial: nothing reads it, and it defaults to `customer`.)
 - **`intake_template_items`** — the **single ordered list** that _is_ the form. `id, intake_template_id, sort_order, item_kind (task_type | task_group | field | section), task_type_id?, task_group_id?, field_key?, field_label?, field_type?, options?, config(JSON)`.
   - `config` = `{ mandatory, visible, default_selected, selection_mode (single|multi|all), display_style (checklist|dropdown|list), section_title, help_text, generates_runtime_tasks, allow_other, other_default_work_stage_id, missing_item_kind }`.
   - `missing_item_kind (top|skin|material)` marks a `field` item as a **missing-stock flag**: answering it creates a `missing_items` row of that kind (§6.5, ADR 0011). Seeded on the "no top" / "no skin" boolean fields.
@@ -130,7 +130,7 @@ See `docs/domains/` for per-domain detail.
 
 ### 4.4 Work Orders & Runtime
 
-- **`work_orders`** — `id, business_id, customer_id? (nullable), intake_template_id, template_version?, work_order_kind (snapshot), number, status (order-level), priority, due_at, order_received_date, intake_responses (JSON snapshot), notes, created_by`.
+- **`work_orders`** — `id, business_id, customer_id? (nullable), intake_template_id, template_version?, template_name (snapshot), number, status (order-level), priority, due_at, order_received_date, intake_responses (JSON snapshot), notes, created_by`.
 - **`runtime_tasks`** — `id, business_id, work_order_id, task_type_id? (null for "Other"), title (snapshot), description (snapshot), work_stage_id (snapshot), sequence_order, status, assigned_staff_member_id?, due_at (nullable in v1), started_at?, completed_at?, requires_approval (snapshot), approver_staff_member_id?, production_notes, source (template|manual|other), origin_item_id?`. **Sprint/queue overlay fields:** `sprint_id?`, `queue_rank`, `priority?`, `availability_override` (see §4.6, §7.3).
 - **`task_approvals`** — approval events (approver, action, reason, timestamps).
 - **`task_comments`** — internal comments on a runtime task.
@@ -163,7 +163,7 @@ An operational layer over `runtime_tasks` (ADR 0008/0009; detail in
 
 Definitions (task types, intake templates, stages) are _templates_. When a work order is
 generated, the resolved values are **copied** onto the `work_order` (`intake_responses`,
-`work_order_kind`) and its `runtime_tasks` (title, description, stage, requires_approval,
+`template_name`) and its `runtime_tasks` (title, description, stage, requires_approval,
 duration). **The catalog is read only at generation time and never again.** Editing a template
 later affects **new orders only**; existing orders are immutable snapshots.
 
@@ -323,7 +323,12 @@ In scope **today**: linear per-order sequence availability (§7.3) and a **manua
 
 ## 10. Intake is not only for customers
 
-`intake_templates.work_order_kind` ∈ `{ customer, display_wig, internal, missing_item, repair, … }`.
-Customer details are just an **optional section** inside an intake, and `work_orders.customer_id`
-is **nullable** — so internal production, display wigs, and missing-top/skin processes all use
-the _same_ intake → runtime-task machinery. (ADR 0003.)
+The tenant defines her own order types by **naming templates** — "פאה חדשה", "תיקון פאה",
+"פאת תצוגה" are all just templates in Settings, not a fixed vocabulary in code. Customer details
+are an **optional section** inside an intake, and `work_orders.customer_id` is **nullable** — so
+internal production, display wigs, and missing-top/skin processes all use the _same_ intake →
+runtime-task machinery. (ADR 0003.)
+
+An order's display identity is its customer name, falling back to `work_orders.template_name` —
+the template's name **snapshotted at generation** (§5.1), so renaming a template later never
+rewrites orders already placed.

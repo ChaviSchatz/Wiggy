@@ -39,11 +39,10 @@ export function SprintTaskCard({
   onTogglePriority: () => void;
 }) {
   const t = useTranslations("pages.sprint");
-  const tKind = useTranslations("pages.orders.kind");
   const tTaskStatus = useTranslations("pages.orders.taskStatus");
 
   const isBlocked = availability === "blocked";
-  const identity = task.customerName ?? tKind(task.orderKind);
+  const identity = task.customerName ?? task.templateName ?? "";
 
   return (
     <div

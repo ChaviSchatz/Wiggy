@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  WORK_ORDER_KINDS,
   hasTemplateErrors,
-  isWorkOrderKind,
   validateItemInput,
   validateTemplateInput,
   type ItemInput,
@@ -13,7 +11,6 @@ import {
 function template(overrides: Partial<TemplateInput> = {}): TemplateInput {
   return {
     name: "תיקון פאה",
-    workOrderKind: "repair",
     description: "",
     ...overrides,
   };
@@ -31,27 +28,8 @@ function item(overrides: Partial<ItemInput> = {}): ItemInput {
   };
 }
 
-describe("WORK_ORDER_KINDS", () => {
-  it("matches the five values the schema and message catalog define", () => {
-    expect([...WORK_ORDER_KINDS]).toEqual([
-      "customer",
-      "display_wig",
-      "internal",
-      "missing_item",
-      "repair",
-    ]);
-  });
-});
-
-describe("isWorkOrderKind", () => {
-  it("rejects a tenant-invented kind, which would render as a raw key", () => {
-    expect(isWorkOrderKind("repair")).toBe(true);
-    expect(isWorkOrderKind("wig_repair")).toBe(false);
-  });
-});
-
 describe("validateTemplateInput", () => {
-  it("accepts a name and a known kind", () => {
+  it("accepts a template whose only required field is a name", () => {
     expect(validateTemplateInput(template())).toEqual({});
   });
 
@@ -59,12 +37,6 @@ describe("validateTemplateInput", () => {
     expect(validateTemplateInput(template({ name: "  " })).name).toBe(
       "required",
     );
-  });
-
-  it("rejects an unknown kind", () => {
-    expect(
-      validateTemplateInput(template({ workOrderKind: "nope" })).workOrderKind,
-    ).toBe("invalid");
   });
 });
 

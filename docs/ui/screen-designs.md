@@ -92,7 +92,7 @@ an active/inactive `Toggle` row, then `primary` save and `outline` cancel.
 side.
 
 Details render as label/value rows with the label in `muted` at a fixed inline-size, so values align
-down the column. Order history rows lead with order kind and code, and carry a `StatusChip`.
+down the column. Order history rows lead with the template name and code, and carry a `StatusChip`.
 
 ---
 
@@ -102,7 +102,7 @@ down the column. Order history rows lead with order kind and code, and carry a `
 
 **Archetype A.** `PageHeader` + `FilterBar` (search, status, urgency) + `DataTable` + `Pagination`.
 
-Columns: customer, order kind, code, created, due, status, urgency. Status and urgency are
+Columns: customer (or template name when there is none), code, created, due, status, urgency. Status and urgency are
 `StatusChip`s; normal urgency renders as nothing at all rather than a grey "normal" chip, because a
 chip on every row stops chips carrying information.
 
@@ -114,7 +114,7 @@ in a heading.
 
 - **Step 1 — customer.** Search-and-select, or create inline. Results are selectable rows with a
   `mauve-100` hover ground and a 2px `mauve-600` border when selected.
-- **Step 2 — intake template.** Selectable cards, one per order kind, same selection treatment.
+- **Step 2 — intake template.** Selectable cards, one per active template, same selection treatment.
 - **Step 3 — intake.** Rendered from `intake_template_items`, so its structure is data, not layout.
   Sections become `Panel`s, fields become `FormField`s, task and group selections become checkbox and
   radio groups. "Other" free-text sits with the group it belongs to (ADR 0006).
@@ -134,7 +134,7 @@ panel rhythm to hold. Detailed content spec stays in `docs/ui/work-order-hub.md`
 composition.
 
 `BackLink` to the board, then `PageHeader` where the title is the customer name and the subtitle
-carries order kind, code, and dates. Status and urgency `StatusChip`s sit in the header actions slot
+carries the template name, code, and dates. Status and urgency `StatusChip`s sit in the header actions slot
 alongside contact `IconButton`s.
 
 Then, in order: `Stepper`; next-action `Panel` on a `cream` ground because it is advisory rather than
@@ -223,7 +223,7 @@ One card per task (ADR 0010). Composition, in order:
 
 | Slot         | Content                                                                 | Treatment                                       |
 | ------------ | ----------------------------------------------------------------------- | ----------------------------------------------- |
-| Identity     | Customer name, or order kind when the order has no customer             | `text-identity`, truncated to one line          |
+| Identity     | Customer name, or template name when the order has no customer          | `text-identity`, truncated to one line          |
 | Code         | Order number beside the identity                                        | `text-meta` `muted`, `tabular-nums`             |
 | Urgency mark | Filled star when the order is urgent                                    | `danger-500`, inline with identity              |
 | Task         | The task title                                                          | `text-body` `ink`                               |
@@ -234,7 +234,7 @@ One card per task (ADR 0010). Composition, in order:
 A 2px `mauve-100` rule runs down the leading edge. Hover moves the border to `line-strong` and
 translates `-1px`. No shadow.
 
-**Not on the card:** no photo or thumbnail, no order kind, no stage name, no overflow menu. Order kind
+**Not on the card:** no photo or thumbnail, no template name, no stage name, no overflow menu. The template name
 is omitted because the task title is the actionable thing and the card is already carrying two lines
 of identity; it is one tap away in the peek. Stage is omitted because the column already is the stage.
 Photos belong to the peek and the hub.

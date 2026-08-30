@@ -4,7 +4,7 @@
 
 ## Entities
 
-- **`work_orders`** — `customer_id? (nullable), intake_template_id, work_order_kind (snapshot),
+- **`work_orders`** — `customer_id? (nullable), intake_template_id, template_name (snapshot),
 number, status (order-level), priority, due_at, order_received_date, intake_responses (JSON
 snapshot), notes, created_by`.
 - **`runtime_tasks`** — the actual board tasks. Self-contained **snapshots**: `task_type_id?

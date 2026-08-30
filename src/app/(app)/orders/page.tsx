@@ -91,7 +91,6 @@ function OrdersView({
   canCreate: boolean;
 }) {
   const t = useTranslations("pages.orders");
-  const tRoles = useTranslations("pages.orders.kind");
 
   return (
     <div>
@@ -155,7 +154,7 @@ function OrdersView({
                     </Link>
                   </TableCell>
                   <TableCell>
-                    {order.customerName ?? tRoles(order.work_order_kind)}
+                    {order.customerName ?? order.template_name ?? ""}
                   </TableCell>
                   <TableCell>
                     <Badge variant={statusBadgeVariant(order.status)}>

@@ -17,7 +17,7 @@ The production board is **task-centric**:
 - **One card per task**, placed in its work-stage column. A single order may therefore appear in
   **multiple columns** at once (e.g. the top/base parallel case).
 - Card **text leads with the customer name** + order code (identity is **text — no client
-  avatar**). Customer-less orders lead with order kind + code.
+  avatar**). Customer-less orders lead with template name + code.
 - The card **avatar is the assigned worker** (circular; **tap → reassign**). The **primary action
   (Done/Start) is inline on the card** — no drawer needed for the everyday action.
 - **Tapping the card body → quick-view peek** (compact info, reference photos, quick actions);

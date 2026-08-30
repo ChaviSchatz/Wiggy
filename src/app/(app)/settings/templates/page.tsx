@@ -30,7 +30,6 @@ export default async function TemplatesSettingsPage() {
   const templates = await listIntakeTemplates(supabase, user.businessId);
 
   const t = await getTranslations("pages.settings.templates");
-  const tKind = await getTranslations("pages.orders.kind");
 
   return (
     <div>
@@ -50,7 +49,6 @@ export default async function TemplatesSettingsPage() {
           <TableHeader>
             <TableRow>
               <TableHead>{t("columns.name")}</TableHead>
-              <TableHead>{t("columns.kind")}</TableHead>
               <TableHead>{t("columns.items")}</TableHead>
               <TableHead>{t("columns.status")}</TableHead>
               <TableHead>{t("columns.actions")}</TableHead>
@@ -63,7 +61,6 @@ export default async function TemplatesSettingsPage() {
                 className={template.is_active ? undefined : "opacity-60"}
               >
                 <TableCell>{template.name}</TableCell>
-                <TableCell>{tKind(template.work_order_kind)}</TableCell>
                 <TableCell>{template.itemCount}</TableCell>
                 <TableCell>
                   {template.is_active

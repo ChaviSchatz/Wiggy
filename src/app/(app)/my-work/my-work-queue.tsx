@@ -17,9 +17,8 @@ import type { CompletedQueueTask } from "@/lib/sprints/queries";
 import { cn } from "@/lib/utils";
 
 function TaskLine({ task }: { task: BoardTask }) {
-  const tKind = useTranslations("pages.orders.kind");
   const tCommon = useTranslations("common");
-  const identity = task.customerName ?? tKind(task.orderKind);
+  const identity = task.customerName ?? task.templateName ?? "";
   return (
     <p className="flex items-center gap-1.5 text-sm font-medium text-ink">
       <span>

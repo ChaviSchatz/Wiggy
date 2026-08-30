@@ -34,10 +34,9 @@ export function TaskPeekSheet({
   onComplete: (task: BoardTask) => void;
 }) {
   const t = useTranslations("pages.board");
-  const tKind = useTranslations("pages.orders.kind");
   const tTaskStatus = useTranslations("pages.orders.taskStatus");
 
-  const identity = task ? (task.customerName ?? tKind(task.orderKind)) : "";
+  const identity = task ? (task.customerName ?? task.templateName ?? "") : "";
 
   return (
     <Sheet open={task !== null} onOpenChange={onOpenChange}>

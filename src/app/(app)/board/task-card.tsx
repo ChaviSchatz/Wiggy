@@ -49,12 +49,11 @@ export function TaskCard({
   onReturn: () => void;
 }) {
   const t = useTranslations("pages.board");
-  const tKind = useTranslations("pages.orders.kind");
   const tTaskStatus = useTranslations("pages.orders.taskStatus");
   const tCommon = useTranslations("common");
 
   const isBlocked = availability === "blocked";
-  const identity = task.customerName ?? tKind(task.orderKind);
+  const identity = task.customerName ?? task.templateName ?? "";
   // The task's own date wins; the order's is the fallback; neither means the
   // slot renders nothing at all (ADR 0012).
   const dueAt = task.due_at ?? task.orderDueAt;

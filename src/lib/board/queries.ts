@@ -13,7 +13,13 @@ export const LIVE_STATUSES = [
 
 export type BoardTask = Tables<"runtime_tasks"> & {
   orderNumber: number;
-  orderKind: string;
+  /**
+   * The order's intake-template name, snapshotted at generation (§5.1). Used
+   * as the card's identity when the order has no customer -- it replaced
+   * `work_order_kind`, which was a fixed five-value label with no behaviour
+   * attached and less to say ("תיקון" vs "תיקון פאה").
+   */
+  templateName: string | null;
   customerName: string | null;
   assignedStaffMemberName: string | null;
   taskTypeName: string | null;
@@ -59,7 +65,7 @@ export async function fetchBoardTasks(
     workOrderIds.length > 0
       ? supabase
           .from("work_orders")
-          .select("id, number, work_order_kind, customer_id, due_at")
+          .select("id, number, template_name, customer_id, due_at")
           .in("id", workOrderIds)
       : Promise.resolve({ data: [], error: null }),
     staffIds.length > 0
@@ -109,7 +115,7 @@ export async function fetchBoardTasks(
     return {
       ...task,
       orderNumber: order?.number ?? 0,
-      orderKind: order?.work_order_kind ?? "internal",
+      templateName: order?.template_name ?? null,
       customerName: order?.customer_id
         ? (customerNameById.get(order.customer_id) ?? null)
         : null,

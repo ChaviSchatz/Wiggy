@@ -129,9 +129,12 @@ human working in this repo. Read it first.
 > in `src/lib/work-definition/field-types.ts` — the module the Slice 2 migration comment anticipated
 > — and shared with the intake wizard, which renders `select` for the first time (`options` and
 > `display_style: dropdown` existed in the schema from Slice 2 but nothing ever read them).
-> `work_order_kind` stays a fixed five-value vocabulary: it renders through `t("kind.<value>")`, so
-> a tenant-invented value would surface as a raw message key. Task types and groups (#46–49) remain
-> read-only and deferred.
+> `work_order_kind` is **gone from the UI**. It was a fixed five-value vocabulary rendered through
+> `t("kind.<value>")`, and nothing branched on it — its only job was labelling an order with no
+> customer. The tenant already names her order types by naming templates, so orders now snapshot
+> `work_orders.template_name` at generation and display `customerName ?? templateName`. The column
+> survives on both tables (NOT NULL + check) but is vestigial and defaulted; don't add readers.
+> Task types and groups (#46–49) remain read-only and deferred.
 
 ## Start here (read in this order)
 

@@ -259,13 +259,6 @@
         "priority": "עדיפות",
         "receivedDate": "תאריך קבלה"
       },
-      "kind": {
-        "customer": "הזמנת לקוח",
-        "display_wig": "פאת תצוגה",
-        "internal": "הזמנה פנימית",
-        "missing_item": "פריט חסר",
-        "repair": "תיקון"
-      },
       "status": {
         "draft": "טיוטה",
         "confirmed": "אושרה",
@@ -777,7 +770,6 @@
         "emptyDescription": "צרו תבנית כדי להוסיף סוג הזמנה חדש.",
         "columns": {
           "name": "שם",
-          "kind": "סוג הזמנה",
           "items": "פריטים",
           "status": "סטטוס",
           "actions": "פעולות"
@@ -795,7 +787,6 @@
           "createTitle": "תבנית קליטה חדשה",
           "editTitle": "עריכת פרטי התבנית",
           "name": "שם התבנית",
-          "kind": "סוג הזמנה",
           "description": "תיאור",
           "cancel": "ביטול",
           "save": "שמירה",

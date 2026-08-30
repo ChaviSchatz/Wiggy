@@ -11,8 +11,9 @@ presents it_. This is what lets each salon shape its own process without a code 
 - **`task_groups`** — a configurable group of task types (e.g. "Color").
 - **`task_group_items`** — many-to-many join `(task_group_id, task_type_id, sort_order)`. A task
   type may belong to multiple groups.
-- **`intake_templates`** — a configurable form/process definition. `work_order_kind` ∈
-  `{customer, display_wig, internal, missing_item, repair, …}`. Not necessarily customer-facing.
+- **`intake_templates`** — a configurable form/process definition. Its **name is the order
+  type** the tenant offers, defined in Settings rather than fixed in code. Not necessarily
+  customer-facing.
 - **`intake_template_items`** — the **single ordered list that _is_ the form**. Each item is one of
   `item_kind`: `task_type`, `task_group`, `field`, or `section`. Carries a `config` JSON with
   intake-specific settings (mandatory, visible, default_selected, selection_mode, display_style,

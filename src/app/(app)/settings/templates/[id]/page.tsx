@@ -40,7 +40,6 @@ export default async function TemplateBuilderPage({
   ]);
 
   const t = await getTranslations("pages.settings.templates");
-  const tKind = await getTranslations("pages.orders.kind");
   const stageOptions = stages.map((stage) => ({
     id: stage.id,
     name: stage.name,
@@ -55,10 +54,7 @@ export default async function TemplateBuilderPage({
         {t("builder.back")}
       </Link>
 
-      <PageHeader
-        title={template.name}
-        subtitle={tKind(template.work_order_kind)}
-      />
+      <PageHeader title={template.name} />
 
       <div className="mb-4">
         <AddItemDialog

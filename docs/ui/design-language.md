@@ -98,7 +98,7 @@ There are **two visually distinct media types that must never be conflated:**
 - **No client avatar and no initials fallback.** Most clients have no photo, so an avatar circle
   would only add empty space and imply a picture that will never arrive.
 - Client identity = **name (+ order code) as text**.
-- Customer-less orders (internal / display wig): identity = **order kind + code**, still no avatar.
+- Customer-less orders (internal / display wig): identity = **template name + code**, still no avatar.
 
 ### Reference / work photos — squared, only when present
 

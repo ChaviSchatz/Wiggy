@@ -24,13 +24,7 @@ import {
   updateTemplateAction,
 } from "@/lib/work-definition/actions";
 import type { TemplateListItem } from "@/lib/work-definition/templates";
-import {
-  WORK_ORDER_KINDS,
-  type TemplateFieldErrors,
-} from "@/lib/work-definition/validation";
-
-const SELECT_CLASS =
-  "h-[39px] w-full rounded-xs border border-line-strong bg-surface px-3 text-body text-ink focus-visible:border-mauve-600 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-mauve-100";
+import { type TemplateFieldErrors } from "@/lib/work-definition/validation";
 
 /**
  * Create / edit an intake template's details (screen inventory #50).
@@ -48,7 +42,6 @@ export function TemplateFormDialog({
   trigger?: React.ReactNode;
 }) {
   const t = useTranslations("pages.settings.templates");
-  const tKind = useTranslations("pages.orders.kind");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [errors, setErrors] = useState<TemplateFieldErrors>({});
@@ -119,27 +112,6 @@ export function TemplateFormDialog({
             {errors.name ? (
               <FormMessage variant="error">
                 {t(`form.errors.${errors.name}`)}
-              </FormMessage>
-            ) : null}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="template-kind">{t("form.kind")}</Label>
-            <select
-              id="template-kind"
-              name="workOrderKind"
-              defaultValue={template?.work_order_kind ?? "customer"}
-              className={SELECT_CLASS}
-            >
-              {WORK_ORDER_KINDS.map((kind) => (
-                <option key={kind} value={kind}>
-                  {tKind(kind)}
-                </option>
-              ))}
-            </select>
-            {errors.workOrderKind ? (
-              <FormMessage variant="error">
-                {t(`form.errors.${errors.workOrderKind}`)}
               </FormMessage>
             ) : null}
           </div>

@@ -19,7 +19,6 @@ export type TemplateActionResult =
 function readInput(formData: FormData): TemplateInput {
   return {
     name: String(formData.get("name") ?? ""),
-    workOrderKind: String(formData.get("workOrderKind") ?? ""),
     description: String(formData.get("description") ?? ""),
   };
 }
@@ -54,7 +53,6 @@ export async function createTemplateAction(
     .insert({
       business_id: user.businessId,
       name: input.name.trim(),
-      work_order_kind: input.workOrderKind,
       description: input.description.trim() || null,
       // New templates start inactive so a half-built form cannot appear in
       // the New Order wizard before its items exist.
@@ -86,7 +84,6 @@ export async function updateTemplateAction(
     .from("intake_templates")
     .update({
       name: input.name.trim(),
-      work_order_kind: input.workOrderKind,
       description: input.description.trim() || null,
     })
     .eq("id", id)
@@ -148,7 +145,7 @@ export async function duplicateTemplateAction(
   const supabase = await createServerSupabaseClient();
   const { data: source, error: sourceError } = await supabase
     .from("intake_templates")
-    .select("name, work_order_kind, description")
+    .select("name, description")
     .eq("id", id)
     .eq("business_id", user.businessId)
     .maybeSingle();
@@ -161,7 +158,6 @@ export async function duplicateTemplateAction(
     .insert({
       business_id: user.businessId,
       name: `${source.name} — עותק`,
-      work_order_kind: source.work_order_kind,
       description: source.description,
       is_active: false,
     })

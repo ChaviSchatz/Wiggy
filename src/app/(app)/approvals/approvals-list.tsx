@@ -23,7 +23,6 @@ import type { BoardTask } from "@/lib/board/queries";
  */
 export function ApprovalsList({ initialTasks }: { initialTasks: BoardTask[] }) {
   const t = useTranslations("pages.approvals");
-  const tKind = useTranslations("pages.orders.kind");
   const router = useRouter();
 
   const [tasks, setTasks] = useState(initialTasks);
@@ -62,7 +61,7 @@ export function ApprovalsList({ initialTasks }: { initialTasks: BoardTask[] }) {
             >
               <div>
                 <p className="text-sm font-medium text-ink">
-                  {task.customerName ?? tKind(task.orderKind)}{" "}
+                  {task.customerName ?? task.templateName ?? ""}{" "}
                   <span className="font-normal text-muted">
                     #{task.orderNumber}
                   </span>

@@ -51,7 +51,7 @@ export async function createWorkOrderAction(
 
   const { data: template, error: templateError } = await supabase
     .from("intake_templates")
-    .select("id, work_order_kind, is_active")
+    .select("id, name, work_order_kind, is_active")
     .eq("id", input.intakeTemplateId)
     .maybeSingle();
   if (templateError || !template || !template.is_active) {
@@ -94,6 +94,10 @@ export async function createWorkOrderAction(
       customer_id: input.customerId,
       intake_template_id: input.intakeTemplateId,
       work_order_kind: template.work_order_kind,
+      // Snapshotted like every other generated value (§5.1): renaming the
+      // template later must not rewrite orders already in flight. This is
+      // the order's display identity wherever it has no customer.
+      template_name: template.name,
       number,
       status: "confirmed",
       priority: input.priority,

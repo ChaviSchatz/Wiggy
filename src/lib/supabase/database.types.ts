@@ -399,7 +399,7 @@ export type Database = {
           is_active?: boolean
           name: string
           updated_at?: string
-          work_order_kind: string
+          work_order_kind?: string
         }
         Update: {
           business_id?: string
@@ -1092,6 +1092,7 @@ export type Database = {
           order_received_date: string
           priority: string
           status: string
+          template_name: string | null
           updated_at: string
           work_order_kind: string
         }
@@ -1109,6 +1110,7 @@ export type Database = {
           order_received_date?: string
           priority?: string
           status?: string
+          template_name?: string | null
           updated_at?: string
           work_order_kind: string
         }
@@ -1126,6 +1128,7 @@ export type Database = {
           order_received_date?: string
           priority?: string
           status?: string
+          template_name?: string | null
           updated_at?: string
           work_order_kind?: string
         }
