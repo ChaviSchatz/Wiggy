@@ -82,7 +82,7 @@ Shared vocabulary for WigFlow. Use these exact terms in code, docs, and UI keys.
 | In progress                       | בביצוע                     |
 | Done                              | הושלם                      |
 | Missing items                     | פריטים חסרים               |
-| Missing top / skin                | טופ חסר / עור חסר          |
+| Missing top / skin                | טופ חסר / סקין חסר         |
 | Open / Found / Ordered / Handled  | פתוח / נמצא / הוזמן / טופל |
 | Responsible                       | אחראי/ת                    |
 | Feedback                          | משוב                       |
