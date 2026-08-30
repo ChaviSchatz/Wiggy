@@ -68,7 +68,7 @@ export function TaskCard({
   return (
     <div
       className={cn(
-        "rounded-card border border-line border-s-2 border-s-mauve-100 bg-surface p-3 transition-all",
+        "rounded-card border border-s-2 border-line border-s-mauve-100 bg-surface p-3 transition-all",
         isBlocked
           ? "opacity-70"
           : "hover:-translate-y-px hover:border-line-strong",
@@ -117,7 +117,7 @@ export function TaskCard({
           {dueAt ? (
             <span
               className={cn(
-                "tabular-nums text-meta",
+                "text-meta tabular-nums",
                 isLate ? "font-medium text-danger-600" : "text-muted",
               )}
               title={t("dueLabel")}

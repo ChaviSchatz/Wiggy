@@ -101,7 +101,10 @@ export async function fetchRecentlyCompletedTasksForStaff(
   );
   const { data: customers, error: customersError } =
     customerIds.length > 0
-      ? await supabase.from("customers").select("id, name").in("id", customerIds)
+      ? await supabase
+          .from("customers")
+          .select("id, name")
+          .in("id", customerIds)
       : { data: [], error: null };
   if (customersError) throw customersError;
 

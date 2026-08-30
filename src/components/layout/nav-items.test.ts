@@ -53,7 +53,11 @@ describe("visibleBottomNavItems", () => {
   });
 
   it("gives a secretary only Board, Feedback, Profile (no personal queue or planning access)", () => {
-    expect(bottomKeysFor("secretary")).toEqual(["board", "feedback", "profile"]);
+    expect(bottomKeysFor("secretary")).toEqual([
+      "board",
+      "feedback",
+      "profile",
+    ]);
   });
 
   it("gives managers/admins Sprint and Approvals, dropping the Feedback placeholder to avoid overcrowding", () => {
@@ -70,7 +74,9 @@ describe("visibleBottomNavItems", () => {
 
   it("never grows past the full item list", () => {
     for (const role of ["admin", "manager", "secretary", "worker"] as const) {
-      expect(bottomKeysFor(role).length).toBeLessThanOrEqual(bottomNavItems.length);
+      expect(bottomKeysFor(role).length).toBeLessThanOrEqual(
+        bottomNavItems.length,
+      );
     }
   });
 });

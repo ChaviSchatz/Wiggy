@@ -49,13 +49,16 @@ export function SprintTaskCard({
     <div
       className={cn(
         "rounded-card border p-3 shadow-sm",
-        isBlocked ? "border-line bg-mauve-100/30 opacity-70" : "border-line bg-surface",
+        isBlocked
+          ? "bg-mauve-100/30 border-line opacity-70"
+          : "border-line bg-surface",
       )}
     >
       <div className="mb-1.5 flex items-start justify-between gap-2">
         <p className="text-sm font-medium text-ink">
           {rank ? <span className="me-1 text-muted">#{rank}</span> : null}
-          {identity} <span className="font-normal text-muted">#{task.orderNumber}</span>
+          {identity}{" "}
+          <span className="font-normal text-muted">#{task.orderNumber}</span>
         </p>
         <button
           type="button"
@@ -67,7 +70,10 @@ export function SprintTaskCard({
             task.priority ? "text-peach-500" : "text-line hover:text-muted",
           )}
         >
-          <Star className="size-4" fill={task.priority ? "currentColor" : "none"} />
+          <Star
+            className="size-4"
+            fill={task.priority ? "currentColor" : "none"}
+          />
         </button>
       </div>
       <p className="text-sm text-ink">{task.title}</p>
@@ -79,7 +85,11 @@ export function SprintTaskCard({
             {t("blocked")}
           </Badge>
         ) : (
-          <Badge variant={task.status === "awaiting_approval" ? "warning" : "neutral"}>
+          <Badge
+            variant={
+              task.status === "awaiting_approval" ? "warning" : "neutral"
+            }
+          >
             {tTaskStatus(task.status)}
           </Badge>
         )}

@@ -121,10 +121,7 @@ export function BoardFilterBar({
         <div className="ms-auto flex items-center gap-3 text-meta text-muted">
           <span className="font-medium">{tLegend("title")}</span>
           <span className="flex items-center gap-1.5">
-            <span
-              className="size-2 rounded-full bg-danger-500"
-              aria-hidden
-            />
+            <span className="size-2 rounded-full bg-danger-500" aria-hidden />
             {tLegend("urgent")}
           </span>
           <span className="flex items-center gap-1.5">

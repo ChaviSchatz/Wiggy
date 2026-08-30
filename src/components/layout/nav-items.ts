@@ -96,9 +96,19 @@ export function visibleSideNavItems(role: Role): NavItem[] {
 // managers/admins have *some* reachable path to them below the `lg`
 // breakpoint too (side-nav is `lg:block`-only) -- see Bug 6.
 export const bottomNavItems: BottomNavItem[] = [
-  { key: "myWork", href: "/my-work", icon: ListChecks, permission: "workOwnTasks" },
+  {
+    key: "myWork",
+    href: "/my-work",
+    icon: ListChecks,
+    permission: "workOwnTasks",
+  },
   { key: "board", href: "/board", icon: KanbanSquare, permission: "viewBoard" },
-  { key: "sprint", href: "/sprint", icon: CalendarRange, permission: "planSprint" },
+  {
+    key: "sprint",
+    href: "/sprint",
+    icon: CalendarRange,
+    permission: "planSprint",
+  },
   {
     key: "approvals",
     href: "/approvals",

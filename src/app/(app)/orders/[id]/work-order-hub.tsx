@@ -76,7 +76,10 @@ export function WorkOrderHub({
         tasks={data.tasks}
       />
 
-      <AttachmentsSection workOrderId={data.order.id} attachments={data.attachments} />
+      <AttachmentsSection
+        workOrderId={data.order.id}
+        attachments={data.attachments}
+      />
 
       <HistorySection activity={data.activity} />
 
@@ -99,8 +102,11 @@ function computeStageProgress(
   }
 
   const sorted = [...tasks].sort((a, b) => a.sequence_order - b.sequence_order);
-  const activeTask = sorted.find((task) => !TERMINAL.has(task.status as TaskStatus));
-  const currentStageId = (activeTask ?? sorted[sorted.length - 1]).work_stage_id;
+  const activeTask = sorted.find(
+    (task) => !TERMINAL.has(task.status as TaskStatus),
+  );
+  const currentStageId = (activeTask ?? sorted[sorted.length - 1])
+    .work_stage_id;
 
   const currentSortOrder =
     stages.find((s) => s.id === currentStageId)?.sort_order ?? 0;

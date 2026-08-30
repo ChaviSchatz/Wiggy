@@ -20,7 +20,11 @@ import { businessDayStart } from "@/lib/time/business-time";
  * An order is "active" when it's neither a draft nor finished with -- the same
  * set the board draws from.
  */
-const ACTIVE_ORDER_EXCLUDED_STATUSES = ["draft", "completed", "cancelled"] as const;
+const ACTIVE_ORDER_EXCLUDED_STATUSES = [
+  "draft",
+  "completed",
+  "cancelled",
+] as const;
 const DUE_SOON_DAYS = 7;
 const ATTENTION_LIST_LIMIT = 5;
 
@@ -104,7 +108,9 @@ export async function fetchOfficeDashboard(
     openMissingItems,
     sprint,
     attention: {
-      approvals: awaitingApproval.slice(0, ATTENTION_LIST_LIMIT).map(toTaskItem),
+      approvals: awaitingApproval
+        .slice(0, ATTENTION_LIST_LIMIT)
+        .map(toTaskItem),
       deferred: deferred.slice(0, ATTENTION_LIST_LIMIT).map(toTaskItem),
       missingItems: missingItems.items,
     },
@@ -142,7 +148,8 @@ export async function fetchWorkerDashboard(
       .filter((task) => task.status === "in_progress")
       .map(toTaskItem),
     queued: mine.filter(
-      (task) => task.status === "pending" || task.status === "returned_for_rework",
+      (task) =>
+        task.status === "pending" || task.status === "returned_for_rework",
     ).length,
     awaitingApproval: mine.filter((task) => task.status === "awaiting_approval")
       .length,

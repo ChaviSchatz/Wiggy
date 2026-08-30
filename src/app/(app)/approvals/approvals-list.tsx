@@ -49,18 +49,23 @@ export function ApprovalsList({ initialTasks }: { initialTasks: BoardTask[] }) {
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {tasks.length === 0 ? (
-        <EmptyState title={t("emptyTitle")} description={t("emptyDescription")} />
+        <EmptyState
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+        />
       ) : (
         <div className="space-y-2">
           {tasks.map((task) => (
             <div
               key={task.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-peach-200 bg-peach-100/20 p-3"
+              className="bg-peach-100/20 flex flex-wrap items-center justify-between gap-3 rounded-card border border-peach-200 p-3"
             >
               <div>
                 <p className="text-sm font-medium text-ink">
                   {task.customerName ?? tKind(task.orderKind)}{" "}
-                  <span className="font-normal text-muted">#{task.orderNumber}</span>
+                  <span className="font-normal text-muted">
+                    #{task.orderNumber}
+                  </span>
                   {" · "}
                   {task.title}
                 </p>
@@ -71,7 +76,11 @@ export function ApprovalsList({ initialTasks }: { initialTasks: BoardTask[] }) {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" onClick={() => setReturnTaskId(task.id)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setReturnTaskId(task.id)}
+                >
                   {t("returnAction")}
                 </Button>
                 <Button size="sm" onClick={() => handleApprove(task)}>

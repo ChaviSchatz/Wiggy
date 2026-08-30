@@ -212,7 +212,10 @@ async function withRelatedNames(
       .select("id, number, status, customer_id")
       .in("id", workOrderIds),
     staffIds.length > 0
-      ? supabase.from("staff_members").select("id, full_name").in("id", staffIds)
+      ? supabase
+          .from("staff_members")
+          .select("id, full_name")
+          .in("id", staffIds)
       : Promise.resolve({ data: [], error: null }),
   ]);
   if (ordersResult.error) throw ordersResult.error;

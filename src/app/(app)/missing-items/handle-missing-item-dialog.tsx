@@ -91,7 +91,9 @@ export function HandleMissingItemDialog({
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           {formError ? (
-            <FormMessage variant="error">{t(`errors.${formError}`)}</FormMessage>
+            <FormMessage variant="error">
+              {t(`errors.${formError}`)}
+            </FormMessage>
           ) : null}
 
           {item.description ? (

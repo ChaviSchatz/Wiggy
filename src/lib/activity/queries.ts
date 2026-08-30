@@ -33,9 +33,7 @@ export async function fetchActivityForWorkOrder(
       .select("id, full_name")
       .in("id", actorIds);
     if (profilesError) throw profilesError;
-    nameById = new Map(
-      (profiles ?? []).map((p) => [p.id, p.full_name ?? ""]),
-    );
+    nameById = new Map((profiles ?? []).map((p) => [p.id, p.full_name ?? ""]));
   }
 
   return rows.map((row) => ({

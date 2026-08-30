@@ -19,7 +19,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FormMessage } from "@/components/ui/form-message";
-import { cancelOrderAction, markDeliveredAction } from "@/lib/work-orders/actions";
+import {
+  cancelOrderAction,
+  markDeliveredAction,
+} from "@/lib/work-orders/actions";
 import {
   priorityBadgeVariant,
   statusBadgeVariant,
@@ -172,7 +175,9 @@ function MarkDeliveredDialog({ workOrderId }: { workOrderId: string }) {
           <DialogTitle>{th("markDeliveredTitle")}</DialogTitle>
           <DialogDescription>{th("markDeliveredConfirm")}</DialogDescription>
         </DialogHeader>
-        {error ? <FormMessage variant="error">{th("genericError")}</FormMessage> : null}
+        {error ? (
+          <FormMessage variant="error">{th("genericError")}</FormMessage>
+        ) : null}
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
@@ -219,14 +224,21 @@ function CancelOrderDialog({ workOrderId }: { workOrderId: string }) {
           <DialogTitle>{th("cancelOrderTitle")}</DialogTitle>
           <DialogDescription>{th("cancelOrderConfirm")}</DialogDescription>
         </DialogHeader>
-        {error ? <FormMessage variant="error">{th("genericError")}</FormMessage> : null}
+        {error ? (
+          <FormMessage variant="error">{th("genericError")}</FormMessage>
+        ) : null}
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="outline">
               {th("cancelAction")}
             </Button>
           </DialogClose>
-          <Button type="button" variant="danger" onClick={handleConfirm} disabled={pending}>
+          <Button
+            type="button"
+            variant="danger"
+            onClick={handleConfirm}
+            disabled={pending}
+          >
             {th("confirmAction")}
           </Button>
         </DialogFooter>

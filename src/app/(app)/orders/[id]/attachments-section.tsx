@@ -32,9 +32,9 @@ export function AttachmentsSection({
 }) {
   const t = useTranslations("pages.orders.detail.hub.attachments");
   const router = useRouter();
-  const [uploadKind, setUploadKind] = useState<"file" | "photo" | "voice" | null>(
-    null,
-  );
+  const [uploadKind, setUploadKind] = useState<
+    "file" | "photo" | "voice" | null
+  >(null);
   // The voice button records on the device (screen inventory #27); the file
   // picker stays reachable from inside the recorder for browsers that can't
   // record (insecure context, no MediaRecorder).
@@ -62,7 +62,9 @@ export function AttachmentsSection({
     });
   }
 
-  const files = attachments.filter((a) => a.kind === "file" || a.kind === "photo");
+  const files = attachments.filter(
+    (a) => a.kind === "file" || a.kind === "photo",
+  );
   const voice = attachments.filter((a) => a.kind === "voice");
 
   return (
@@ -71,10 +73,18 @@ export function AttachmentsSection({
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("filesTitle")}</CardTitle>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => setUploadKind("photo")}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setUploadKind("photo")}
+            >
               {t("addPhoto")}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setUploadKind("file")}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setUploadKind("file")}
+            >
               {t("addFile")}
             </Button>
           </div>
@@ -90,7 +100,7 @@ export function AttachmentsSection({
                   href={attachment.url ?? undefined}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex aspect-square items-center justify-center overflow-hidden rounded-control border border-line bg-mauve-100/40"
+                  className="bg-mauve-100/40 flex aspect-square items-center justify-center overflow-hidden rounded-control border border-line"
                   title={attachment.file_name}
                 >
                   {attachment.kind === "photo" && attachment.url ? (
@@ -134,11 +144,18 @@ export function AttachmentsSection({
           ) : (
             <ul className="space-y-3">
               {voice.map((attachment) => (
-                <li key={attachment.id} className="flex items-center gap-2 text-sm">
+                <li
+                  key={attachment.id}
+                  className="flex items-center gap-2 text-sm"
+                >
                   <Mic className="size-4 shrink-0 text-muted" aria-hidden />
                   {attachment.url ? (
                     // eslint-disable-next-line jsx-a11y/media-has-caption
-                    <audio controls src={attachment.url} className="h-9 max-w-full" />
+                    <audio
+                      controls
+                      src={attachment.url}
+                      className="h-9 max-w-full"
+                    />
                   ) : (
                     <span className="text-muted">{attachment.file_name}</span>
                   )}
@@ -238,7 +255,9 @@ function UploadAttachmentDialog({
           </div>
           {error ? (
             <FormMessage variant="error">
-              {t(`errors.${error === "fileTooLarge" ? "fileTooLarge" : "generic"}`)}
+              {t(
+                `errors.${error === "fileTooLarge" ? "fileTooLarge" : "generic"}`,
+              )}
             </FormMessage>
           ) : null}
           <DialogFooter>

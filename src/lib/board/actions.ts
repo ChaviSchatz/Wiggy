@@ -314,7 +314,11 @@ export async function reassignTaskAction(
   let queueRank: number | null = existingTask?.queue_rank ?? null;
   if (staffMemberId) {
     if (queueRank === null) {
-      queueRank = await computeAppendRank(supabase, user.businessId, staffMemberId);
+      queueRank = await computeAppendRank(
+        supabase,
+        user.businessId,
+        staffMemberId,
+      );
     }
   } else {
     queueRank = null;

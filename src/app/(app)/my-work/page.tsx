@@ -25,7 +25,11 @@ export default async function MyWorkPage() {
   const [tasks, completed] = await Promise.all([
     fetchBoardTasks(supabase, user.businessId),
     staffMemberId
-      ? fetchRecentlyCompletedTasksForStaff(supabase, user.businessId, staffMemberId)
+      ? fetchRecentlyCompletedTasksForStaff(
+          supabase,
+          user.businessId,
+          staffMemberId,
+        )
       : Promise.resolve([]),
   ]);
 

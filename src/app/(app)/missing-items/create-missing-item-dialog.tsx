@@ -83,7 +83,9 @@ export function CreateMissingItemDialog({
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           {formError ? (
-            <FormMessage variant="error">{t(`errors.${formError}`)}</FormMessage>
+            <FormMessage variant="error">
+              {t(`errors.${formError}`)}
+            </FormMessage>
           ) : null}
           {orderOptions.length === 0 ? (
             <FormMessage variant="error">{t("noOrders")}</FormMessage>
@@ -132,7 +134,9 @@ export function CreateMissingItemDialog({
               ))}
             </select>
             {errors.kind ? (
-              <p className="text-sm text-danger-600">{t("errors.kindInvalid")}</p>
+              <p className="text-sm text-danger-600">
+                {t("errors.kindInvalid")}
+              </p>
             ) : null}
           </div>
 
@@ -171,7 +175,10 @@ export function CreateMissingItemDialog({
                 {t("cancel")}
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={pending || orderOptions.length === 0}>
+            <Button
+              type="submit"
+              disabled={pending || orderOptions.length === 0}
+            >
               {pending ? t("saving") : t("save")}
             </Button>
           </DialogFooter>

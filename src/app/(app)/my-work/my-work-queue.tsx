@@ -23,13 +23,21 @@ function TaskLine({ task }: { task: BoardTask }) {
   return (
     <p className="flex items-center gap-1.5 text-sm font-medium text-ink">
       <span>
-        {identity} <span className="font-normal text-muted">#{task.orderNumber}</span>
+        {identity}{" "}
+        <span className="font-normal text-muted">#{task.orderNumber}</span>
         {" · "}
         {task.title}
       </span>
       {task.priority ? (
-        <span aria-label={tCommon("priorityLabel")} title={tCommon("priorityLabel")}>
-          <Star className="size-3.5 shrink-0 text-peach-500" fill="currentColor" aria-hidden />
+        <span
+          aria-label={tCommon("priorityLabel")}
+          title={tCommon("priorityLabel")}
+        >
+          <Star
+            className="size-3.5 shrink-0 text-peach-500"
+            fill="currentColor"
+            aria-hidden
+          />
         </span>
       ) : null}
     </p>
@@ -63,7 +71,8 @@ export function MyWorkQueue({
   );
 
   const myTasks = useMemo(
-    () => tasks.filter((task) => task.assigned_staff_member_id === staffMemberId),
+    () =>
+      tasks.filter((task) => task.assigned_staff_member_id === staffMemberId),
     [tasks, staffMemberId],
   );
 
@@ -86,24 +95,35 @@ export function MyWorkQueue({
   );
 
   function updateTask(taskId: string, patch: Partial<BoardTask>) {
-    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, ...patch } : t)));
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, ...patch } : t)),
+    );
   }
 
   async function handleStart(task: BoardTask) {
-    updateTask(task.id, { status: "in_progress", started_at: new Date().toISOString() });
+    updateTask(task.id, {
+      status: "in_progress",
+      started_at: new Date().toISOString(),
+    });
     const result = await startTaskAction(task.id);
-    if (!result.success) updateTask(task.id, { status: task.status, started_at: task.started_at });
+    if (!result.success)
+      updateTask(task.id, { status: task.status, started_at: task.started_at });
   }
 
   async function handleComplete(task: BoardTask) {
-    const nextStatus: TaskStatus = task.requires_approval ? "awaiting_approval" : "done";
+    const nextStatus: TaskStatus = task.requires_approval
+      ? "awaiting_approval"
+      : "done";
     updateTask(task.id, {
       status: nextStatus,
       completed_at: nextStatus === "done" ? new Date().toISOString() : null,
     });
     const result = await completeTaskAction(task.id);
     if (!result.success) {
-      updateTask(task.id, { status: task.status, completed_at: task.completed_at });
+      updateTask(task.id, {
+        status: task.status,
+        completed_at: task.completed_at,
+      });
     }
   }
 
@@ -111,18 +131,29 @@ export function MyWorkQueue({
     return (
       <div>
         <PageHeader title={t("title")} />
-        <EmptyState title={t("noProfileTitle")} description={t("noProfileDescription")} />
+        <EmptyState
+          title={t("noProfileTitle")}
+          description={t("noProfileDescription")}
+        />
       </div>
     );
   }
 
-  const current = sections.current.map((s) => taskById.get(s.id)).filter(Boolean) as BoardTask[];
+  const current = sections.current
+    .map((s) => taskById.get(s.id))
+    .filter(Boolean) as BoardTask[];
   const next = sections.next ? (taskById.get(sections.next.id) ?? null) : null;
-  const queue = sections.queue.map((s) => taskById.get(s.id)).filter(Boolean) as BoardTask[];
+  const queue = sections.queue
+    .map((s) => taskById.get(s.id))
+    .filter(Boolean) as BoardTask[];
   const blocked = sections.blocked
-    .map((entry) => ({ task: taskById.get(entry.task.id), reason: entry.reason }))
-    .filter((entry): entry is { task: BoardTask; reason: "sequence" | "deferred" } =>
-      Boolean(entry.task),
+    .map((entry) => ({
+      task: taskById.get(entry.task.id),
+      reason: entry.reason,
+    }))
+    .filter(
+      (entry): entry is { task: BoardTask; reason: "sequence" | "deferred" } =>
+        Boolean(entry.task),
     );
 
   const isEmpty =
@@ -137,11 +168,17 @@ export function MyWorkQueue({
       <PageHeader title={t("title")} />
 
       {isEmpty ? (
-        <EmptyState title={t("emptyTitle")} description={t("emptyDescription")} />
+        <EmptyState
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+        />
       ) : (
         <>
           {current.map((task) => (
-            <Card key={task.id} className="border-2 border-ring bg-mauve-100/20">
+            <Card
+              key={task.id}
+              className="bg-mauve-100/20 border-2 border-ring"
+            >
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs uppercase tracking-wide text-muted">
                   {t("sections.current")}
@@ -158,7 +195,7 @@ export function MyWorkQueue({
           ))}
 
           {next ? (
-            <Card className="border-2 border-sage-600/40 bg-sage-100/20">
+            <Card className="border-sage-600/40 bg-sage-100/20 border-2">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs uppercase tracking-wide text-muted">
                   {t("sections.next")}
@@ -166,7 +203,11 @@ export function MyWorkQueue({
               </CardHeader>
               <CardContent className="flex items-center justify-between gap-3 pt-0">
                 <TaskLine task={next} />
-                <Button size="lg" variant="outline" onClick={() => handleStart(next)}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => handleStart(next)}
+                >
                   <Play className="me-1 size-4" aria-hidden />
                   {t("start")}
                 </Button>
@@ -188,7 +229,11 @@ export function MyWorkQueue({
                     className="flex items-center justify-between gap-3 rounded-control border border-line p-2"
                   >
                     <TaskLine task={task} />
-                    <Button size="sm" variant="outline" onClick={() => handleStart(task)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleStart(task)}
+                    >
                       {t("start")}
                     </Button>
                   </div>
@@ -215,7 +260,9 @@ export function MyWorkQueue({
                     <TaskLine task={task} />
                     <Badge variant="neutral">
                       <Lock className="me-1 size-3" aria-hidden />
-                      {reason === "deferred" ? t("deferredReason") : t("sequenceReason")}
+                      {reason === "deferred"
+                        ? t("deferredReason")
+                        : t("sequenceReason")}
                     </Badge>
                   </div>
                 ))}
@@ -238,7 +285,8 @@ export function MyWorkQueue({
                   >
                     <p className="text-sm text-ink">
                       {task.customerName ?? "—"}{" "}
-                      <span className="text-muted">#{task.orderNumber}</span> · {task.title}
+                      <span className="text-muted">#{task.orderNumber}</span> ·{" "}
+                      {task.title}
                     </p>
                     <Badge variant="success">
                       {task.completedAt

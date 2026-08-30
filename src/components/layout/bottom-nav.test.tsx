@@ -26,8 +26,12 @@ describe("BottomNav", () => {
     expect(screen.getByText(messages.bottomNav.feedback)).toBeInTheDocument();
     expect(screen.getByText(messages.bottomNav.profile)).toBeInTheDocument();
 
-    expect(screen.queryByText(messages.bottomNav.sprint)).not.toBeInTheDocument();
-    expect(screen.queryByText(messages.bottomNav.approvals)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(messages.bottomNav.sprint),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(messages.bottomNav.approvals),
+    ).not.toBeInTheDocument();
   });
 
   it("gives a manager reachable links to Sprint and Approvals below the lg breakpoint", () => {
@@ -42,6 +46,8 @@ describe("BottomNav", () => {
     expect(approvalsLink).toHaveAttribute("href", "/approvals");
 
     // Feedback is dropped for this role to avoid overcrowding the bar.
-    expect(screen.queryByText(messages.bottomNav.feedback)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(messages.bottomNav.feedback),
+    ).not.toBeInTheDocument();
   });
 });

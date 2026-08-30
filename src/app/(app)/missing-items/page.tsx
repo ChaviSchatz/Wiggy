@@ -16,7 +16,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getCurrentUser } from "@/lib/auth/server";
-import { fetchAssignableStaff, type AssignableStaffMember } from "@/lib/board/queries";
+import {
+  fetchAssignableStaff,
+  type AssignableStaffMember,
+} from "@/lib/board/queries";
 import {
   fetchMissingItemOrderOptions,
   listMissingItems,
@@ -27,7 +30,10 @@ import { can } from "@/lib/roles";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CreateMissingItemDialog } from "./create-missing-item-dialog";
 import { HandleMissingItemDialog } from "./handle-missing-item-dialog";
-import { MissingItemFilterBar, type MissingItemFilters } from "./missing-item-filter-bar";
+import {
+  MissingItemFilterBar,
+  type MissingItemFilters,
+} from "./missing-item-filter-bar";
 import { MissingItemsPagination } from "./missing-items-pagination";
 
 type SearchParams = { [key: string]: string | string[] | undefined };
@@ -113,7 +119,8 @@ function MissingItemsView({
 }) {
   const t = useTranslations("pages.missingItems");
   const isFiltered =
-    filters.status !== "unhandled" || Boolean(filters.kind || filters.responsible);
+    filters.status !== "unhandled" ||
+    Boolean(filters.kind || filters.responsible);
 
   const createButton = (
     <CreateMissingItemDialog
@@ -156,7 +163,9 @@ function MissingItemsView({
                 <TableHead>{t("columns.description")}</TableHead>
                 <TableHead>{t("columns.responsible")}</TableHead>
                 <TableHead>{t("columns.status")}</TableHead>
-                <TableHead className="text-end">{t("columns.actions")}</TableHead>
+                <TableHead className="text-end">
+                  {t("columns.actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

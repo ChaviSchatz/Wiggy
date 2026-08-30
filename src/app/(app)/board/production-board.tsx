@@ -190,7 +190,10 @@ export function ProductionBoard({
 
   async function handleApprove(task: BoardTask) {
     const previousTask = task;
-    updateTask(task.id, { status: "done", completed_at: new Date().toISOString() });
+    updateTask(task.id, {
+      status: "done",
+      completed_at: new Date().toISOString(),
+    });
     const result = await approveTaskAction(task.id);
     if (!result.success) {
       replaceTask(previousTask);

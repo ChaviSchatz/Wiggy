@@ -12,8 +12,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { addCalendarDays, businessDateString } from "@/lib/time/business-time";
 
 export type SprintActionResult =
-  | { success: true }
-  | { success: false; error: string };
+  { success: true } | { success: false; error: string };
 
 /** Sprint planning is a manager-level operational decision (ADR 0008). */
 async function requireSprintPlanner() {

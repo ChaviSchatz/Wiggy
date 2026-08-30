@@ -129,7 +129,11 @@ export function TaskSection({
             {t("title", { count: tasks.length })}
           </CardTitle>
           {canManageOrder ? (
-            <Button size="sm" variant="outline" onClick={() => setAddTaskOpen(true)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setAddTaskOpen(true)}
+            >
               {t("addTask")}
             </Button>
           ) : null}
@@ -269,7 +273,12 @@ function TaskRow({
           </>
         ) : status === "awaiting_approval" && canApprove ? (
           <>
-            <Button size="sm" variant="outline" onClick={onReturn} disabled={pending}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onReturn}
+              disabled={pending}
+            >
               {t("returnAction")}
             </Button>
             <Button size="sm" onClick={onApprove} disabled={pending}>
@@ -277,16 +286,31 @@ function TaskRow({
             </Button>
           </>
         ) : status === "deferred" && canWorkTasks ? (
-          <Button size="sm" variant="outline" onClick={onResume} disabled={pending}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onResume}
+            disabled={pending}
+          >
             {t("resumeAction")}
           </Button>
         ) : STARTABLE.has(status) && canWorkTasks ? (
           <>
-            <Button size="sm" variant="outline" onClick={onStart} disabled={pending}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onStart}
+              disabled={pending}
+            >
               {t("start")}
             </Button>
             {DEFERRABLE.has(status) ? (
-              <Button size="sm" variant="ghost" onClick={onDefer} disabled={pending}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={onDefer}
+                disabled={pending}
+              >
                 {t("deferAction")}
               </Button>
             ) : null}
@@ -296,12 +320,19 @@ function TaskRow({
             <Button size="sm" onClick={onComplete} disabled={pending}>
               {t("done")}
             </Button>
-            <Button size="sm" variant="ghost" onClick={onDefer} disabled={pending}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onDefer}
+              disabled={pending}
+            >
               {t("deferAction")}
             </Button>
           </>
         ) : (
-          <Badge variant={status === "awaiting_approval" ? "warning" : "neutral"}>
+          <Badge
+            variant={status === "awaiting_approval" ? "warning" : "neutral"}
+          >
             {tTaskStatus(status)}
           </Badge>
         )}
