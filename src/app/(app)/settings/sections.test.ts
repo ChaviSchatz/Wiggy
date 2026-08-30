@@ -8,13 +8,13 @@ function keys(role: Parameters<typeof visibleSettingsSections>[0]) {
 
 describe("visibleSettingsSections", () => {
   it("gives an admin every section", () => {
-    expect(keys("admin")).toEqual(["staff", "business"]);
+    expect(keys("admin")).toEqual(["staff", "business", "templates"]);
   });
 
   it("gives a manager both, since cadence is a manager-level setting", () => {
     // The manager reaches /settings/business for sprint cadence even though
     // timezone inside it stays admin-only.
-    expect(keys("manager")).toEqual(["staff", "business"]);
+    expect(keys("manager")).toEqual(["staff", "business", "templates"]);
   });
 
   it("gives a secretary nothing, so the hub redirects", () => {
