@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,10 +67,9 @@ function TimezoneSection({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{t("label")}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
+      {/* No CardHeader: the field's own <Label> is the heading here. A card
+          title repeating it rendered the same words twice. */}
+      <CardContent className="space-y-3 p-4">
         <div className="space-y-1.5">
           <Label htmlFor="business-timezone">{t("label")}</Label>
           <select
@@ -121,10 +120,7 @@ function CadenceSection({ cadenceDays }: { cadenceDays: number }) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{t("label")}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 p-4">
         <div className="space-y-1.5">
           <Label htmlFor="sprint-cadence">{t("label")}</Label>
           <Input
