@@ -133,6 +133,7 @@ function IntakeItemField({
           <FieldInput
             id={`field-${item.id}`}
             fieldType={item.fieldType}
+            options={item.options}
             value={response?.fieldValue ?? ""}
             onChange={onFieldValue}
           />
@@ -187,11 +188,13 @@ function IntakeItemField({
 function FieldInput({
   id,
   fieldType,
+  options,
   value,
   onChange,
 }: {
   id: string;
   fieldType: string | null;
+  options: string[];
   value: string;
   onChange: (value: string) => void;
 }) {
@@ -215,6 +218,26 @@ function FieldInput({
     );
   }
 
+  if (fieldType === "select") {
+    // The chosen label snapshots into `intake_responses` verbatim, the same
+    // way a boolean stores its affirmative label rather than `true`.
+    return (
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-[39px] w-full rounded-xs border border-line-strong bg-surface px-3 text-body text-ink focus-visible:border-mauve-600 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-mauve-100"
+      >
+        <option value="">{t("selectNone")}</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
   if (fieldType === "textarea") {
     return (
       <Textarea
@@ -224,6 +247,9 @@ function FieldInput({
       />
     );
   }
+
+  // Deliberate fallback: the builder can no longer create an unrecognised
+  // field_type, but a pre-existing row must still render rather than crash.
   return (
     <Input
       id={id}

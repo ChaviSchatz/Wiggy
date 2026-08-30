@@ -39,6 +39,7 @@ function item(
     fieldKey: null,
     fieldLabel: null,
     fieldType: null,
+    options: [],
     config: {},
     taskType: null,
     taskGroupTaskTypes: null,
@@ -493,12 +494,18 @@ describe("generateWorkOrder", () => {
         config: config({ missing_item_kind: "top" }),
       }),
     ];
-    const responses: ItemResponse[] = [{ itemId: "item-no-top", fieldValue: "כן" }];
+    const responses: ItemResponse[] = [
+      { itemId: "item-no-top", fieldValue: "כן" },
+    ];
 
     const result = generateWorkOrder(baseInput({ items, responses }));
 
     expect(result.missingItems).toEqual([
-      { kind: "top", description: "אין טופ במלאי", originItemId: "item-no-top" },
+      {
+        kind: "top",
+        description: "אין טופ במלאי",
+        originItemId: "item-no-top",
+      },
     ]);
     // The flag is still structured intake data, and never a task (ADR 0003).
     expect(result.intakeResponses).toEqual([
@@ -606,7 +613,10 @@ describe("generateWorkOrder", () => {
     ];
 
     const result = generateWorkOrder(
-      baseInput({ items, responses: [{ itemId: "section-1", fieldValue: "כן" }] }),
+      baseInput({
+        items,
+        responses: [{ itemId: "section-1", fieldValue: "כן" }],
+      }),
     );
 
     expect(result.missingItems).toEqual([]);

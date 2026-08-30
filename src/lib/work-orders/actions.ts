@@ -261,7 +261,8 @@ export async function editIntakeAction(
     .select("intake_responses")
     .eq("id", workOrderId)
     .maybeSingle();
-  if (fetchError || !existingOrder) return { success: false, error: "notFound" };
+  if (fetchError || !existingOrder)
+    return { success: false, error: "notFound" };
 
   const previous = (existingOrder.intake_responses ??
     []) as IntakeResponseEntry[];
@@ -396,10 +397,13 @@ export async function addManualTaskAction(
   if (input.taskTypeId) {
     const { data: taskType, error: taskTypeError } = await supabase
       .from("task_types")
-      .select("name, description, default_work_stage_id, requires_approval_default")
+      .select(
+        "name, description, default_work_stage_id, requires_approval_default",
+      )
       .eq("id", input.taskTypeId)
       .maybeSingle();
-    if (taskTypeError || !taskType) return { success: false, error: "notFound" };
+    if (taskTypeError || !taskType)
+      return { success: false, error: "notFound" };
     title = taskType.name;
     description = taskType.description;
     requiresApproval = taskType.requires_approval_default;
@@ -447,7 +451,12 @@ export async function addManualTaskAction(
     workOrderId: input.workOrderId,
     payload: { title, source },
   });
-  await recomputeOrderStatus(supabase, input.workOrderId, user.businessId, user.id);
+  await recomputeOrderStatus(
+    supabase,
+    input.workOrderId,
+    user.businessId,
+    user.id,
+  );
 
   revalidatePath(`/orders/${input.workOrderId}`);
   revalidatePath("/board");

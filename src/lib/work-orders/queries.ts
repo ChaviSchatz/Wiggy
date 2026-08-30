@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database, Tables } from "@/lib/supabase/database.types";
+import { parseOptions } from "@/lib/work-definition/field-types";
 import type { IntakeItemConfig, ResolvedIntakeItem, TaskType } from "./types";
 
 export const WORK_ORDERS_PAGE_SIZE = 20;
@@ -105,6 +106,7 @@ export async function fetchResolvedIntakeItems(
     fieldKey: row.field_key,
     fieldLabel: row.field_label,
     fieldType: row.field_type,
+    options: parseOptions(row.options),
     config: (row.config ?? {}) as IntakeItemConfig,
     taskType: row.task_type_id
       ? (taskTypesById.get(row.task_type_id) ?? null)
