@@ -48,6 +48,7 @@ dev seed credentials below.
 | `npm run gen:types`        | Regenerate `src/lib/supabase/database.types.ts` from the local DB |
 | `npm run seed:dev`         | Seed a dev business + admin user (idempotent)                     |
 | `npm run seed:demo`        | Add demo customers/orders/tasks on top of the dev seed (local)     |
+| `npm run seed:screens`     | Add screen-coverage data on top of the demo seed (local)          |
 | `npm run format`           | Format the codebase with Prettier                                 |
 | `npm run format:check`     | Check formatting without writing                                  |
 
@@ -96,6 +97,18 @@ These credentials are for local development only. Never use them anywhere real.
 `npm run seed:demo` then fills that business with browsable demo data
 (customers, work orders at several statuses, tasks across the board, a sprint,
 missing items) so the board, queue and dashboard aren't empty. Also idempotent.
+
+`npm run seed:screens` layers on **screen-coverage** data for manual QA. The
+demo seed tells one small story, which leaves much of the UI with nothing to
+render: 5 of the 7 order-status filters, the board's "deferred" and "returned
+for rework" tabs, 3 of the 4 missing-item statuses, every attachment/comment
+section in the order hub, and all three list paginations (page size 20). This
+seed covers all of them, plus edge cases the layout can break on (a customer
+with no contact details or orders, a very long Hebrew name) and a closed sprint
+still holding unfinished work. Everything it creates is prefixed "בדיקה" and
+tagged `[qa]` in `notes`, so it is easy to spot and never mixes with the demo
+story. Idempotent; `npm run seed:screens -- --reset` removes just its own rows
+and reseeds them.
 
 ## Auth flows
 
