@@ -87,15 +87,31 @@ export function ItemList({
   );
 }
 
+type PreviewTaskType = NonNullable<ResolvedIntakeItem["taskType"]>;
+
+/**
+ * A catalog row as far as the preview is concerned. `ResolvedIntakeItem`
+ * types these as full `task_types` rows, but the renderer reads only `id`
+ * and `name`, and the builder's queries fetch only those two columns.
+ *
+ * The assertion is narrowed to that fact rather than widened with `never`,
+ * so it stays a documented shortcut instead of a hole: if the renderer ever
+ * starts reading another column, this is the line that has to change.
+ */
+function previewTaskType(id: string, name: string): PreviewTaskType {
+  return { id, name } as Pick<
+    PreviewTaskType,
+    "id" | "name"
+  > as PreviewTaskType;
+}
+
 /**
  * Adapts a builder row to the shape the shared intake renderer expects, so the
  * preview is literally the customer-facing component rather than a redraw of
- * it. `taskType`/`taskGroupTaskTypes` carry only what the control displays --
- * the name -- since nothing else is rendered.
+ * it.
  */
 function toResolvedItem(item: BuilderItem): ResolvedIntakeItem {
   const config = (item.config ?? {}) as IntakeItemConfig;
-  const name = item.referentName ?? "";
 
   return {
     id: item.id,
@@ -109,12 +125,10 @@ function toResolvedItem(item: BuilderItem): ResolvedIntakeItem {
     // the template contains, and the meta line says it won't appear.
     config: { ...config, visible: true },
     taskType: item.task_type_id
-      ? ({ id: item.task_type_id, name } as ResolvedIntakeItem["taskType"])
+      ? previewTaskType(item.task_type_id, item.referentName ?? "")
       : null,
     taskGroupTaskTypes: item.task_group_id
-      ? (item.groupTaskTypes ?? []).map(
-          (tt) => ({ id: tt.id, name: tt.name }) as never,
-        )
+      ? item.groupTaskTypes.map((tt) => previewTaskType(tt.id, tt.name))
       : null,
   };
 }
