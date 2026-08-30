@@ -12,6 +12,8 @@ export type Role = (typeof ROLES)[number];
 export const PERMISSIONS = [
   "manageUsers",
   "editBranding",
+  /** Tenant identity: timezone. Admin-only, mirroring `businesses` RLS. */
+  "editBusinessSettings",
   "manageStaff",
   "editWorkDefinition",
   "createOrders",

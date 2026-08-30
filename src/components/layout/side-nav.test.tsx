@@ -27,6 +27,7 @@ function userWithRole(role: Role): CurrentUser {
     avatarUrl: null,
     businessId: "business-1",
     businessName: "מספרת דוגמה",
+    timezone: "Asia/Jerusalem",
     role,
   };
 }

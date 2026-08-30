@@ -258,6 +258,17 @@ itself ("marked handled, the top never turned up"). What the transition does con
 `handled_at` — stamped on the way into `handled`, preserved if it was already handled, cleared on
 the way back out. Every change is audited in `activity` against the owning order. (ADR 0011.)
 
+### 7.5 Business timezone
+Anything that describes **the salon's own day** — a sprint's `starts_on`/`ends_on`, the dashboard's
+"completed today" — resolves through `businesses.timezone`, never the server clock
+(`src/lib/time/business-time.ts`). A UTC date slice reports the *previous* day for any tenant east
+of Greenwich late in the evening, which is why a sprint created after midnight in Israel used to
+start on the wrong date.
+
+The zone travels on `CurrentUser.timezone`, resolved once per request by `getCurrentUserFromClient`
+(it already reads the `businesses` row, so this costs no extra query). Editing it is admin-only
+(`editBusinessSettings`), mirroring the `businesses_update_admins` RLS policy.
+
 ---
 
 ## 8. Deferred: planning engine (dependencies, capacity, automation)

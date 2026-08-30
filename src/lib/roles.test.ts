@@ -36,6 +36,15 @@ describe("roles/can", () => {
     expect(can("worker", "manageBoard")).toBe(false);
   });
 
+  it("restricts editBusinessSettings to admin", () => {
+    // Mirrors the RLS Slice 1a put on `businesses` (businesses_update_admins):
+    // managers get operational settings, tenant identity stays with admin.
+    expect(can("admin", "editBusinessSettings")).toBe(true);
+    expect(can("manager", "editBusinessSettings")).toBe(false);
+    expect(can("secretary", "editBusinessSettings")).toBe(false);
+    expect(can("worker", "editBusinessSettings")).toBe(false);
+  });
+
   it("lets managers reassign tasks and override availability, but not workers/secretaries", () => {
     expect(can("manager", "manageBoard")).toBe(true);
     expect(can("worker", "manageBoard")).toBe(false);

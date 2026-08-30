@@ -97,6 +97,21 @@ human working in this repo. Read it first.
 > key; JSON last-wins made the object shadow the label, so the hub header rendered the raw key path
 > as its button). `src/i18n/messages.test.ts` now guards the catalog against duplicate keys, which
 > `JSON.parse` cannot reveal on its own.
+>
+> The **first `[config]` slice** then shipped — screens #44 (settings hub), #53 (staff members) and
+> #56 (business settings), designed in `docs/superpowers/specs/`. Three nested routes under
+> `/settings`, one `can()` guard each; the hub renders only sections the role can open, so it is
+> never a list of dead ends. `staff_members` gained `insert`/`update` grants
+> (`20260830120000_staff_settings_rls.sql`) but deliberately **no `delete`**: removal is
+> deactivation, because `staff_members.id` is referenced by four `on delete set null` columns and a
+> hard delete would erase the assignee on already-completed tasks. Withholding the grant makes that
+> structural rather than a convention. A new admin-only `editBusinessSettings` permission gates
+> timezone, mirroring the `businesses_update_admins` RLS; sprint cadence stays `planSprint` and is
+> reachable from both Settings and the sprint header (one action, two call sites).
+> **`businesses.timezone` is now authoritative** for sprint dates and "today" (architecture §7.5,
+> `src/lib/time/business-time.ts`) — it previously existed but nothing read it, so a sprint created
+> after midnight in Israel started on the wrong date. `default_locale` is deliberately absent from
+> the UI: only `he` exists, so a selector would do nothing.
 
 ## Start here (read in this order)
 

@@ -8,6 +8,7 @@ import {
 } from "@/lib/missing-items/queries";
 import { fetchActiveSprint } from "@/lib/sprints/queries";
 import type { Database } from "@/lib/supabase/database.types";
+import { businessDayStart } from "@/lib/time/business-time";
 
 /**
  * Dashboard / home (screen inventory #7): "counts by status, urgent, today's
@@ -114,6 +115,7 @@ export async function fetchWorkerDashboard(
   supabase: SupabaseClient<Database>,
   businessId: string,
   staffMemberId: string | null,
+  timezone: string,
 ): Promise<WorkerDashboard> {
   if (!staffMemberId) {
     return {
@@ -127,7 +129,7 @@ export async function fetchWorkerDashboard(
 
   const [tasks, completedToday] = await Promise.all([
     fetchBoardTasks(supabase, businessId),
-    countCompletedToday(supabase, businessId, staffMemberId),
+    countCompletedToday(supabase, businessId, staffMemberId, timezone),
   ]);
 
   const mine = tasks.filter(
@@ -192,9 +194,11 @@ async function countCompletedToday(
   supabase: SupabaseClient<Database>,
   businessId: string,
   staffMemberId: string,
+  timezone: string,
 ): Promise<number> {
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  // The salon's midnight, not the server's -- a worker in Israel should see
+  // their own day roll over, whatever zone the app happens to run in.
+  const startOfToday = businessDayStart(new Date(), timezone);
 
   const { count, error } = await supabase
     .from("runtime_tasks")

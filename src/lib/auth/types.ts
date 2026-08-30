@@ -15,5 +15,11 @@ export type CurrentUser = {
   avatarUrl: string | null;
   businessId: string;
   businessName: string;
+  /**
+   * IANA zone from `businesses.timezone`. Authoritative for anything about
+   * the salon's own day -- sprint dates, "completed today" -- so those never
+   * fall back to the server clock (architecture §7.5).
+   */
+  timezone: string;
   role: Role;
 };
