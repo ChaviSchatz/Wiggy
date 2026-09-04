@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { Plus, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FilterBar } from "@/components/ui/filter-bar";
 import {
   Table,
   TableBody,
@@ -21,6 +21,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CustomerFormDialog } from "./customer-form-dialog";
 import { CustomerRowActions } from "./customer-row-actions";
 import { CustomerSearchBar } from "./customer-search-bar";
+import { CustomerTableRow } from "./customer-table-row";
 import { CustomersPagination } from "./customers-pagination";
 
 type SearchParams = { [key: string]: string | string[] | undefined };
@@ -82,17 +83,19 @@ function CustomersView({
     <div>
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <CustomerSearchBar defaultValue={search} />
-        <CustomerFormDialog
-          trigger={
-            <Button size="sm">
-              <Plus className="size-4" aria-hidden />
-              {t("newCustomer")}
-            </Button>
-          }
-        />
-      </div>
+      <FilterBar
+        search={<CustomerSearchBar defaultValue={search} />}
+        actions={
+          <CustomerFormDialog
+            trigger={
+              <Button size="sm" className="ms-auto">
+                <Plus className="size-4" aria-hidden />
+                {t("newCustomer")}
+              </Button>
+            }
+          />
+        }
+      />
 
       {customers.length === 0 ? (
         <EmptyState
@@ -127,14 +130,12 @@ function CustomersView({
             </TableHeader>
             <TableBody>
               {customers.map((customer) => (
-                <TableRow key={customer.id}>
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/customers/${customer.id}`}
-                      className="hover:underline"
-                    >
-                      {customer.name}
-                    </Link>
+                <CustomerTableRow
+                  key={customer.id}
+                  href={`/customers/${customer.id}`}
+                >
+                  <TableCell className="text-identity">
+                    {customer.name}
                   </TableCell>
                   <TableCell className="text-muted">
                     {customer.phone ?? "—"}
@@ -145,7 +146,7 @@ function CustomersView({
                   <TableCell>
                     <CustomerRowActions customer={customer} />
                   </TableCell>
-                </TableRow>
+                </CustomerTableRow>
               ))}
             </TableBody>
           </Table>

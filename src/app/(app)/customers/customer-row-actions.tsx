@@ -12,7 +12,10 @@ export function CustomerRowActions({ customer }: { customer: Customer }) {
   const t = useTranslations("pages.customers");
 
   return (
-    <div className="flex justify-end gap-1">
+    <div
+      className="flex justify-end gap-1"
+      onClick={(e) => e.stopPropagation()}
+    >
       <CustomerFormDialog
         customer={customer}
         trigger={
