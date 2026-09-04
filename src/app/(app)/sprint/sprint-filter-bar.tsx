@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { StaffFilterSelect } from "@/components/domain/staff-filter-select";
 import type { AssignableStaffMember } from "@/lib/board/queries";
 import type { Tables } from "@/lib/supabase/database.types";
 
@@ -57,21 +58,13 @@ export function SprintFilterBar({
         ))}
       </select>
 
-      <select
-        aria-label={t("employeeLabel")}
+      <StaffFilterSelect
+        ariaLabel={t("employeeLabel")}
         value={filters.staffId}
-        onChange={(event) =>
-          onChange({ ...filters, staffId: event.target.value })
-        }
-        className={selectClass}
-      >
-        <option value="">{t("employeeAll")}</option>
-        {staff.map((member) => (
-          <option key={member.id} value={member.id}>
-            {member.full_name}
-          </option>
-        ))}
-      </select>
+        onChange={(staffId) => onChange({ ...filters, staffId })}
+        staff={staff}
+        allLabel={t("employeeAll")}
+      />
 
       <select
         aria-label={t("typeLabel")}

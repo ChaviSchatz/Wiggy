@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
+import { AssigneePicker } from "@/components/domain/assignee-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -64,33 +65,15 @@ export function AssigneePickerDialog({
           <DialogTitle>{t("title")}</DialogTitle>
         </DialogHeader>
 
-        <div className="max-h-64 space-y-1 overflow-y-auto">
-          <label className="flex cursor-pointer items-center gap-2 rounded-control p-2 hover:bg-mauve-100">
-            <input
-              type="radio"
-              name="assignee"
-              checked={selectedId === null}
-              onChange={() => setSelectedId(null)}
-              className="accent-mauve-600"
-            />
-            <span className="text-sm">{t("unassign")}</span>
-          </label>
-          {staff.map((member) => (
-            <label
-              key={member.id}
-              className="flex cursor-pointer items-center gap-2 rounded-control p-2 hover:bg-mauve-100"
-            >
-              <input
-                type="radio"
-                name="assignee"
-                checked={selectedId === member.id}
-                onChange={() => setSelectedId(member.id)}
-                className="accent-mauve-600"
-              />
-              <span className="text-sm">{member.full_name}</span>
-            </label>
-          ))}
-        </div>
+        <AssigneePicker
+          staff={staff.map((member) => ({
+            id: member.id,
+            name: member.full_name,
+          }))}
+          value={selectedId}
+          onChange={setSelectedId}
+          unassignedLabel={t("unassign")}
+        />
 
         <DialogFooter>
           <DialogClose asChild>
