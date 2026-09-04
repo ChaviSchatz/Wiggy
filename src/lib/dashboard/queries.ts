@@ -27,6 +27,10 @@ const ACTIVE_ORDER_EXCLUDED_STATUSES = [
 ] as const;
 const DUE_SOON_DAYS = 7;
 const ATTENTION_LIST_LIMIT = 5;
+// Missing items render grouped by kind (attention.missingItemGroups), so the
+// fetch needs enough rows for the counts and per-kind rows to be meaningful,
+// not just the first 5 across every kind.
+const MISSING_ITEMS_ATTENTION_LIMIT = 20;
 
 export type DashboardTaskItem = {
   id: string;
@@ -89,7 +93,7 @@ export async function fetchOfficeDashboard(
       businessId,
       status: "unhandled",
       activeOrdersOnly: true,
-      pageSize: ATTENTION_LIST_LIMIT,
+      pageSize: MISSING_ITEMS_ATTENTION_LIMIT,
     }),
     fetchSprintProgress(supabase, businessId),
   ]);

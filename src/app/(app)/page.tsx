@@ -23,6 +23,7 @@ import {
   type OfficeDashboard,
   type WorkerDashboard,
 } from "@/lib/dashboard/queries";
+import type { MissingItemListItem } from "@/lib/missing-items/queries";
 import { can, type Role } from "@/lib/roles";
 import { fetchStaffMemberIdForUser } from "@/lib/sprints/queries";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -169,24 +170,7 @@ function OfficeDashboardView({
           ) : null}
 
           {data.attention.missingItems.length > 0 ? (
-            <AttentionGroup
-              icon={PackageX}
-              title={t("attention.missingItems")}
-              href="/missing-items"
-              hrefLabel={t("attention.viewAll")}
-            >
-              {data.attention.missingItems.map((item) => (
-                <AttentionRow
-                  key={item.id}
-                  href={`/orders/${item.work_order_id}`}
-                  title={tMissing(`kind.${item.kind}`)}
-                  subtitle={t("attention.orderLine", {
-                    number: item.orderNumber,
-                    customer: item.customerName ?? tMissing("noCustomer"),
-                  })}
-                />
-              ))}
-            </AttentionGroup>
+            <MissingItemsAttention items={data.attention.missingItems} />
           ) : null}
 
           {showsProductionPlan && data.attention.approvals.length > 0 ? (
@@ -368,6 +352,49 @@ function AttentionGroup({
       </div>
       <ul className="space-y-1">{children}</ul>
     </section>
+  );
+}
+
+// Missing items grouped by kind (max ~3 kinds -- top/skin/material) rather
+// than one flat row per item: a customer's name reads once per row, not the
+// same kind label repeated across every row (the previous layout).
+const MISSING_ITEMS_ROWS_PER_KIND = 3;
+
+function MissingItemsAttention({ items }: { items: MissingItemListItem[] }) {
+  const t = useTranslations("pages.dashboard");
+  const tMissing = useTranslations("pages.missingItems");
+
+  const groups = new Map<string, MissingItemListItem[]>();
+  for (const item of items) {
+    const group = groups.get(item.kind);
+    if (group) group.push(item);
+    else groups.set(item.kind, [item]);
+  }
+  const sortedGroups = Array.from(groups.entries()).sort(
+    (a, b) => b[1].length - a[1].length,
+  );
+
+  return (
+    <>
+      {sortedGroups.map(([kind, kindItems]) => (
+        <AttentionGroup
+          key={kind}
+          icon={PackageX}
+          title={`${tMissing(`kind.${kind}`)} (${kindItems.length})`}
+          href={`/missing-items?kind=${kind}`}
+          hrefLabel={t("attention.viewAll")}
+        >
+          {kindItems.slice(0, MISSING_ITEMS_ROWS_PER_KIND).map((item) => (
+            <AttentionRow
+              key={item.id}
+              href={`/orders/${item.work_order_id}`}
+              title={item.customerName ?? tMissing("noCustomer")}
+              subtitle={`#${item.orderNumber}`}
+            />
+          ))}
+        </AttentionGroup>
+      ))}
+    </>
   );
 }
 
