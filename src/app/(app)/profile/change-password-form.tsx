@@ -3,8 +3,8 @@
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { changePasswordAction } from "@/lib/auth/actions";
 
 export function ChangePasswordForm() {
@@ -12,8 +12,7 @@ export function ChangePasswordForm() {
 
   return (
     <form action={changePasswordAction} className="space-y-4">
-      <div className="space-y-1.5">
-        <Label htmlFor="password">{t("newPasswordLabel")}</Label>
+      <FormField label={t("newPasswordLabel")} htmlFor="password">
         <Input
           id="password"
           name="password"
@@ -22,9 +21,8 @@ export function ChangePasswordForm() {
           minLength={6}
           required
         />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="confirmPassword">{t("confirmPasswordLabel")}</Label>
+      </FormField>
+      <FormField label={t("confirmPasswordLabel")} htmlFor="confirmPassword">
         <Input
           id="confirmPassword"
           name="confirmPassword"
@@ -33,7 +31,7 @@ export function ChangePasswordForm() {
           minLength={6}
           required
         />
-      </div>
+      </FormField>
       <Button type="submit">{t("changePassword")}</Button>
     </form>
   );

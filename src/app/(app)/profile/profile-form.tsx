@@ -3,8 +3,8 @@
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { updateProfileAction } from "@/lib/auth/actions";
 
 export function ProfileForm({
@@ -18,19 +18,17 @@ export function ProfileForm({
 
   return (
     <form action={updateProfileAction} className="space-y-4">
-      <div className="space-y-1.5">
-        <Label htmlFor="fullName">{t("fullNameLabel")}</Label>
+      <FormField label={t("fullNameLabel")} htmlFor="fullName">
         <Input
           id="fullName"
           name="fullName"
           defaultValue={defaultFullName}
           required
         />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="email">{t("emailLabel")}</Label>
+      </FormField>
+      <FormField label={t("emailLabel")} htmlFor="email">
         <Input id="email" value={email} disabled readOnly />
-      </div>
+      </FormField>
       <Button type="submit">{t("saveProfile")}</Button>
     </form>
   );

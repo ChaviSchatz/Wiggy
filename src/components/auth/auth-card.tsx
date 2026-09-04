@@ -1,12 +1,6 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Panel } from "@/components/ui/panel";
 
-/** Archetype I (design-system.md §3): centered card for login/reset/bootstrap. */
+/** Archetype I (design-system.md §3): centered Panel for login/reset/bootstrap. */
 export function AuthCard({
   title,
   subtitle,
@@ -17,12 +11,8 @@ export function AuthCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        {subtitle ? <CardDescription>{subtitle}</CardDescription> : null}
-      </CardHeader>
-      <CardContent className="space-y-4">{children}</CardContent>
-    </Card>
+    <Panel title={title} subtitle={subtitle} bodyClassName="space-y-4">
+      {children}
+    </Panel>
   );
 }

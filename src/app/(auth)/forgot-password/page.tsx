@@ -3,9 +3,9 @@ import { useTranslations } from "next-intl";
 
 import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { requestPasswordResetAction } from "@/lib/auth/actions";
 
 type SearchParams = { [key: string]: string | string[] | undefined };
@@ -34,8 +34,7 @@ export default function ForgotPasswordPage({
       ) : null}
 
       <form action={requestPasswordResetAction} className="space-y-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="email">{t("emailLabel")}</Label>
+        <FormField label={t("emailLabel")} htmlFor="email">
           <Input
             id="email"
             name="email"
@@ -43,7 +42,7 @@ export default function ForgotPasswordPage({
             autoComplete="email"
             required
           />
-        </div>
+        </FormField>
         <Button type="submit" className="w-full">
           {t("submit")}
         </Button>

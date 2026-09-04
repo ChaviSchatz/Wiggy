@@ -3,9 +3,9 @@ import { useTranslations } from "next-intl";
 
 import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { signInAction } from "@/lib/auth/actions";
 
 type SearchParams = { [key: string]: string | string[] | undefined };
@@ -40,8 +40,7 @@ export default function LoginPage({
 
       <form action={signInAction} className="space-y-4">
         <input type="hidden" name="next" value={next} />
-        <div className="space-y-1.5">
-          <Label htmlFor="email">{t("emailLabel")}</Label>
+        <FormField label={t("emailLabel")} htmlFor="email">
           <Input
             id="email"
             name="email"
@@ -49,17 +48,19 @@ export default function LoginPage({
             autoComplete="email"
             required
           />
-        </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">{t("passwordLabel")}</Label>
+        </FormField>
+        <FormField
+          htmlFor="password"
+          label={t("passwordLabel")}
+          labelAction={
             <Link
               href="/forgot-password"
               className="text-sm text-mauve-600 hover:underline"
             >
               {t("forgotPassword")}
             </Link>
-          </div>
+          }
+        >
           <Input
             id="password"
             name="password"
@@ -67,7 +68,7 @@ export default function LoginPage({
             autoComplete="current-password"
             required
           />
-        </div>
+        </FormField>
         <Button type="submit" className="w-full">
           {t("submit")}
         </Button>
