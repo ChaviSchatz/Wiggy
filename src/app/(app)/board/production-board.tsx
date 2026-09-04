@@ -216,7 +216,7 @@ export function ProductionBoard({
         />
       ) : (
         <div className="flex gap-3 overflow-x-auto pb-4">
-          {stages.map((stage) => {
+          {stages.map((stage, index) => {
             const stageTasks = tasksByStage.get(stage.id) ?? [];
             return (
               <KanbanColumn
@@ -224,6 +224,7 @@ export function ProductionBoard({
                 title={stage.name}
                 count={stageTasks.length}
                 emptyLabel={t("columnEmpty")}
+                index={index}
               >
                 {stageTasks.map((task) => (
                   <TaskCard

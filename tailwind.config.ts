@@ -64,6 +64,14 @@ const config: Config = {
           500: "var(--idle-500)",
           600: "var(--idle-600)",
         },
+        // Board column identity — cycled by position, never work_stages.color.
+        stage: {
+          1: "var(--stage-tint-1)",
+          2: "var(--stage-tint-2)",
+          3: "var(--stage-tint-3)",
+          4: "var(--stage-tint-4)",
+          5: "var(--stage-tint-5)",
+        },
         sidebar: {
           DEFAULT: "var(--sidebar)",
           fg: "var(--sidebar-fg)",

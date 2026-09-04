@@ -245,11 +245,12 @@ cannot express — repetition alone is not one.
 - **WorkCard** — the single task card, shared by the production board, sprint planning, and My Work
   through variants rather than through three parallel implementations. Composition is specified in
   `screen-designs.md`.
-- **KanbanColumn** — `surface-soft` ground, `line` border, `radius-sm`, header with title, optional
-  subtitle, count, and `hairline` tick. **No per-column background tint.** `work_stages.color` does
-  exist, but a tenant-entered hex carries no contrast guarantee and would sit outside the controlled
-  palette, so stage identity comes from the header text and the tick rather than a column-wide wash.
-  Using it later as a small non-text accent is possible; using it as a tint is not.
+- **KanbanColumn** — `line` border, `radius-sm`, header with title, optional subtitle, count, and
+  `hairline` tick. Each column takes a faint background tint from a small **system-curated** set
+  (`stage-tint-1`…`5`, `globals.css`), cycled by column position. **Never `work_stages.color`** — a
+  tenant-entered hex carries no contrast guarantee and would sit outside the controlled palette;
+  the curated set gets the same "columns read as distinct at a glance" result without that risk.
+  Stage identity still comes primarily from the header text and the tick, not from the tint alone.
 - **QueueList + QueueItem** — the sectioned personal queue.
 - **Stepper** — order progress. Completed nodes `sage-600`, current `mauve-600`, upcoming `line-strong`
   outline; connector `sage-300` behind completed segments and `line` ahead of them.
