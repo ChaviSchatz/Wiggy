@@ -40,10 +40,16 @@ export function WorkOrderHub({
 }) {
   const [editIntakeOpen, setEditIntakeOpen] = useState(false);
 
-  // Only the stages this order's own tasks actually touch -- a simple order
-  // with one task shouldn't show every stage the business has configured.
+  // The stages this order's own tasks touch, plus the business's first and
+  // last configured stage (intake and final handoff) so the stepper still
+  // reads as "where is this order between received and delivered" -- not
+  // just the isolated production steps it happens to have tasks in.
   const orderStages = useMemo(() => {
     const stageIds = new Set(data.tasks.map((task) => task.work_stage_id));
+    const first = data.workStages[0];
+    const last = data.workStages[data.workStages.length - 1];
+    if (first) stageIds.add(first.id);
+    if (last) stageIds.add(last.id);
     return data.workStages.filter((stage) => stageIds.has(stage.id));
   }, [data.tasks, data.workStages]);
 
