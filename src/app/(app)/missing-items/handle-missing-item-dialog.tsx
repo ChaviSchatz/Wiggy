@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
+import { AssigneeSelect } from "@/components/domain/assignee-select";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -125,19 +126,15 @@ export function HandleMissingItemDialog({
             <Label htmlFor={`responsible-${item.id}`}>
               {t("responsibleLabel")}
             </Label>
-            <select
+            <AssigneeSelect
               id={`responsible-${item.id}`}
               name="responsibleStaffMemberId"
-              className={selectClass}
-              defaultValue={item.responsible_staff_member_id ?? ""}
-            >
-              <option value="">{t("responsibleNone")}</option>
-              {staff.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.full_name}
-                </option>
-              ))}
-            </select>
+              ariaLabel={t("responsibleLabel")}
+              staff={staff}
+              unassignedLabel={t("responsibleNone")}
+              defaultValue={item.responsible_staff_member_id}
+              className="w-full"
+            />
           </div>
 
           <div className="space-y-1.5">

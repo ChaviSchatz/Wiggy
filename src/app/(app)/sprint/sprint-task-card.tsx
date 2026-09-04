@@ -3,6 +3,7 @@
 import { ChevronDown, ChevronUp, Lock, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { AssigneeSelect } from "@/components/domain/assignee-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Availability } from "@/lib/availability";
@@ -95,19 +96,14 @@ export function SprintTaskCard({
       </div>
 
       <div className="mt-3 flex items-center justify-between gap-2">
-        <select
-          aria-label={t("assignLabel")}
-          value={task.assigned_staff_member_id ?? ""}
-          onChange={(event) => onAssign(event.target.value || null)}
-          className="h-8 flex-1 rounded-control border border-line bg-surface px-2 text-xs text-ink"
-        >
-          <option value="">{t("unassignedOption")}</option>
-          {staff.map((member) => (
-            <option key={member.id} value={member.id}>
-              {member.full_name}
-            </option>
-          ))}
-        </select>
+        <AssigneeSelect
+          ariaLabel={t("assignLabel")}
+          value={task.assigned_staff_member_id}
+          onChange={onAssign}
+          staff={staff}
+          unassignedLabel={t("unassignedOption")}
+          className="h-8 flex-1 px-2 text-xs"
+        />
 
         {rank ? (
           <div className="flex items-center gap-1">
