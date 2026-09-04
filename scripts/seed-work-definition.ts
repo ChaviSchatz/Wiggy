@@ -16,7 +16,7 @@ const STAGES = [
   { key: "intake", name: "קליטה", sortOrder: 0 },
   { key: "planning", name: "תכנון", sortOrder: 1 },
   { key: "sewing", name: "תפירה", sortOrder: 2 },
-  { key: "hand_tying", name: "קשירה ידנית", sortOrder: 3 },
+  { key: "hand_tying", name: "עבודת יד", sortOrder: 3 },
   { key: "color", name: "צבע", sortOrder: 4 },
   { key: "wash_styling", name: "חפיפה / עיצוב", sortOrder: 5 },
   { key: "final_review", name: "ביקורת סופית", sortOrder: 6 },
@@ -28,7 +28,7 @@ const STAFF = [
   {
     key: "hand_tying_lead",
     fullName: "דנה כהן",
-    title: "קשירה ידנית",
+    title: "עבודת יד",
     stageKey: "hand_tying" as StageKey,
   },
   {
@@ -89,7 +89,7 @@ const TASK_TYPES = [
   },
   {
     key: "hand_tying",
-    name: "קשירה ידנית",
+    name: "עבודת יד",
     stageKey: "hand_tying" as StageKey,
     staffKey: "hand_tying_lead" as StaffKey | null,
     durationMinutes: 240,

@@ -645,7 +645,7 @@ describe("generateWorkOrder", () => {
     });
     const handTying = taskType({
       id: "tt-hand-tying",
-      name: "קשירה ידנית",
+      name: "עבודת יד",
       default_work_stage_id: stageHandTying,
       requires_approval_default: true,
     });
@@ -759,12 +759,12 @@ describe("generateWorkOrder", () => {
     // before styling) breaks the tie.
     expect(result.tasks.map((t) => t.title)).toEqual([
       "לבדוק התאמת קסדה",
-      "קשירה ידנית",
+      "עבודת יד",
       "צבע מלא",
       "שטיפה",
       "עיצוב",
     ]);
-    expect(result.tasks.find((t) => t.title === "קשירה ידנית")).toMatchObject({
+    expect(result.tasks.find((t) => t.title === "עבודת יד")).toMatchObject({
       requiresApproval: true,
       source: "template",
     });

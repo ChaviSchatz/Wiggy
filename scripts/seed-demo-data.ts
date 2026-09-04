@@ -90,7 +90,7 @@ async function main() {
       i.taskGroupTaskTypes?.some((t) => t.name === "שטיפה"),
   );
   const handTyingItem = items.find(
-    (i) => i.itemKind === "task_type" && i.taskType?.name === "קשירה ידנית",
+    (i) => i.itemKind === "task_type" && i.taskType?.name === "עבודת יד",
   );
   // The "no top in stock" missing-stock flag (architecture §6.5) -- answering it
   // is what gives /missing-items and the dashboard alert something to show.

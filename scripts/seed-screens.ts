@@ -241,7 +241,7 @@ async function main() {
 
   const items = await fetchResolvedIntakeItems(supabase, templateId);
   const handTyingItem = items.find(
-    (i) => i.itemKind === "task_type" && i.taskType?.name === "קשירה ידנית",
+    (i) => i.itemKind === "task_type" && i.taskType?.name === "עבודת יד",
   );
   const washGroupItem = items.find(
     (i) =>
@@ -1006,7 +1006,7 @@ async function ensureLongTextCustomer(
 ) {
   const longName = `${QA_PREFIX} שם ארוך במיוחד לבדיקת גלישת טקסט וקטיעה בממשק בעברית`;
   const handTying = ctx.items.find(
-    (i) => i.itemKind === "task_type" && i.taskType?.name === "קשירה ידנית",
+    (i) => i.itemKind === "task_type" && i.taskType?.name === "עבודת יד",
   )!;
   const responses: ItemResponse[] = [
     { itemId: handTying.id, taskTypeSelected: true },
@@ -1058,7 +1058,7 @@ async function seedBulkCustomers(
   }
 
   const handTying = ctx.items.find(
-    (i) => i.itemKind === "task_type" && i.taskType?.name === "קשירה ידנית",
+    (i) => i.itemKind === "task_type" && i.taskType?.name === "עבודת יד",
   )!;
 
   for (let index = 1; index <= BULK_CUSTOMER_COUNT; index++) {

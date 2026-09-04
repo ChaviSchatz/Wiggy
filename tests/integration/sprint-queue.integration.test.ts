@@ -88,7 +88,7 @@ async function confirmSeededIntake(tenant: Tenant) {
   const workStageSortOrderById = Object.fromEntries(
     workStages.map((s) => [s.id, s.sort_order]),
   );
-  const handTyingItem = items.find((i) => i.taskType?.name === "קשירה ידנית");
+  const handTyingItem = items.find((i) => i.taskType?.name === "עבודת יד");
 
   const generated = generateWorkOrder({
     items,
