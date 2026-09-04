@@ -26,6 +26,17 @@ over visual design per `screen-designs.md`'s own stated precedence).
 7. **Settings** — hub, business, staff (+ form dialog), templates (+ form dialog) — most
    recently built section; expect fewer fixes here, but still audited.
 
+## Missing components
+
+`docs/design/`'s component set (used for the claude.ai/design sync) is more complete than
+`src/components/`: several components the screen specs call for (`Panel`, `Wordmark`,
+`SectionHeading`, `IconButton`, `FormField`, `Select`, `Checkbox`, `RadioGroup`, `DataTable`,
+`Popover`, `Tooltip`, `AlertDialog`, `Drawer`, and others) don't exist yet in the real app.
+When a screen needs one, build that one real production component in `src/components/`
+(typed, tested, following the codebase's existing primitive patterns — most of `src/components/ui`
+is a customized shadcn/Radix base) before wiring the screen to it. Build only what's actually
+used, incrementally, screen by screen — not an upfront component-library sprint.
+
 ## Method (per screen)
 
 1. Read the screen's entry in `screen-designs.md` (archetype + composition + any screen-specific
