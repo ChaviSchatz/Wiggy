@@ -5,9 +5,9 @@ import { useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
 import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Panel } from "@/components/ui/panel";
+import { StatusChip } from "@/components/domain/status-chip";
 import { DeferTaskDialog } from "@/components/tasks/defer-task-dialog";
 import { ReturnForReworkDialog } from "@/components/tasks/return-for-rework-dialog";
 import { computeAvailability, type TaskStatus } from "@/lib/availability";
@@ -86,49 +86,42 @@ export function TaskSection({
   return (
     <div className="space-y-4">
       {nextActionTasks.length > 0 && canWorkTasks ? (
-        <Card className="border-primary/30 bg-mauve-100/40">
-          <CardHeader>
-            <CardTitle className="text-base">{t("nextActionTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {nextActionTasks.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center justify-between gap-3 rounded-control bg-surface p-3"
-              >
-                <div>
-                  <p className="text-sm font-medium text-ink">{task.title}</p>
-                  <p className="text-xs text-muted">{task.workStageName}</p>
-                </div>
-                {task.status === "in_progress" ? (
-                  <Button
-                    size="sm"
-                    disabled={pending}
-                    onClick={() => run(() => completeTaskAction(task.id))}
-                  >
-                    {t("done")}
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    disabled={pending}
-                    onClick={() => run(() => startTaskAction(task.id))}
-                  >
-                    {t("start")}
-                  </Button>
-                )}
+        <Panel title={t("nextActionTitle")} className="border-transparent bg-cream" bodyClassName="space-y-2">
+          {nextActionTasks.map((task) => (
+            <div
+              key={task.id}
+              className="flex items-center justify-between gap-3 rounded-control bg-surface p-3"
+            >
+              <div>
+                <p className="text-sm font-medium text-ink">{task.title}</p>
+                <p className="text-xs text-muted">{task.workStageName}</p>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+              {task.status === "in_progress" ? (
+                <Button
+                  size="sm"
+                  disabled={pending}
+                  onClick={() => run(() => completeTaskAction(task.id))}
+                >
+                  {t("done")}
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  disabled={pending}
+                  onClick={() => run(() => startTaskAction(task.id))}
+                >
+                  {t("start")}
+                </Button>
+              )}
+            </div>
+          ))}
+        </Panel>
       ) : null}
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">
-            {t("title", { count: tasks.length })}
-          </CardTitle>
-          {canManageOrder ? (
+      <Panel
+        title={t("title", { count: tasks.length })}
+        actions={
+          canManageOrder ? (
             <Button
               size="sm"
               variant="outline"
@@ -136,41 +129,40 @@ export function TaskSection({
             >
               {t("addTask")}
             </Button>
-          ) : null}
-        </CardHeader>
-        <CardContent>
-          {tasks.length === 0 ? (
-            <p className="text-sm text-muted">{t("empty")}</p>
-          ) : (
-            <ul className="divide-y divide-line">
-              {tasks.map((task) => (
-                <TaskRow
-                  key={task.id}
-                  task={task}
-                  isBlocked={availability.get(task.id) === "blocked"}
-                  staff={staff}
-                  canWorkTasks={canWorkTasks}
-                  canApprove={canApprove}
-                  canManageBoard={canManageBoard}
-                  pending={pending}
-                  onStart={() => run(() => startTaskAction(task.id))}
-                  onComplete={() => run(() => completeTaskAction(task.id))}
-                  onApprove={() => run(() => approveTaskAction(task.id))}
-                  onReturn={() => setReturnTaskId(task.id)}
-                  onDefer={() => setDeferTaskId(task.id)}
-                  onResume={() => run(() => resumeTaskAction(task.id))}
-                  onOverride={() =>
-                    run(() => setAvailabilityOverrideAction(task.id, true))
-                  }
-                  onReassign={(staffMemberId) =>
-                    run(() => reassignTaskAction(task.id, staffMemberId))
-                  }
-                />
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+          ) : undefined
+        }
+      >
+        {tasks.length === 0 ? (
+          <p className="text-sm text-muted">{t("empty")}</p>
+        ) : (
+          <ul className="divide-y divide-line">
+            {tasks.map((task) => (
+              <TaskRow
+                key={task.id}
+                task={task}
+                isBlocked={availability.get(task.id) === "blocked"}
+                staff={staff}
+                canWorkTasks={canWorkTasks}
+                canApprove={canApprove}
+                canManageBoard={canManageBoard}
+                pending={pending}
+                onStart={() => run(() => startTaskAction(task.id))}
+                onComplete={() => run(() => completeTaskAction(task.id))}
+                onApprove={() => run(() => approveTaskAction(task.id))}
+                onReturn={() => setReturnTaskId(task.id)}
+                onDefer={() => setDeferTaskId(task.id)}
+                onResume={() => run(() => resumeTaskAction(task.id))}
+                onOverride={() =>
+                  run(() => setAvailabilityOverrideAction(task.id, true))
+                }
+                onReassign={(staffMemberId) =>
+                  run(() => reassignTaskAction(task.id, staffMemberId))
+                }
+              />
+            ))}
+          </ul>
+        )}
+      </Panel>
 
       <ReturnForReworkDialog
         taskId={returnTaskId}
@@ -263,14 +255,17 @@ function TaskRow({
 
       <div className="flex items-center gap-2">
         {isBlocked && !TERMINAL.has(status) ? (
-          <>
-            <Badge variant="neutral">{t("blocked")}</Badge>
-            {canManageBoard ? (
-              <Button size="sm" variant="outline" onClick={onOverride}>
-                {t("unlock")}
-              </Button>
-            ) : null}
-          </>
+          <StatusChip kind="availability" status="blocked" label={t("blocked")} />
+        ) : (
+          <StatusChip kind="task" status={status} label={tTaskStatus(status)} />
+        )}
+
+        {isBlocked && !TERMINAL.has(status) ? (
+          canManageBoard ? (
+            <Button size="sm" variant="outline" onClick={onOverride}>
+              {t("unlock")}
+            </Button>
+          ) : null
         ) : status === "awaiting_approval" && canApprove ? (
           <>
             <Button
@@ -329,13 +324,7 @@ function TaskRow({
               {t("deferAction")}
             </Button>
           </>
-        ) : (
-          <Badge
-            variant={status === "awaiting_approval" ? "warning" : "neutral"}
-          >
-            {tTaskStatus(status)}
-          </Badge>
-        )}
+        ) : null}
       </div>
     </li>
   );
