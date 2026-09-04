@@ -2,13 +2,20 @@
 
 import { useMemo, useState } from "react";
 
+import { PrimaryActionBar } from "@/components/domain/primary-action-bar";
 import type { TaskStatus } from "@/lib/availability";
 import type { HubData } from "@/lib/work-orders/hub-queries";
 import type { IntakeResponseEntry } from "@/lib/work-orders/types";
 import { AttachmentsSection } from "./attachments-section";
 import { EditIntakeDialog } from "./edit-intake-dialog";
 import { HistorySection } from "./history-section";
-import { HubHeader } from "./hub-header";
+import {
+  CancelOrderDialog,
+  EditIntakeButton,
+  HubHeader,
+  isOrderFinal,
+  MarkDeliveredDialog,
+} from "./hub-header";
 import { NotesSection } from "./notes-section";
 import { ProgressStepper } from "./progress-stepper";
 import { TaskSection } from "./task-section";
@@ -38,13 +45,11 @@ export function WorkOrderHub({
     [data.tasks, data.workStages],
   );
 
+  const isFinal = isOrderFinal(data.order.status);
+
   return (
     <div className="mx-auto max-w-4xl space-y-4 pb-12">
-      <HubHeader
-        order={data.order}
-        canManageOrder={permissions.canManageOrder}
-        onEditIntake={() => setEditIntakeOpen(true)}
-      />
+      <HubHeader order={data.order} />
 
       <ProgressStepper
         stages={data.workStages}
@@ -82,6 +87,25 @@ export function WorkOrderHub({
       />
 
       <HistorySection activity={data.activity} />
+
+      {permissions.canManageOrder ? (
+        <PrimaryActionBar
+          sticky
+          secondary={
+            <EditIntakeButton onClick={() => setEditIntakeOpen(true)} />
+          }
+          primary={
+            data.order.status === "ready_for_handoff" ? (
+              <MarkDeliveredDialog workOrderId={data.order.id} />
+            ) : undefined
+          }
+          destructive={
+            !isFinal ? (
+              <CancelOrderDialog workOrderId={data.order.id} />
+            ) : undefined
+          }
+        />
+      ) : null}
 
       <EditIntakeDialog
         workOrderId={data.order.id}

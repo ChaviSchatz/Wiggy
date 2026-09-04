@@ -31,17 +31,12 @@ const FINAL_STATUSES = new Set(["completed", "cancelled"]);
 
 export function HubHeader({
   order,
-  canManageOrder,
-  onEditIntake,
 }: {
   order: HubData["order"];
-  canManageOrder: boolean;
-  onEditIntake: () => void;
 }) {
   const t = useTranslations("pages.orders");
   const th = useTranslations("pages.orders.detail.hub");
   const identity = order.customerName ?? order.template_name ?? "";
-  const isFinal = FINAL_STATUSES.has(order.status);
 
   const subtitle = [
     `#${order.number}`,
@@ -99,23 +94,25 @@ export function HubHeader({
           </>
         }
       />
-
-      {canManageOrder ? (
-        <div className="flex flex-wrap gap-2 border-t border-line pt-3">
-          <Button size="sm" variant="outline" onClick={onEditIntake}>
-            {th("editIntake.button")}
-          </Button>
-          {order.status === "ready_for_handoff" ? (
-            <MarkDeliveredDialog workOrderId={order.id} />
-          ) : null}
-          {!isFinal ? <CancelOrderDialog workOrderId={order.id} /> : null}
-        </div>
-      ) : null}
     </div>
   );
 }
 
-function MarkDeliveredDialog({ workOrderId }: { workOrderId: string }) {
+/** Order-level actions live in the hub's `PrimaryActionBar` footer, not the header. */
+export function EditIntakeButton({ onClick }: { onClick: () => void }) {
+  const th = useTranslations("pages.orders.detail.hub");
+  return (
+    <Button size="sm" variant="outline" onClick={onClick}>
+      {th("editIntake.button")}
+    </Button>
+  );
+}
+
+export function isOrderFinal(status: string) {
+  return FINAL_STATUSES.has(status);
+}
+
+export function MarkDeliveredDialog({ workOrderId }: { workOrderId: string }) {
   const th = useTranslations("pages.orders.detail.hub");
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -164,7 +161,7 @@ function MarkDeliveredDialog({ workOrderId }: { workOrderId: string }) {
   );
 }
 
-function CancelOrderDialog({ workOrderId }: { workOrderId: string }) {
+export function CancelOrderDialog({ workOrderId }: { workOrderId: string }) {
   const th = useTranslations("pages.orders.detail.hub");
   const router = useRouter();
   const [open, setOpen] = useState(false);

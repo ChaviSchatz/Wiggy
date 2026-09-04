@@ -1,42 +1,51 @@
 import { useTranslations } from "next-intl";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Panel } from "@/components/ui/panel";
 import type { ActivityEntry } from "@/lib/activity/queries";
 import {
   isMissingItemKind,
   isMissingItemStatus,
 } from "@/lib/missing-items/validation";
 
-/** History / activity section, from the unified `activity` stream (ADR 0004). */
+/**
+ * History / activity section, from the unified `activity` stream (ADR
+ * 0004) -- a single-column timeline with the actor, the action, and a
+ * tabular-nums timestamp (screen-designs.md, Work-order hub).
+ */
 export function HistorySection({ activity }: { activity: ActivityEntry[] }) {
   const t = useTranslations("pages.orders.detail.hub.history");
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{t("title")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {activity.length === 0 ? (
-          <p className="text-sm text-muted">{t("empty")}</p>
-        ) : (
-          <ol className="space-y-3">
-            {activity.map((entry) => (
-              <li key={entry.id} className="text-sm">
-                <p className="text-ink">
-                  <ActivityLine entry={entry} />
-                </p>
-                <p className="text-xs text-muted">
-                  {entry.actorName ?? t("system")}
-                  {" · "}
-                  {new Date(entry.created_at).toLocaleString("he-IL")}
-                </p>
-              </li>
-            ))}
-          </ol>
-        )}
-      </CardContent>
-    </Card>
+    <Panel title={t("title")}>
+      {activity.length === 0 ? (
+        <p className="text-sm text-muted">{t("empty")}</p>
+      ) : (
+        <ol className="space-y-4">
+          {activity.map((entry, index) => (
+            <li key={entry.id} className="relative ps-5">
+              {index < activity.length - 1 ? (
+                <span
+                  className="absolute inset-y-0 top-2.5 start-[3px] w-px bg-line"
+                  aria-hidden="true"
+                />
+              ) : null}
+              <span
+                className="absolute start-0 top-1.5 size-[7px] rounded-full bg-mauve-600"
+                aria-hidden="true"
+              />
+              <p className="text-sm text-ink">
+                <ActivityLine entry={entry} />
+              </p>
+              <p className="text-meta tabular-nums text-muted">
+                {entry.actorName ?? t("system")}
+                {" · "}
+                {new Date(entry.created_at).toLocaleString("he-IL")}
+              </p>
+            </li>
+          ))}
+        </ol>
+      )}
+    </Panel>
   );
 }
 
