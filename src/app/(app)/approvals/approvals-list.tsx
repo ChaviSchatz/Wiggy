@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { PageHeader } from "@/components/layout/page-header";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ReturnForReworkDialog } from "@/components/tasks/return-for-rework-dialog";
@@ -68,7 +69,12 @@ export function ApprovalsList({ initialTasks }: { initialTasks: BoardTask[] }) {
                   {" · "}
                   {task.title}
                 </p>
-                <p className="text-xs text-muted">
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+                  <Avatar
+                    name={task.assignedStaffMemberName}
+                    size="sm"
+                    className="size-4 text-[9px]"
+                  />
                   {t("submittedBy", {
                     name: task.assignedStaffMemberName ?? t("unknownStaff"),
                   })}

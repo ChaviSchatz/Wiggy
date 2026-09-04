@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/layout/page-header";
+import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   Table,
@@ -110,7 +111,12 @@ export default async function StaffSettingsPage({
                 key={member.id}
                 className={member.is_active ? undefined : "opacity-60"}
               >
-                <TableCell>{member.full_name}</TableCell>
+                <TableCell>
+                  <span className="flex items-center gap-2">
+                    <Avatar name={member.full_name} size="sm" />
+                    {member.full_name}
+                  </span>
+                </TableCell>
                 <TableCell>{member.title ?? t("none")}</TableCell>
                 <TableCell>{member.workStageName ?? t("none")}</TableCell>
                 <TableCell>{member.linkedUserName ?? t("none")}</TableCell>

@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Panel } from "@/components/ui/panel";
 import {
   Dialog,
   DialogClose,
@@ -39,41 +40,46 @@ export function NotesSection({
   const [open, setOpen] = useState(false);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-base">{t("title")}</CardTitle>
-        {tasks.length > 0 ? (
+    <Panel
+      title={t("title")}
+      actions={
+        tasks.length > 0 ? (
           <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
             {t("addComment")}
           </Button>
-        ) : null}
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {notes ? (
-          <p className="bg-mauve-100/40 rounded-control p-3 text-sm text-ink">
-            {notes}
-          </p>
-        ) : null}
+        ) : null
+      }
+      bodyClassName="space-y-4"
+    >
+      {notes ? (
+        <p className="bg-mauve-100/40 rounded-control p-3 text-sm text-ink">
+          {notes}
+        </p>
+      ) : null}
 
-        {comments.length === 0 ? (
-          <p className="text-sm text-muted">{t("empty")}</p>
-        ) : (
-          <ul className="space-y-3">
-            {comments.map((comment) => (
-              <li key={comment.id} className="text-sm">
-                <p className="text-ink">{comment.body}</p>
-                <p className="text-xs text-muted">
+      {comments.length === 0 ? (
+        <p className="text-sm text-muted">{t("empty")}</p>
+      ) : (
+        <ul className="space-y-3">
+          {comments.map((comment) => (
+            <li key={comment.id} className="flex items-start gap-2.5">
+              <Avatar name={comment.authorName} size="sm" />
+              <div className="min-w-0 text-sm">
+                <p className="flex flex-wrap items-baseline gap-x-1.5 text-meta text-muted">
+                  <span className="font-medium text-ink">
+                    {comment.authorName ?? t("unknownAuthor")}
+                  </span>
                   {comment.taskTitle}
-                  {" · "}
-                  {comment.authorName ?? t("unknownAuthor")}
-                  {" · "}
-                  {new Date(comment.created_at).toLocaleString("he-IL")}
+                  <span className="tabular-nums">
+                    {new Date(comment.created_at).toLocaleString("he-IL")}
+                  </span>
                 </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </CardContent>
+                <p className="text-ink">{comment.body}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <AddCommentDialog
         workOrderId={workOrderId}
@@ -81,7 +87,7 @@ export function NotesSection({
         open={open}
         onOpenChange={setOpen}
       />
-    </Card>
+    </Panel>
   );
 }
 
