@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database, Tables } from "@/lib/supabase/database.types";
-import { parseOptions } from "@/lib/work-definition/field-types";
+import { parseOptions } from "../work-definition/field-types.ts";
 import type { IntakeItemConfig, ResolvedIntakeItem, TaskType } from "./types";
 
 export const WORK_ORDERS_PAGE_SIZE = 20;
