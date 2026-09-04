@@ -4,6 +4,7 @@ import { PackageX, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { PageHeader } from "@/components/layout/page-header";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -189,7 +190,14 @@ function MissingItemsView({
                     {item.description ?? "—"}
                   </TableCell>
                   <TableCell className="text-muted">
-                    {item.responsibleName ?? "—"}
+                    {item.responsibleName ? (
+                      <span className="flex items-center gap-2">
+                        <Avatar name={item.responsibleName} size="sm" />
+                        {item.responsibleName}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
                   </TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(item.status)}>
