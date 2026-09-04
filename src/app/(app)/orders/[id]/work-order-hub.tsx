@@ -40,9 +40,16 @@ export function WorkOrderHub({
 }) {
   const [editIntakeOpen, setEditIntakeOpen] = useState(false);
 
+  // Only the stages this order's own tasks actually touch -- a simple order
+  // with one task shouldn't show every stage the business has configured.
+  const orderStages = useMemo(() => {
+    const stageIds = new Set(data.tasks.map((task) => task.work_stage_id));
+    return data.workStages.filter((stage) => stageIds.has(stage.id));
+  }, [data.tasks, data.workStages]);
+
   const { currentStageId, reachedStageIds } = useMemo(
-    () => computeStageProgress(data.tasks, data.workStages),
-    [data.tasks, data.workStages],
+    () => computeStageProgress(data.tasks, orderStages),
+    [data.tasks, orderStages],
   );
 
   const isFinal = isOrderFinal(data.order.status);
@@ -52,7 +59,7 @@ export function WorkOrderHub({
       <HubHeader order={data.order} />
 
       <ProgressStepper
-        stages={data.workStages}
+        stages={orderStages}
         currentStageId={currentStageId}
         reachedStageIds={reachedStageIds}
       />
@@ -129,13 +136,17 @@ function computeStageProgress(
   const activeTask = sorted.find(
     (task) => !TERMINAL.has(task.status as TaskStatus),
   );
-  const currentStageId = (activeTask ?? sorted[sorted.length - 1])
-    .work_stage_id;
+  // No active task means every task is done/skipped/cancelled -- nothing is
+  // "current" anymore, so the last stage should render as reached (green),
+  // not as the current step (plum).
+  const currentStageId = activeTask?.work_stage_id ?? null;
+  const lastStageId = sorted[sorted.length - 1].work_stage_id;
 
-  const currentSortOrder =
-    stages.find((s) => s.id === currentStageId)?.sort_order ?? 0;
+  const referenceSortOrder =
+    stages.find((s) => s.id === (currentStageId ?? lastStageId))?.sort_order ??
+    0;
   const reachedStageIds = new Set(
-    stages.filter((s) => s.sort_order <= currentSortOrder).map((s) => s.id),
+    stages.filter((s) => s.sort_order <= referenceSortOrder).map((s) => s.id),
   );
 
   return { currentStageId, reachedStageIds };
