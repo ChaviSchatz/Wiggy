@@ -86,7 +86,7 @@ async function confirmIntake(tenant: Tenant, intakeTemplateId: string) {
       i.itemKind === "task_group" &&
       i.taskGroupTaskTypes?.some((tt) => tt.name === "צבע מלא"),
   );
-  const handTyingItem = items.find((i) => i.taskType?.name === "קשירה ידנית");
+  const handTyingItem = items.find((i) => i.taskType?.name === "עבודת יד");
   const otherItem = items.find((i) => i.config.allow_other);
   const fullColorTaskType = fullColorItem?.taskGroupTaskTypes?.find(
     (tt) => tt.name === "צבע מלא",
@@ -249,7 +249,7 @@ describe("confirm intake -> generated work order + runtime tasks", () => {
     ]);
     expect(tasks?.map((t) => t.sequence_order)).toEqual([0, 1, 2]);
 
-    const handTying = tasks?.find((t) => t.title === "קשירה ידנית");
+    const handTying = tasks?.find((t) => t.title === "עבודת יד");
     expect(handTying).toMatchObject({
       requires_approval: true,
       source: "template",

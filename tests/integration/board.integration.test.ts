@@ -83,7 +83,7 @@ async function confirmSeededIntake(tenant: Tenant) {
   const workStageSortOrderById = Object.fromEntries(
     workStages.map((s) => [s.id, s.sort_order]),
   );
-  const handTyingItem = items.find((i) => i.taskType?.name === "קשירה ידנית");
+  const handTyingItem = items.find((i) => i.taskType?.name === "עבודת יד");
 
   const generated = generateWorkOrder({
     items,
@@ -157,7 +157,7 @@ describe("fetchBoardTasks", () => {
     expect(found).toBeDefined();
     expect(found?.orderNumber).toBeGreaterThan(0);
     expect(found?.customerName).toBeNull(); // no customer on this order
-    expect(found?.taskTypeName).toBe("קשירה ידנית");
+    expect(found?.taskTypeName).toBe("עבודת יד");
   });
 
   it("excludes terminal-status tasks (done/skipped/cancelled) from the board", async () => {
@@ -258,7 +258,7 @@ describe("availability end to end", () => {
     const washTaskType = washGroupItem?.taskGroupTaskTypes?.find(
       (tt) => tt.name === "שטיפה",
     );
-    const handTyingItem = items.find((i) => i.taskType?.name === "קשירה ידנית");
+    const handTyingItem = items.find((i) => i.taskType?.name === "עבודת יד");
 
     const generated = generateWorkOrder({
       items,

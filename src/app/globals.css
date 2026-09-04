@@ -66,6 +66,18 @@
     --idle-500: #7b707a;
     --idle-600: #736874;
 
+    /*
+     * Board column identity — a small, system-controlled tint per column
+     * position (never `work_stages.color`: a tenant hex has no contrast
+     * guarantee). Cycles by column index, near-invisible so it never
+     * competes with card content (design-system.md, KanbanColumn).
+     */
+    --stage-tint-1: #fdf8f0;
+    --stage-tint-2: #eff7f1;
+    --stage-tint-3: #f8f0f7;
+    --stage-tint-4: #eef3f8;
+    --stage-tint-5: #fdf2ec;
+
     /* Side navigation — the one inverted surface in the product. */
     --sidebar: #5b2557;
     --sidebar-fg: rgb(255 255 255 / 0.9);

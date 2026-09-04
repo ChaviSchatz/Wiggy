@@ -201,9 +201,10 @@ shown as a `StatusChip` and the next step as the `primary` action. Create is a s
 `primary` new-order action) + `FilterBar` + a horizontally scrolling row of `KanbanColumn`s, one per
 work stage in configured order.
 
-Column headers carry the stage name, a count, and the `hairline` tick. **No column tints** — see the
-`KanbanColumn` note in `design-system.md` for why `work_stages.color` is not used as one. An empty
-column states that it is empty rather than rendering as a bare frame.
+Column headers carry the stage name, a count, and the `hairline` tick, plus a faint system-curated
+tint per column position — see the `KanbanColumn` note in `design-system.md` for why
+`work_stages.color` is never used as that tint. An empty column states that it is empty rather than
+rendering as a bare frame.
 
 `FilterBar` renders task status as underline tabs (all, plus each live status), with worker and task
 type as selects because their options are data-driven and unbounded. A small legend on the

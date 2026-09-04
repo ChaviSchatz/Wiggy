@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { getBrowserClient } from "@/lib/supabase/client";
 import { updatePasswordAction } from "@/lib/auth/actions";
 
@@ -78,8 +78,7 @@ export function ResetPasswordForm({ errorCode }: { errorCode?: string }) {
           )}
         </FormMessage>
       ) : null}
-      <div className="space-y-1.5">
-        <Label htmlFor="password">{t("passwordLabel")}</Label>
+      <FormField label={t("passwordLabel")} htmlFor="password">
         <Input
           id="password"
           name="password"
@@ -88,9 +87,8 @@ export function ResetPasswordForm({ errorCode }: { errorCode?: string }) {
           minLength={6}
           required
         />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="confirmPassword">{t("confirmPasswordLabel")}</Label>
+      </FormField>
+      <FormField label={t("confirmPasswordLabel")} htmlFor="confirmPassword">
         <Input
           id="confirmPassword"
           name="confirmPassword"
@@ -99,7 +97,7 @@ export function ResetPasswordForm({ errorCode }: { errorCode?: string }) {
           minLength={6}
           required
         />
-      </div>
+      </FormField>
       <Button type="submit" className="w-full">
         {t("submit")}
       </Button>

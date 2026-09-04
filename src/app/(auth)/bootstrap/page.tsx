@@ -2,9 +2,9 @@ import { useTranslations } from "next-intl";
 
 import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { bootstrapProfileAction } from "@/lib/auth/actions";
 
 type SearchParams = { [key: string]: string | string[] | undefined };
@@ -37,10 +37,9 @@ export default function BootstrapPage({
       ) : null}
 
       <form action={bootstrapProfileAction} className="space-y-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="fullName">{t("fullNameLabel")}</Label>
+        <FormField label={t("fullNameLabel")} htmlFor="fullName">
           <Input id="fullName" name="fullName" autoComplete="name" required />
-        </div>
+        </FormField>
         <Button type="submit" className="w-full">
           {t("submit")}
         </Button>

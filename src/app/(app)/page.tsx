@@ -15,7 +15,7 @@ import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/layout/page-header";
 import { KpiCard } from "@/components/domain/kpi-card";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Panel } from "@/components/ui/panel";
 import { getCurrentUser } from "@/lib/auth/server";
 import {
   fetchOfficeDashboard,
@@ -23,6 +23,7 @@ import {
   type OfficeDashboard,
   type WorkerDashboard,
 } from "@/lib/dashboard/queries";
+import type { MissingItemListItem } from "@/lib/missing-items/queries";
 import { can, type Role } from "@/lib/roles";
 import { fetchStaffMemberIdForUser } from "@/lib/sprints/queries";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -84,6 +85,8 @@ function OfficeDashboardView({
           value={data.activeOrders}
           icon={ClipboardList}
           href="/orders"
+          emphasis
+          eyebrow={t("kpis.leadingMetric")}
         />
         <KpiCard
           label={t("kpis.urgent")}
@@ -159,127 +162,100 @@ function OfficeDashboardView({
       )}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("attention.title")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {data.attention.missingItems.length === 0 &&
-            data.attention.approvals.length === 0 &&
-            data.attention.deferred.length === 0 ? (
-              <p className="text-sm text-muted">{t("attention.empty")}</p>
-            ) : null}
+        <Panel title={t("attention.title")} bodyClassName="space-y-4">
+          {data.attention.missingItems.length === 0 &&
+          data.attention.approvals.length === 0 &&
+          data.attention.deferred.length === 0 ? (
+            <p className="text-sm text-muted">{t("attention.empty")}</p>
+          ) : null}
 
-            {data.attention.missingItems.length > 0 ? (
-              <AttentionGroup
-                icon={PackageX}
-                title={t("attention.missingItems")}
-                href="/missing-items"
-                hrefLabel={t("attention.viewAll")}
-              >
-                {data.attention.missingItems.map((item) => (
-                  <AttentionRow
-                    key={item.id}
-                    href={`/orders/${item.work_order_id}`}
-                    title={tMissing(`kind.${item.kind}`)}
-                    subtitle={t("attention.orderLine", {
-                      number: item.orderNumber,
-                      customer: item.customerName ?? tMissing("noCustomer"),
-                    })}
-                  />
-                ))}
-              </AttentionGroup>
-            ) : null}
+          {data.attention.missingItems.length > 0 ? (
+            <MissingItemsAttention items={data.attention.missingItems} />
+          ) : null}
 
-            {showsProductionPlan && data.attention.approvals.length > 0 ? (
-              <AttentionGroup
-                icon={CheckCircle2}
-                title={t("attention.approvals")}
-                href="/approvals"
-                hrefLabel={t("attention.viewAll")}
-              >
-                {data.attention.approvals.map((task) => (
-                  <AttentionRow
-                    key={task.id}
-                    href={`/orders/${task.workOrderId}`}
-                    title={task.title}
-                    subtitle={t("attention.orderLine", {
-                      number: task.orderNumber,
-                      customer: task.customerName ?? tMissing("noCustomer"),
-                    })}
-                  />
-                ))}
-              </AttentionGroup>
-            ) : null}
+          {showsProductionPlan && data.attention.approvals.length > 0 ? (
+            <AttentionGroup
+              icon={CheckCircle2}
+              title={t("attention.approvals")}
+              href="/approvals"
+              hrefLabel={t("attention.viewAll")}
+            >
+              {data.attention.approvals.map((task) => (
+                <AttentionRow
+                  key={task.id}
+                  href={`/orders/${task.workOrderId}`}
+                  title={task.title}
+                  subtitle={t("attention.orderLine", {
+                    number: task.orderNumber,
+                    customer: task.customerName ?? tMissing("noCustomer"),
+                  })}
+                />
+              ))}
+            </AttentionGroup>
+          ) : null}
 
-            {data.attention.deferred.length > 0 ? (
-              <AttentionGroup
-                icon={PauseCircle}
-                title={t("attention.deferred")}
-                href="/board"
-                hrefLabel={t("attention.viewAll")}
-              >
-                {data.attention.deferred.map((task) => (
-                  <AttentionRow
-                    key={task.id}
-                    href={`/orders/${task.workOrderId}`}
-                    title={task.title}
-                    subtitle={t("attention.orderLine", {
-                      number: task.orderNumber,
-                      customer: task.customerName ?? tMissing("noCustomer"),
-                    })}
-                  />
-                ))}
-              </AttentionGroup>
-            ) : null}
-          </CardContent>
-        </Card>
+          {data.attention.deferred.length > 0 ? (
+            <AttentionGroup
+              icon={PauseCircle}
+              title={t("attention.deferred")}
+              href="/board"
+              hrefLabel={t("attention.viewAll")}
+            >
+              {data.attention.deferred.map((task) => (
+                <AttentionRow
+                  key={task.id}
+                  href={`/orders/${task.workOrderId}`}
+                  title={task.title}
+                  subtitle={t("attention.orderLine", {
+                    number: task.orderNumber,
+                    customer: task.customerName ?? tMissing("noCustomer"),
+                  })}
+                />
+              ))}
+            </AttentionGroup>
+          ) : null}
+        </Panel>
 
         {showsProductionPlan ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t("sprint.title")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {data.sprint ? (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-ink">
-                    {data.sprint.name ??
-                      t("sprint.dateRange", {
-                        from: formatDate(data.sprint.startsOn),
-                        to: formatDate(data.sprint.endsOn),
-                      })}
-                  </p>
-                  <p className="text-sm text-muted">
-                    {t("sprint.progress", {
-                      done: data.sprint.done,
-                      total: data.sprint.total,
+          <Panel title={t("sprint.title")}>
+            {data.sprint ? (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-ink">
+                  {data.sprint.name ??
+                    t("sprint.dateRange", {
+                      from: formatDate(data.sprint.startsOn),
+                      to: formatDate(data.sprint.endsOn),
                     })}
-                  </p>
-                  <SprintProgressBar
-                    done={data.sprint.done}
-                    total={data.sprint.total}
-                  />
-                  <Link
-                    href="/sprint"
-                    className="inline-block text-sm text-mauve-600 hover:underline"
-                  >
-                    {t("sprint.plan")}
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted">{t("sprint.none")}</p>
-                  <Link
-                    href="/sprint"
-                    className="inline-block text-sm text-mauve-600 hover:underline"
-                  >
-                    {t("sprint.plan")}
-                  </Link>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                </p>
+                <p className="text-sm text-muted">
+                  {t("sprint.progress", {
+                    done: data.sprint.done,
+                    total: data.sprint.total,
+                  })}
+                </p>
+                <SprintProgressBar
+                  done={data.sprint.done}
+                  total={data.sprint.total}
+                />
+                <Link
+                  href="/sprint"
+                  className="inline-block text-sm text-mauve-600 hover:underline"
+                >
+                  {t("sprint.plan")}
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm text-muted">{t("sprint.none")}</p>
+                <Link
+                  href="/sprint"
+                  className="inline-block text-sm text-mauve-600 hover:underline"
+                >
+                  {t("sprint.plan")}
+                </Link>
+              </div>
+            )}
+          </Panel>
         ) : null}
       </div>
     </div>
@@ -294,11 +270,9 @@ function WorkerDashboardView({ data }: { data: WorkerDashboard }) {
       <PageHeader title={t("title")} subtitle={t("workerSubtitle")} />
 
       {data.staffMemberId === null ? (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted">{t("noStaffLink")}</p>
-          </CardContent>
-        </Card>
+        <Panel>
+          <p className="text-sm text-muted">{t("noStaffLink")}</p>
+        </Panel>
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-3">
@@ -322,37 +296,30 @@ function WorkerDashboardView({ data }: { data: WorkerDashboard }) {
             />
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                {t("worker.currentTitle")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {data.inProgress.length === 0 ? (
-                <p className="text-sm text-muted">{t("worker.currentEmpty")}</p>
-              ) : (
-                <ul className="space-y-2">
-                  {data.inProgress.map((task) => (
-                    <li key={task.id}>
-                      <Link
-                        href={`/orders/${task.workOrderId}`}
-                        className="text-sm text-ink hover:underline"
-                      >
-                        {task.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <Link
-                href="/my-work"
-                className={cn(buttonVariants({ size: "sm" }))}
-              >
-                {t("worker.openQueue")}
-              </Link>
-            </CardContent>
-          </Card>
+          <Panel title={t("worker.currentTitle")} bodyClassName="space-y-3">
+            {data.inProgress.length === 0 ? (
+              <p className="text-sm text-muted">{t("worker.currentEmpty")}</p>
+            ) : (
+              <ul className="space-y-2">
+                {data.inProgress.map((task) => (
+                  <li key={task.id}>
+                    <Link
+                      href={`/orders/${task.workOrderId}`}
+                      className="text-sm text-ink hover:underline"
+                    >
+                      {task.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link
+              href="/my-work"
+              className={cn(buttonVariants({ size: "sm" }))}
+            >
+              {t("worker.openQueue")}
+            </Link>
+          </Panel>
         </>
       )}
     </div>
@@ -385,6 +352,49 @@ function AttentionGroup({
       </div>
       <ul className="space-y-1">{children}</ul>
     </section>
+  );
+}
+
+// Missing items grouped by kind (max ~3 kinds -- top/skin/material) rather
+// than one flat row per item: a customer's name reads once per row, not the
+// same kind label repeated across every row (the previous layout).
+const MISSING_ITEMS_ROWS_PER_KIND = 3;
+
+function MissingItemsAttention({ items }: { items: MissingItemListItem[] }) {
+  const t = useTranslations("pages.dashboard");
+  const tMissing = useTranslations("pages.missingItems");
+
+  const groups = new Map<string, MissingItemListItem[]>();
+  for (const item of items) {
+    const group = groups.get(item.kind);
+    if (group) group.push(item);
+    else groups.set(item.kind, [item]);
+  }
+  const sortedGroups = Array.from(groups.entries()).sort(
+    (a, b) => b[1].length - a[1].length,
+  );
+
+  return (
+    <>
+      {sortedGroups.map(([kind, kindItems]) => (
+        <AttentionGroup
+          key={kind}
+          icon={PackageX}
+          title={`${tMissing(`kind.${kind}`)} (${kindItems.length})`}
+          href={`/missing-items?kind=${kind}`}
+          hrefLabel={t("attention.viewAll")}
+        >
+          {kindItems.slice(0, MISSING_ITEMS_ROWS_PER_KIND).map((item) => (
+            <AttentionRow
+              key={item.id}
+              href={`/orders/${item.work_order_id}`}
+              title={item.customerName ?? tMissing("noCustomer")}
+              subtitle={`#${item.orderNumber}`}
+            />
+          ))}
+        </AttentionGroup>
+      ))}
+    </>
   );
 }
 

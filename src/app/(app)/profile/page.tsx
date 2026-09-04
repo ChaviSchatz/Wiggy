@@ -2,14 +2,9 @@ import { redirect } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { PageHeader } from "@/components/layout/page-header";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
 import { FormMessage } from "@/components/ui/form-message";
+import { Panel } from "@/components/ui/panel";
 import { getCurrentUser } from "@/lib/auth/server";
 import { ChangePasswordForm } from "./change-password-form";
 import { ProfileForm } from "./profile-form";
@@ -53,48 +48,39 @@ function ProfileView({
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       <div className="grid max-w-lg gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("detailsTitle")}</CardTitle>
-            <CardDescription>
-              {t("roleLabel")}: {tRoles(user.role)} · {t("businessLabel")}:{" "}
-              {user.businessName}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {saved ? (
-              <FormMessage variant="success">{t("profileSaved")}</FormMessage>
-            ) : null}
-            {profileError ? (
-              <FormMessage variant="error">
-                {t(`errors.${profileError}`)}
-              </FormMessage>
-            ) : null}
-            <ProfileForm
-              defaultFullName={user.fullName ?? ""}
-              email={user.email ?? ""}
-            />
-          </CardContent>
-        </Card>
+        <Panel
+          title={t("detailsTitle")}
+          subtitle={`${t("roleLabel")}: ${tRoles(user.role)} · ${t("businessLabel")}: ${user.businessName}`}
+          bodyClassName="space-y-4"
+        >
+          <Avatar name={user.fullName ?? null} size="lg" />
+          {saved ? (
+            <FormMessage variant="success">{t("profileSaved")}</FormMessage>
+          ) : null}
+          {profileError ? (
+            <FormMessage variant="error">
+              {t(`errors.${profileError}`)}
+            </FormMessage>
+          ) : null}
+          <ProfileForm
+            defaultFullName={user.fullName ?? ""}
+            email={user.email ?? ""}
+          />
+        </Panel>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("changePasswordTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {passwordChanged ? (
-              <FormMessage variant="success">
-                {t("passwordChanged")}
-              </FormMessage>
-            ) : null}
-            {passwordError ? (
-              <FormMessage variant="error">
-                {t(`errors.${passwordError}`)}
-              </FormMessage>
-            ) : null}
-            <ChangePasswordForm />
-          </CardContent>
-        </Card>
+        <Panel title={t("changePasswordTitle")} bodyClassName="space-y-4">
+          {passwordChanged ? (
+            <FormMessage variant="success">
+              {t("passwordChanged")}
+            </FormMessage>
+          ) : null}
+          {passwordError ? (
+            <FormMessage variant="error">
+              {t(`errors.${passwordError}`)}
+            </FormMessage>
+          ) : null}
+          <ChangePasswordForm />
+        </Panel>
       </div>
     </div>
   );

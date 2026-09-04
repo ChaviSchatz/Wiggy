@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import { StaffFilterSelect } from "@/components/domain/staff-filter-select";
 import type { AssignableStaffMember } from "@/lib/board/queries";
 import {
   MISSING_ITEM_KINDS,
@@ -79,19 +80,13 @@ export function MissingItemFilterBar({
         ))}
       </select>
 
-      <select
-        aria-label={t("responsibleLabel")}
+      <StaffFilterSelect
+        ariaLabel={t("responsibleLabel")}
         value={filters.responsible}
-        onChange={(event) => apply({ responsible: event.target.value })}
-        className={selectClass}
-      >
-        <option value="">{t("responsibleAll")}</option>
-        {staff.map((member) => (
-          <option key={member.id} value={member.id}>
-            {member.full_name}
-          </option>
-        ))}
-      </select>
+        onChange={(responsible) => apply({ responsible })}
+        staff={staff}
+        allLabel={t("responsibleAll")}
+      />
     </div>
   );
 }

@@ -1,13 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { File as FileIcon, Mic } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Panel } from "@/components/ui/panel";
+import { WorkImage } from "@/components/ui/work-image";
 import {
   Dialog,
   DialogClose,
@@ -69,9 +69,9 @@ export function AttachmentsSection({
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">{t("filesTitle")}</CardTitle>
+      <Panel
+        title={t("filesTitle")}
+        actions={
           <div className="flex gap-2">
             <Button
               size="sm"
@@ -88,43 +88,51 @@ export function AttachmentsSection({
               {t("addFile")}
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          {files.length === 0 ? (
-            <p className="text-sm text-muted">{t("filesEmpty")}</p>
-          ) : (
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
-              {files.map((attachment) => (
+        }
+      >
+        {files.length === 0 ? (
+          <p className="text-sm text-muted">{t("filesEmpty")}</p>
+        ) : (
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+            {files.map((attachment) =>
+              attachment.kind === "photo" && attachment.url ? (
+                <a
+                  key={attachment.id}
+                  href={attachment.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={attachment.file_name}
+                >
+                  <WorkImage
+                    src={attachment.url}
+                    alt={attachment.file_name}
+                    size={96}
+                    className="w-full"
+                  />
+                </a>
+              ) : (
                 <a
                   key={attachment.id}
                   href={attachment.url ?? undefined}
                   target="_blank"
                   rel="noreferrer"
-                  className="bg-mauve-100/40 flex aspect-square items-center justify-center overflow-hidden rounded-control border border-line"
                   title={attachment.file_name}
+                  className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xs border border-line bg-surface-soft p-1.5 text-center"
                 >
-                  {attachment.kind === "photo" && attachment.url ? (
-                    <Image
-                      src={attachment.url}
-                      alt={attachment.file_name}
-                      width={120}
-                      height={120}
-                      unoptimized
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    <FileIcon className="size-6 text-muted" aria-hidden />
-                  )}
+                  <FileIcon className="size-6 shrink-0 text-muted" aria-hidden />
+                  <span className="line-clamp-2 w-full text-meta text-muted">
+                    {attachment.file_name}
+                  </span>
                 </a>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              ),
+            )}
+          </div>
+        )}
+      </Panel>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">{t("audioTitle")}</CardTitle>
+      <Panel
+        title={t("audioTitle")}
+        actions={
           <Button
             size="sm"
             variant="outline"
@@ -137,34 +145,33 @@ export function AttachmentsSection({
             <Mic className="size-4" aria-hidden />
             {t("addVoice")}
           </Button>
-        </CardHeader>
-        <CardContent>
-          {voice.length === 0 ? (
-            <p className="text-sm text-muted">{t("audioEmpty")}</p>
-          ) : (
-            <ul className="space-y-3">
-              {voice.map((attachment) => (
-                <li
-                  key={attachment.id}
-                  className="flex items-center gap-2 text-sm"
-                >
-                  <Mic className="size-4 shrink-0 text-muted" aria-hidden />
-                  {attachment.url ? (
-                    // eslint-disable-next-line jsx-a11y/media-has-caption
-                    <audio
-                      controls
-                      src={attachment.url}
-                      className="h-9 max-w-full"
-                    />
-                  ) : (
-                    <span className="text-muted">{attachment.file_name}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+        }
+      >
+        {voice.length === 0 ? (
+          <p className="text-sm text-muted">{t("audioEmpty")}</p>
+        ) : (
+          <ul className="space-y-3">
+            {voice.map((attachment) => (
+              <li
+                key={attachment.id}
+                className="flex items-center gap-2 text-sm"
+              >
+                <Mic className="size-4 shrink-0 text-muted" aria-hidden />
+                {attachment.url ? (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <audio
+                    controls
+                    src={attachment.url}
+                    className="h-9 max-w-full"
+                  />
+                ) : (
+                  <span className="text-muted">{attachment.file_name}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
 
       <VoiceRecorderDialog
         open={recording}

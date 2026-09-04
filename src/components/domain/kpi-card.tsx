@@ -16,20 +16,29 @@ const TONE_CLASS: Record<KpiTone, string> = {
  * One number on the Dashboard archetype (docs/ui/design-system.md §F:
  * "KpiCard grid + widget lists"). The whole card is the link target when a
  * `href` is given, so the tap area is the card rather than a small label.
+ *
+ * `emphasis` spends the view's one-accent-per-view budget on the single most
+ * operationally important metric: a 2px plum border plus a plum-soft eyebrow
+ * chip above the label (design-system.md §4, KpiCard). At most one per view.
  */
 export function KpiCard({
   label,
   value,
   hint,
+  eyebrow,
   icon: Icon,
   tone = "neutral",
+  emphasis = false,
   href,
 }: {
   label: string;
   value: string | number;
   hint?: string;
+  /** Required when `emphasis` is set -- the plum-soft chip text. */
+  eyebrow?: string;
   icon?: LucideIcon;
   tone?: KpiTone;
+  emphasis?: boolean;
   href?: string;
 }) {
   const content = (
@@ -37,10 +46,16 @@ export function KpiCard({
       className={cn(
         "h-full p-4",
         href && "hover:border-mauve-600/40 transition-colors",
+        emphasis && "border-2 border-mauve-600/34",
       )}
     >
+      {emphasis && eyebrow ? (
+        <span className="mb-2 inline-flex items-center rounded-full border border-mauve-200 bg-mauve-100 px-2 py-0.5 text-meta font-medium text-mauve-600">
+          {eyebrow}
+        </span>
+      ) : null}
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm text-muted">{label}</p>
+        <p className="text-label text-muted">{label}</p>
         {Icon ? (
           <Icon
             className={cn("size-5 shrink-0", TONE_CLASS[tone])}
@@ -49,11 +64,14 @@ export function KpiCard({
         ) : null}
       </div>
       <p
-        className={cn("mt-2 text-3xl font-bold tabular-nums", TONE_CLASS[tone])}
+        className={cn(
+          "mt-2 font-display text-metric tabular-nums",
+          TONE_CLASS[tone],
+        )}
       >
         {value}
       </p>
-      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-meta text-muted">{hint}</p> : null}
     </Card>
   );
 

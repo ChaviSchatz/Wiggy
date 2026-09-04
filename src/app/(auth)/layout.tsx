@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-/** Archetype I (design-system.md §3): centered card, no app-shell chrome. */
+import { Wordmark } from "@/components/layout/wordmark";
+
+/** Archetype I (design-system.md §3): centered Panel, no app-shell chrome. */
 export default async function AuthLayout({
   children,
 }: {
@@ -11,8 +13,8 @@ export default async function AuthLayout({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg px-4 py-12">
-      <Link href="/" className="text-xl font-bold text-mauve-600">
-        {t("name")}
+      <Link href="/">
+        <Wordmark text={t("name")} size={26} />
       </Link>
       <div className="w-full max-w-sm">{children}</div>
     </div>
