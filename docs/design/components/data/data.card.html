@@ -1,0 +1,51 @@
+<!-- @dsCard group="Components" viewport="700x400" subtitle="Flat dense DataTable, underline FilterBar tabs, Pagination, EmptyState, Skeleton" name="Data — table, filters, empty, skeleton" -->
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;padding:18px;background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:var(--text-body)}
+.g{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.lbl{font-size:var(--text-meta);color:var(--muted);width:100%}</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head><body><div id="root"></div>
+<script type="text/x-demo" id="demo">
+
+const { DataTable, FilterBar, Pagination, EmptyState, Skeleton, StatusChip, Button, Icon } = NS;
+const rows = [
+  {code:"WO-1041",name:"רבקה כהן",status:"active",label:"פעיל",due:"12.09.2026",tasks:"8 / 11"},
+  {code:"WO-1039",name:"מרים לוי",status:"awaiting_approval",label:"ממתין לאישור",due:"09.09.2026",tasks:"11 / 11"},
+  {code:"WO-1028",name:"פאה לתצוגה",status:"late",label:"באיחור",due:"01.09.2026",tasks:"3 / 14"},
+];
+const cols = [
+  {key:"name",header:"לקוחה",render:r=><span style={{fontWeight:700}}>{r.name}</span>},
+  {key:"code",header:"קוד",numeric:true},
+  {key:"status",header:"סטטוס",render:r=><StatusChip status={r.status}>{r.label}</StatusChip>},
+  {key:"due",header:"יעד",numeric:true},
+  {key:"tasks",header:"משימות",numeric:true},
+];
+function Demo() {
+  const [tab,setTab]=React.useState("active"); const [q,setQ]=React.useState("");
+  return (
+    <div style={{display:"grid",gap:16}}>
+      <div>
+        <FilterBar tabs={[{id:"all",label:"הכול",count:128},{id:"active",label:"פעיל",count:24},{id:"late",label:"באיחור",count:3},{id:"delivered",label:"נמסר",count:96}]} activeTab={tab} onTabChange={setTab} search={q} onSearchChange={setQ} searchPlaceholder="חיפוש לקוחה או קוד" />
+        <DataTable columns={cols} rows={rows} onRowClick={()=>{}} rowKey={r=>r.code} />
+        <Pagination page={2} pageCount={7} totalLabel="128 הזמנות" />
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,alignItems:"start"}}>
+        <EmptyState icon="package" title="אין הזמנות פעילות" description="כל ההזמנות נמסרו." action={<Button iconStart={<Icon name="plus" size={16}/>}>הזמנה חדשה</Button>} />
+        <div style={{background:"var(--surface)",border:"1px solid var(--line)",borderRadius:"var(--radius-sm)",padding:16,display:"grid",gap:12}}><Skeleton lines={4} /><Skeleton height={26} width="45%" /></div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+<script>
+(async () => {
+  const opts = { presets: [["react", { runtime: "classic" }]], sourceType: "script" };
+  const bundle = await (await fetch("../../_ds_bundle.jsx")).text();
+  new Function(Babel.transform(bundle, opts).code)();
+  new Function("NS", Babel.transform(document.getElementById("demo").textContent, opts).code)(window.WF);
+})();
+</script></body></html>

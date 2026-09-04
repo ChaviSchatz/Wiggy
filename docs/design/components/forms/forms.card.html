@@ -1,0 +1,40 @@
+<!-- @dsCard group="Components" viewport="700x380" subtitle="39px controls, plum focus ring, FormField label/description/error as one unit" name="Forms" -->
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;padding:18px;background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:var(--text-body)}
+.g{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.lbl{font-size:var(--text-meta);color:var(--muted);width:100%}</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head><body><div id="root"></div>
+<script type="text/x-demo" id="demo">
+
+const { FormField, Input, Textarea, Select, Combobox, DatePicker, Checkbox, RadioGroup, Toggle, FormMessage, Button } = NS;
+function Demo() {
+  const [sel,setSel]=React.useState("sewing"); const [cust,setCust]=React.useState();
+  const [chk,setChk]=React.useState(true); const [rad,setRad]=React.useState("urgent"); const [on,setOn]=React.useState(true);
+  return (
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:16,alignItems:"start"}}>
+      <FormField label="שם הלקוחה" required><Input placeholder="שם מלא" /></FormField>
+      <FormField label="דוא״ל" error="כתובת הדוא״ל אינה תקינה"><Input defaultValue="rivka@" invalid /></FormField>
+      <FormField label="שלב עבודה"><Select value={sel} onChange={setSel} options={[{value:"intake",label:"קליטה"},{value:"sewing",label:"תפירה"},{value:"finish",label:"גימור"}]} /></FormField>
+      <FormField label="לקוחה" description="חיפוש בקטלוג"><Combobox value={cust} onChange={setCust} options={[{value:"1",label:"רבקה כהן",meta:"WO-1041"},{value:"2",label:"מרים לוי",meta:"WO-1039"}]} /></FormField>
+      <FormField label="תאריך יעד"><DatePicker value="2026-09-12" /></FormField>
+      <FormField label="הערות"><Textarea rows={3} placeholder="הערות לצוות" /></FormField>
+      <FormField label="דגלים"><div style={{display:"grid",gap:10}}><Checkbox checked={chk} onChange={setChk} label="ללא טופ" description="יוצר פריט חסר" /><Toggle checked={on} onChange={setOn} label="תבנית פעילה" /></div></FormField>
+      <FormField label="דחיפות"><RadioGroup name="u" value={rad} onChange={setRad} options={[{value:"urgent",label:"דחוף"},{value:"due_soon",label:"מתקרב ליעד"}]} /></FormField>
+      <div style={{display:"grid",gap:8}}><FormMessage>שדה חובה</FormMessage><FormMessage tone="hint">נשמר אוטומטית</FormMessage><div style={{display:"flex",gap:8}}><Button>שמירה</Button><Button variant="outline">ביטול</Button></div></div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+<script>
+(async () => {
+  const opts = { presets: [["react", { runtime: "classic" }]], sourceType: "script" };
+  const bundle = await (await fetch("../../_ds_bundle.jsx")).text();
+  new Function(Babel.transform(bundle, opts).code)();
+  new Function("NS", Babel.transform(document.getElementById("demo").textContent, opts).code)(window.WF);
+})();
+</script></body></html>

@@ -1,0 +1,51 @@
+<!-- @dsCard group="Components" viewport="700x340" subtitle="Dark plum SideNav, TopBar over the main column, PageHeader, BottomNav" name="Chrome — nav, top bar, page header" -->
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;padding:18px;background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:var(--text-body)}
+.g{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.lbl{font-size:var(--text-meta);color:var(--muted);width:100%}</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head><body><div id="root"></div>
+<script type="text/x-demo" id="demo">
+
+const { SideNav, TopBar, PageHeader, BackLink, BottomNav, Button, IconButton, Icon, Wordmark } = NS;
+const items = [
+  {id:"home",label:"בית",icon:"layout-dashboard"},
+  {id:"my-work",label:"העבודה שלי",icon:"list-checks",count:6},
+  {id:"board",label:"לוח ייצור",icon:"columns-3"},
+  {id:"orders",label:"הזמנות",icon:"package"},
+  {id:"customers",label:"לקוחות",icon:"users"},
+];
+function Demo() {
+  const [active, setActive] = React.useState("board");
+  return (
+    <div style={{display:"flex",gap:16,alignItems:"flex-start",flexWrap:"wrap"}}>
+      <div style={{display:"flex",height:290,border:"1px solid var(--line)",borderRadius:"var(--radius-md)",overflow:"hidden",flex:"1 1 520px",minWidth:420}}>
+        <SideNav items={items} activeId={active} onSelect={setActive} user={{name:"פראדי כהן",role:"מנהלת"}} />
+        <div style={{flex:1,display:"flex",flexDirection:"column",background:"var(--bg)"}}>
+          <TopBar actions={<><Button iconStart={<Icon name="plus" size={16}/>}>הזמנה חדשה</Button><IconButton icon={<Icon name="message-square"/>} label="משוב"/><IconButton icon={<Icon name="user"/>} label="פרופיל"/></>} />
+          <div style={{padding:16}}>
+            <PageHeader title="לוח ייצור" subtitle="24 משימות פעילות" backLink={<BackLink label="חזרה ללוח הייצור" />} />
+            <BottomNav items={[{id:"my-work",label:"העבודה שלי",icon:"list-checks"},{id:"board",label:"לוח ייצור",icon:"columns-3"},{id:"profile",label:"פרופיל",icon:"user"}]} activeId="my-work" style={{borderRadius:"var(--radius-sm)",border:"1px solid var(--line)"}} />
+          </div>
+        </div>
+      </div>
+      <div style={{display:"grid",gap:10}}>
+        <Wordmark subtitle="מערכת ניהול הייצור" />
+        <div style={{background:"var(--sidebar)",padding:12,borderRadius:"var(--radius-md)"}}><Wordmark subtitle="on the dark nav" onDark /></div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+<script>
+(async () => {
+  const opts = { presets: [["react", { runtime: "classic" }]], sourceType: "script" };
+  const bundle = await (await fetch("../../_ds_bundle.jsx")).text();
+  new Function(Babel.transform(bundle, opts).code)();
+  new Function("NS", Babel.transform(document.getElementById("demo").textContent, opts).code)(window.WF);
+})();
+</script></body></html>

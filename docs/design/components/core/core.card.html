@@ -1,0 +1,63 @@
+<!-- @dsCard group="Components" viewport="700x300" subtitle="Button variants and sizes, IconButton, StatusChip, Avatar, Card, Panel" name="Core primitives" -->
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;padding:18px;background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:var(--text-body)}
+.g{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.lbl{font-size:var(--text-meta);color:var(--muted);width:100%}</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head><body><div id="root"></div>
+<script type="text/x-demo" id="demo">
+
+const { Button, IconButton, StatusChip, Avatar, Card, Panel, Icon, WorkImage, ImageSlot } = NS;
+function Demo() {
+  return (
+    <div style={{display:"grid",gap:14}}>
+      <div className="g">
+        <Button variant="primary" iconStart={<Icon name="plus" size={16}/>}>הזמנה חדשה</Button>
+        <Button variant="outline">התחלה</Button>
+        <Button variant="soft">סינון</Button>
+        <Button variant="ghost">פתיחה</Button>
+        <Button variant="danger-soft">ביטול הזמנה</Button>
+        <Button variant="danger">מחיקה</Button>
+        <Button variant="link">קישור</Button>
+        <Button disabled>לא זמין</Button>
+      </div>
+      <div className="g">
+        <span className="lbl">sizes 35 · 39 · 41 · 44 · icon · IconButton 36</span>
+        <Button size="sm" variant="outline">sm</Button>
+        <Button size="default" variant="outline">default</Button>
+        <Button size="primary">primary</Button>
+        <Button size="lg" variant="outline">lg / tablet</Button>
+        <Button size="icon" variant="outline"><Icon name="plus" size={16}/></Button>
+        <IconButton icon={<Icon name="message-square"/>} label="משוב" />
+        <IconButton icon={<Icon name="user"/>} label="פרופיל" />
+      </div>
+      <div className="g">
+        <StatusChip status="done">הושלם</StatusChip>
+        <StatusChip status="in_progress">בעבודה</StatusChip>
+        <StatusChip status="awaiting_approval">ממתין לאישור</StatusChip>
+        <StatusChip status="blocked">חסום</StatusChip>
+        <StatusChip status="now">עכשיו</StatusChip>
+        <StatusChip status="cancelled">בוטל</StatusChip>
+        <Avatar name="שירה לוי" size="sm" /><Avatar name="פראדי כהן" size="md" /><Avatar name="מיכל אברהם" size="lg" />
+        <ImageSlot label="work photo" size={44} />
+      </div>
+      <div className="g" style={{alignItems:"stretch"}}>
+        <Card interactive style={{padding:12,width:190}}><div style={{fontSize:"var(--text-identity)",fontWeight:700}}>Card</div><div style={{fontSize:"var(--text-meta)",color:"var(--muted)"}}>radius-sm · no shadow</div></Card>
+        <Panel title="Panel" subtitle="radius-md · hairline tick" style={{width:280}} bodyStyle={{padding:12}}><span style={{fontSize:"var(--text-meta)",color:"var(--muted)"}}>The section container.</span></Panel>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+<script>
+(async () => {
+  const opts = { presets: [["react", { runtime: "classic" }]], sourceType: "script" };
+  const bundle = await (await fetch("../../_ds_bundle.jsx")).text();
+  new Function(Babel.transform(bundle, opts).code)();
+  new Function("NS", Babel.transform(document.getElementById("demo").textContent, opts).code)(window.WF);
+})();
+</script></body></html>

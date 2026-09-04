@@ -1,0 +1,53 @@
+<!-- @dsCard group="Components" viewport="700x430" subtitle="WorkCard variants, KanbanColumn, QueueItem, Stepper, KpiCard, FileUpload, AudioPlayer" name="Domain — cards, columns, queue, stepper, KPIs" -->
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;padding:18px;background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:var(--text-body)}
+.g{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.lbl{font-size:var(--text-meta);color:var(--muted);width:100%}</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head><body><div id="root"></div>
+<script type="text/x-demo" id="demo">
+
+const { WorkCard, KanbanColumn, QueueItem, QueueList, Stepper, KpiCard, FileUpload, AudioPlayer, PrimaryActionBar, Button, AssigneePicker } = NS;
+function Demo() {
+  return (
+    <div style={{display:"grid",gap:16}}>
+      <Stepper steps={["קליטה","הכנה","תפירה","סיבים","גימור","מסירה"]} current={2} />
+      <div style={{display:"flex",gap:12,alignItems:"flex-start",flexWrap:"wrap"}}>
+        <KanbanColumn title="תפירה" subtitle="שלב 3" count={2}>
+          <WorkCard variant="board" customerName="רבקה כהן" orderCode="WO-1041" taskName="תפירת בסיס" status="in_progress" statusLabel="בעבודה" assignee="שירה לוי" meta="יעד 12.09" onDone={()=>{}} onStart={()=>{}} />
+          <WorkCard variant="board" customerName="מרים לוי" orderCode="WO-1039" taskName="תפירת קדמי" status="blocked" statusLabel="חסום" urgency="urgent" urgencyLabel="דחוף" assignee="מיכל אברהם" onOpen={()=>{}} />
+        </KanbanColumn>
+        <div style={{display:"grid",gap:10,flex:"1 1 300px",minWidth:280}}>
+          <QueueItem customerName="רבקה כהן" orderCode="WO-1041" taskName="תפירה" status="now" statusLabel="עכשיו" meta="45 דק׳" onDone={()=>{}} />
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            <KpiCard label="הזמנות פעילות" value="24" caption="3 באיחור" emphasis eyebrow="דורש טיפול" />
+            <KpiCard label="ממתין לאישור" value="6" caption="מתוך 11 משימות" />
+          </div>
+        </div>
+      </div>
+      <div style={{display:"flex",gap:12,flexWrap:"wrap",alignItems:"flex-start"}}>
+        <FileUpload hint="תמונות, קבצים או הקלטה" style={{flex:"1 1 240px"}} />
+        <div style={{display:"grid",gap:10,flex:"1 1 260px"}}>
+          <AudioPlayer durationLabel="0:42" title="הערה קולית — פראדי" />
+          <PrimaryActionBar primary={<Button>סימון כנמסר</Button>} secondary={<Button variant="outline">עריכת קליטה</Button>} destructive={<Button variant="danger-soft">ביטול</Button>} />
+        </div>
+        <div style={{width:200,background:"var(--surface)",border:"1px solid var(--line)",borderRadius:"var(--radius-sm)",padding:8}}>
+          <AssigneePicker staff={[{id:"1",name:"שירה לוי"},{id:"2",name:"מיכל אברהם"}]} value="1" />
+        </div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+<script>
+(async () => {
+  const opts = { presets: [["react", { runtime: "classic" }]], sourceType: "script" };
+  const bundle = await (await fetch("../../_ds_bundle.jsx")).text();
+  new Function(Babel.transform(bundle, opts).code)();
+  new Function("NS", Babel.transform(document.getElementById("demo").textContent, opts).code)(window.WF);
+})();
+</script></body></html>

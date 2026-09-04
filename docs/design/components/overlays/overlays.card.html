@@ -1,0 +1,63 @@
+<!-- @dsCard group="Components" viewport="700x380" subtitle="Dialog, AlertDialog, Drawer peek, Popover, Tooltip, UndoToast — the only shadowed surfaces" name="Overlays" -->
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;padding:18px;background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:var(--text-body)}
+.g{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.lbl{font-size:var(--text-meta);color:var(--muted);width:100%}</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head><body><div id="root"></div>
+<script type="text/x-demo" id="demo">
+
+const { Dialog, AlertDialog, Drawer, Popover, Tooltip, UndoToast, Button, IconButton, Icon, StatusChip, FormField, Input, AssigneePicker } = NS;
+function Demo() {
+  const [pop,setPop]=React.useState(true);
+  return (
+    <div style={{display:"grid",gap:14}}>
+      <div className="g">
+        <Popover open={pop} content={<AssigneePicker staff={[{id:"1",name:"שירה לוי"},{id:"2",name:"מיכל אברהם"}]} value="1" />}>
+          <Button variant="outline" onClick={()=>setPop(!pop)}>Popover · אחראי</Button>
+        </Popover>
+        <Tooltip label="הוספת קובץ"><IconButton icon={<Icon name="paperclip"/>} label="הוספת קובץ" /></Tooltip>
+        <span className="lbl">Tooltip on hover · UndoToast pinned bottom inline-start</span>
+      </div>
+      <div style={{display:"flex",gap:14,flexWrap:"wrap",alignItems:"flex-start"}}>
+        <div style={{position:"relative",width:330,height:230,border:"1px solid var(--line)",borderRadius:"var(--radius-md)",overflow:"hidden",background:"var(--bg)"}}>
+          <div style={{position:"absolute",inset:0,transform:"scale(.86)",transformOrigin:"top center"}}>
+            <Dialog open title="טיפול בפריט חסר" description="הפריט יסומן כהוזמן ותיווסף רשומה להיסטוריה." width={330} footer={<><Button>שמירה</Button><Button variant="outline">ביטול</Button></>}>
+              <FormField label="ספק"><Input placeholder="שם הספק" /></FormField>
+            </Dialog>
+          </div>
+        </div>
+        <div style={{position:"relative",width:330,height:230,border:"1px solid var(--line)",borderRadius:"var(--radius-md)",overflow:"hidden",background:"var(--bg)"}}>
+          <div style={{position:"absolute",inset:0,transform:"scale(.86)",transformOrigin:"top center"}}>
+            <AlertDialog open title="לבטל את ההזמנה?" description="המשימות שטרם הושלמו יבוטלו. לא ניתן לשחזר." confirmLabel="ביטול הזמנה" />
+          </div>
+        </div>
+        <div style={{width:250,background:"var(--surface)",border:"1px solid var(--line)",borderRadius:"var(--radius-md)",boxShadow:"var(--shadow-overlay)",overflow:"hidden"}}>
+          <div style={{padding:"12px 14px",borderBottom:"1px solid var(--line)"}}>
+            <div style={{fontSize:"var(--text-identity)",fontWeight:700}}>רבקה כהן</div>
+            <div style={{fontSize:"var(--text-meta)",color:"var(--muted)",fontVariantNumeric:"tabular-nums"}}>WO-1041 · תפירה</div>
+          </div>
+          <div style={{padding:14,display:"grid",gap:10}}>
+            <StatusChip status="in_progress">בעבודה</StatusChip>
+            <div style={{display:"flex",gap:8}}><Button size="sm">סיום</Button><Button size="sm" variant="outline">דחייה</Button></div>
+            <span className="lbl">Drawer / peek — inline-start, inset 14px</span>
+          </div>
+        </div>
+      </div>
+      <UndoToast open message="המשימה סומנה כהושלמה" style={{position:"static",display:"inline-flex"}} />
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+<script>
+(async () => {
+  const opts = { presets: [["react", { runtime: "classic" }]], sourceType: "script" };
+  const bundle = await (await fetch("../../_ds_bundle.jsx")).text();
+  new Function(Babel.transform(bundle, opts).code)();
+  new Function("NS", Babel.transform(document.getElementById("demo").textContent, opts).code)(window.WF);
+})();
+</script></body></html>
