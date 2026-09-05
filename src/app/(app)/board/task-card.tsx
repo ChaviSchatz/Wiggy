@@ -7,9 +7,11 @@ import { useTranslations } from "next-intl";
 import { StatusChip } from "@/components/domain/status-chip";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { Availability } from "@/lib/availability";
 import type { BoardTask } from "@/lib/board/queries";
+import { TaskPeekContent } from "./task-peek-content";
 
 const STARTABLE = new Set(["pending", "returned_for_rework"]);
 
@@ -28,7 +30,6 @@ export function TaskCard({
   availability,
   canManageBoard,
   canApprove,
-  onOpenPeek,
   onOpenAssignee,
   onStart,
   onComplete,
@@ -40,7 +41,6 @@ export function TaskCard({
   availability: Availability;
   canManageBoard: boolean;
   canApprove: boolean;
-  onOpenPeek: () => void;
   onOpenAssignee: () => void;
   onStart: () => void;
   onComplete: () => void;
@@ -64,6 +64,11 @@ export function TaskCard({
     setIsLate(dueAt !== null && new Date(dueAt).getTime() < Date.now());
   }, [dueAt]);
 
+  // The peek is a Popover anchored to this card (design-system.md "Popover")
+  // rather than a screen-edge drawer -- a quick glance stays next to the
+  // task it's about instead of opening a large separate panel.
+  const [peekOpen, setPeekOpen] = useState(false);
+
   return (
     <div
       className={cn(
@@ -73,49 +78,63 @@ export function TaskCard({
           : "hover:-translate-y-px hover:border-line-strong",
       )}
     >
-      <button
-        type="button"
-        onClick={onOpenPeek}
-        className="block w-full text-start"
-      >
-        <p className="flex items-center justify-between gap-1.5">
-          <span className="flex min-w-0 items-center gap-1.5">
-            <span className="min-w-0 truncate text-identity text-ink">
-              {identity}{" "}
-              <span className="font-normal tabular-nums text-muted">
-                #{task.orderNumber}
+      <Popover open={peekOpen} onOpenChange={setPeekOpen}>
+        <PopoverTrigger asChild>
+          <button type="button" className="block w-full text-start">
+            <p className="flex items-center justify-between gap-1.5">
+              <span className="flex min-w-0 items-center gap-1.5">
+                <span className="min-w-0 truncate text-identity text-ink">
+                  {identity}{" "}
+                  <span className="font-normal tabular-nums text-muted">
+                    #{task.orderNumber}
+                  </span>
+                </span>
+                {task.priority ? (
+                  <span
+                    aria-label={tCommon("priorityLabel")}
+                    title={tCommon("priorityLabel")}
+                  >
+                    <Star
+                      className="size-3.5 shrink-0 text-danger-500"
+                      fill="currentColor"
+                      aria-hidden
+                    />
+                  </span>
+                ) : null}
               </span>
-            </span>
-            {task.priority ? (
-              <span
-                aria-label={tCommon("priorityLabel")}
-                title={tCommon("priorityLabel")}
-              >
-                <Star
-                  className="size-3.5 shrink-0 text-danger-500"
-                  fill="currentColor"
-                  aria-hidden
-                />
-              </span>
-            ) : null}
-          </span>
-          {dueAt ? (
-            <span
-              className={cn(
-                "shrink-0 text-meta tabular-nums",
-                isLate ? "font-medium text-danger-600" : "text-muted",
-              )}
-              title={t("dueLabel")}
-            >
-              {new Date(dueAt).toLocaleDateString("he-IL", {
-                day: "2-digit",
-                month: "2-digit",
-              })}
-            </span>
-          ) : null}
-        </p>
-        <p className="text-body text-ink">{task.title}</p>
-      </button>
+              {dueAt ? (
+                <span
+                  className={cn(
+                    "shrink-0 text-meta tabular-nums",
+                    isLate ? "font-medium text-danger-600" : "text-muted",
+                  )}
+                  title={t("dueLabel")}
+                >
+                  {new Date(dueAt).toLocaleDateString("he-IL", {
+                    day: "2-digit",
+                    month: "2-digit",
+                  })}
+                </span>
+              ) : null}
+            </p>
+            <p className="text-body text-ink">{task.title}</p>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <TaskPeekContent
+            task={task}
+            availability={availability}
+            onStart={() => {
+              setPeekOpen(false);
+              onStart();
+            }}
+            onComplete={() => {
+              setPeekOpen(false);
+              onComplete();
+            }}
+          />
+        </PopoverContent>
+      </Popover>
 
       <div className="mt-3 flex items-center justify-between gap-2">
         <button

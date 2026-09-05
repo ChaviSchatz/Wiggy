@@ -21,7 +21,6 @@ import type { Tables } from "@/lib/supabase/database.types";
 import { AssigneePickerDialog } from "./assignee-picker-dialog";
 import { BoardFilterBar, type BoardFilters } from "./board-filter-bar";
 import { TaskCard } from "./task-card";
-import { TaskPeekSheet } from "./task-peek-sheet";
 
 type WorkStage = Tables<"work_stages">;
 
@@ -55,7 +54,6 @@ export function ProductionBoard({
     urgentOnly: false,
     dueBy: "",
   });
-  const [peekTask, setPeekTask] = useState<BoardTask | null>(null);
   const [assigneeTask, setAssigneeTask] = useState<BoardTask | null>(null);
   const [returnTaskId, setReturnTaskId] = useState<string | null>(null);
   const [undo, setUndo] = useState<{ taskId: string; entry: UndoEntry } | null>(
@@ -257,7 +255,6 @@ export function ProductionBoard({
                     }
                     canManageBoard={canManageBoard}
                     canApprove={canApprove}
-                    onOpenPeek={() => setPeekTask(task)}
                     onOpenAssignee={() => setAssigneeTask(task)}
                     onStart={() => handleStart(task)}
                     onComplete={() => handleComplete(task)}
@@ -271,22 +268,6 @@ export function ProductionBoard({
           })}
         </div>
       )}
-
-      <TaskPeekSheet
-        task={peekTask}
-        availability={
-          peekTask ? availabilityByTaskId.get(peekTask.id) : undefined
-        }
-        onOpenChange={(open) => !open && setPeekTask(null)}
-        onStart={(task) => {
-          handleStart(task);
-          setPeekTask(null);
-        }}
-        onComplete={(task) => {
-          handleComplete(task);
-          setPeekTask(null);
-        }}
-      />
 
       <AssigneePickerDialog
         task={assigneeTask}
