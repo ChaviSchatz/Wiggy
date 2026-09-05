@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,9 +19,12 @@ const CONTROL_CLASS =
   "h-[39px] w-full rounded-xs border border-line-strong bg-surface px-3 text-body text-ink focus-visible:border-mauve-600 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-mauve-100";
 
 /**
- * Business settings (screen inventory #56). Each section owns its pending and
- * feedback state, so saving one never blanks the other, and each renders only
- * when the role may edit it.
+ * Business settings (screen inventory #56). One card, not three -- these are
+ * facets of the same tenant-identity/operations settings, so they read as
+ * one panel with a divider between fields rather than three separate boxes
+ * of uneven height. Each section still owns its own pending and feedback
+ * state, so saving one never blanks another, and each renders only when the
+ * role may edit it.
  */
 export function BusinessSettingsForm({
   businessName,
@@ -40,14 +43,16 @@ export function BusinessSettingsForm({
   canEditCadence: boolean;
   timezones: string[];
 }) {
+  if (!canEditName && !canEditTimezone && !canEditCadence) return null;
+
   return (
-    <div className="space-y-4">
+    <Card className="divide-y divide-line">
       {canEditName ? <NameSection name={businessName} /> : null}
       {canEditTimezone ? (
         <TimezoneSection timezone={timezone} timezones={timezones} />
       ) : null}
       {canEditCadence ? <CadenceSection cadenceDays={cadenceDays} /> : null}
-    </div>
+    </Card>
   );
 }
 
@@ -68,32 +73,30 @@ function NameSection({ name }: { name: string }) {
   }
 
   return (
-    <Card>
-      <CardContent className="space-y-3 p-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="business-name">{t("label")}</Label>
-          <Input
-            id="business-name"
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-          />
-          <p className="text-meta text-muted">{t("help")}</p>
-        </div>
+    <div className="space-y-3 p-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="business-name">{t("label")}</Label>
+        <Input
+          id="business-name"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+        />
+        <p className="text-meta text-muted">{t("help")}</p>
+      </div>
 
-        {status === "saved" ? (
-          <FormMessage variant="success">{t("saved")}</FormMessage>
-        ) : status !== "idle" ? (
-          <FormMessage variant="error">{t(`errors.${status}`)}</FormMessage>
-        ) : null}
+      {status === "saved" ? (
+        <FormMessage variant="success">{t("saved")}</FormMessage>
+      ) : status !== "idle" ? (
+        <FormMessage variant="error">{t(`errors.${status}`)}</FormMessage>
+      ) : null}
 
-        <Button
-          onClick={save}
-          disabled={pending || !value.trim() || value === name}
-        >
-          {pending ? t("saving") : t("save")}
-        </Button>
-      </CardContent>
-    </Card>
+      <Button
+        onClick={save}
+        disabled={pending || !value.trim() || value === name}
+      >
+        {pending ? t("saving") : t("save")}
+      </Button>
+    </div>
   );
 }
 
@@ -120,38 +123,34 @@ function TimezoneSection({
   }
 
   return (
-    <Card>
-      {/* No CardHeader: the field's own <Label> is the heading here. A card
-          title repeating it rendered the same words twice. */}
-      <CardContent className="space-y-3 p-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="business-timezone">{t("label")}</Label>
-          <select
-            id="business-timezone"
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            className={CONTROL_CLASS}
-          >
-            {timezones.map((zone) => (
-              <option key={zone} value={zone}>
-                {zone}
-              </option>
-            ))}
-          </select>
-          <p className="text-meta text-muted">{t("help")}</p>
-        </div>
+    <div className="space-y-3 p-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="business-timezone">{t("label")}</Label>
+        <select
+          id="business-timezone"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          className={CONTROL_CLASS}
+        >
+          {timezones.map((zone) => (
+            <option key={zone} value={zone}>
+              {zone}
+            </option>
+          ))}
+        </select>
+        <p className="text-meta text-muted">{t("help")}</p>
+      </div>
 
-        {status === "saved" ? (
-          <FormMessage variant="success">{t("saved")}</FormMessage>
-        ) : status !== "idle" ? (
-          <FormMessage variant="error">{t(`errors.${status}`)}</FormMessage>
-        ) : null}
+      {status === "saved" ? (
+        <FormMessage variant="success">{t("saved")}</FormMessage>
+      ) : status !== "idle" ? (
+        <FormMessage variant="error">{t(`errors.${status}`)}</FormMessage>
+      ) : null}
 
-        <Button onClick={save} disabled={pending || value === timezone}>
-          {pending ? t("saving") : t("save")}
-        </Button>
-      </CardContent>
-    </Card>
+      <Button onClick={save} disabled={pending || value === timezone}>
+        {pending ? t("saving") : t("save")}
+      </Button>
+    </div>
   );
 }
 
@@ -173,33 +172,31 @@ function CadenceSection({ cadenceDays }: { cadenceDays: number }) {
   }
 
   return (
-    <Card>
-      <CardContent className="space-y-3 p-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="sprint-cadence">{t("label")}</Label>
-          <Input
-            id="sprint-cadence"
-            type="number"
-            min={1}
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-          />
-          <p className="text-meta text-muted">{t("help")}</p>
-        </div>
+    <div className="space-y-3 p-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="sprint-cadence">{t("label")}</Label>
+        <Input
+          id="sprint-cadence"
+          type="number"
+          min={1}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+        />
+        <p className="text-meta text-muted">{t("help")}</p>
+      </div>
 
-        {status === "saved" ? (
-          <FormMessage variant="success">{t("saved")}</FormMessage>
-        ) : status !== "idle" ? (
-          <FormMessage variant="error">{t(`errors.${status}`)}</FormMessage>
-        ) : null}
+      {status === "saved" ? (
+        <FormMessage variant="success">{t("saved")}</FormMessage>
+      ) : status !== "idle" ? (
+        <FormMessage variant="error">{t(`errors.${status}`)}</FormMessage>
+      ) : null}
 
-        <Button
-          onClick={save}
-          disabled={pending || value === String(cadenceDays)}
-        >
-          {pending ? t("saving") : t("save")}
-        </Button>
-      </CardContent>
-    </Card>
+      <Button
+        onClick={save}
+        disabled={pending || value === String(cadenceDays)}
+      >
+        {pending ? t("saving") : t("save")}
+      </Button>
+    </div>
   );
 }
