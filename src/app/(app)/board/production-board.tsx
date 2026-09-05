@@ -82,13 +82,24 @@ export function ProductionBoard({
   );
 
   const taskTypeOptions = useMemo(() => {
-    const seen = new Map<string, string>();
+    const seen = new Map<string, { name: string; stageIndex: number }>();
     for (const task of tasks) {
-      if (task.task_type_id && task.taskTypeName)
-        seen.set(task.task_type_id, task.taskTypeName);
+      if (task.task_type_id && task.taskTypeName) {
+        const stageIndex = stages.findIndex(
+          (stage) => stage.id === task.work_stage_id,
+        );
+        seen.set(task.task_type_id, {
+          name: task.taskTypeName,
+          stageIndex: Math.max(stageIndex, 0),
+        });
+      }
     }
-    return Array.from(seen.entries()).map(([id, name]) => ({ id, name }));
-  }, [tasks]);
+    return Array.from(seen.entries()).map(([id, { name, stageIndex }]) => ({
+      id,
+      name,
+      stageIndex,
+    }));
+  }, [tasks, stages]);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {

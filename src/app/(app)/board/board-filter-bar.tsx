@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { StaffFilterSelect } from "@/components/domain/staff-filter-select";
+import { TaskTypeFilterSelect } from "@/components/domain/task-type-filter-select";
 import type { AssignableStaffMember } from "@/lib/board/queries";
 import { cn } from "@/lib/utils";
 
@@ -34,14 +35,11 @@ export function BoardFilterBar({
   filters: BoardFilters;
   onChange: (filters: BoardFilters) => void;
   staff: AssignableStaffMember[];
-  taskTypeOptions: { id: string; name: string }[];
+  taskTypeOptions: { id: string; name: string; stageIndex: number }[];
 }) {
   const t = useTranslations("pages.board.filters");
   const tLegend = useTranslations("pages.board.legend");
   const tTaskStatus = useTranslations("pages.orders.taskStatus");
-
-  const selectClass =
-    "h-[39px] rounded-control border border-line-strong bg-surface px-3 text-body text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
   const tabClass = (active: boolean) =>
     cn(
@@ -91,21 +89,14 @@ export function BoardFilterBar({
           unassignedLabel={t("unassigned")}
         />
 
-        <select
-          aria-label={t("typeLabel")}
+        <TaskTypeFilterSelect
+          ariaLabel={t("typeLabel")}
           value={filters.taskTypeId}
-          onChange={(event) =>
-            onChange({ ...filters, taskTypeId: event.target.value })
-          }
-          className={selectClass}
-        >
-          <option value="">{t("typeAll")}</option>
-          {taskTypeOptions.map((taskType) => (
-            <option key={taskType.id} value={taskType.id}>
-              {taskType.name}
-            </option>
-          ))}
-        </select>
+          onChange={(taskTypeId) => onChange({ ...filters, taskTypeId })}
+          taskTypes={taskTypeOptions}
+          allLabel={t("typeAll")}
+          className="w-auto min-w-36"
+        />
 
         {/*
           Three urgency states, not four (ADR 0012). "Normal" has no mark on the
