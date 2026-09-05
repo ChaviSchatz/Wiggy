@@ -122,10 +122,31 @@ export async function fetchResolvedIntakeItems(
 export type WorkOrder = Tables<"work_orders">;
 export type WorkOrderListItem = WorkOrder & { customerName: string | null };
 
+export const WORK_ORDER_SORTS = [
+  "recent",
+  "urgency",
+  "due",
+  "status",
+] as const;
+export type WorkOrderSort = (typeof WORK_ORDER_SORTS)[number];
+
+/** Same 7-day horizon the dashboard's "due soon" KPI counts against. */
+const DUE_SOON_DAYS = 7;
+function dueSoonCutoff(): string {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() + DUE_SOON_DAYS);
+  return cutoff.toISOString();
+}
+
 export type ListWorkOrdersParams = {
   businessId: string;
   search?: string;
   status?: string;
+  /** `"urgent"` or `"normal"` -- matches the dashboard's Urgent KPI. */
+  priority?: string;
+  /** Due within the same 7-day horizon as the dashboard's "due soon" KPI. */
+  dueSoon?: boolean;
+  sort?: WorkOrderSort;
   /** 1-indexed. */
   page?: number;
 };
@@ -137,10 +158,18 @@ export type ListWorkOrdersResult = {
   pageSize: number;
 };
 
-/** Screen inventory #15: work orders list (search + filter by status). */
+/** Screen inventory #15: work orders list (search + filter by status/urgency/due, sort). */
 export async function listWorkOrders(
   supabase: SupabaseClient<Database>,
-  { businessId, search, status, page = 1 }: ListWorkOrdersParams,
+  {
+    businessId,
+    search,
+    status,
+    priority,
+    dueSoon,
+    sort = "recent",
+    page = 1,
+  }: ListWorkOrdersParams,
 ): Promise<ListWorkOrdersResult> {
   const pageSize = WORK_ORDERS_PAGE_SIZE;
   const from = (page - 1) * pageSize;
@@ -150,11 +179,38 @@ export async function listWorkOrders(
     .from("work_orders")
     .select("*", { count: "exact" })
     .eq("business_id", businessId)
-    .order("created_at", { ascending: false })
     .range(from, to);
+
+  switch (sort) {
+    case "urgency":
+      // "urgent" sorts before "normal" descending -- alphabetical, but pinned
+      // to these two values rather than relied on as a coincidence.
+      query = query
+        .order("priority", { ascending: false })
+        .order("created_at", { ascending: false });
+      break;
+    case "due":
+      query = query
+        .order("due_at", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: false });
+      break;
+    case "status":
+      query = query
+        .order("status", { ascending: true })
+        .order("created_at", { ascending: false });
+      break;
+    default:
+      query = query.order("created_at", { ascending: false });
+  }
 
   if (status) {
     query = query.eq("status", status);
+  }
+  if (priority) {
+    query = query.eq("priority", priority);
+  }
+  if (dueSoon) {
+    query = query.not("due_at", "is", null).lte("due_at", dueSoonCutoff());
   }
 
   const trimmed = search?.trim();

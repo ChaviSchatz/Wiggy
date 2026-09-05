@@ -10,12 +10,18 @@ export function OrdersPagination({
   total,
   search,
   status,
+  priority,
+  dueSoon,
+  sort,
 }: {
   page: number;
   pageSize: number;
   total: number;
   search: string;
   status: string;
+  priority?: string;
+  dueSoon?: boolean;
+  sort?: string;
 }) {
   const t = useTranslations("pages.orders");
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -25,6 +31,9 @@ export function OrdersPagination({
     const params = new URLSearchParams();
     if (search) params.set("q", search);
     if (status) params.set("status", status);
+    if (priority) params.set("priority", priority);
+    if (dueSoon) params.set("dueSoon", "true");
+    if (sort && sort !== "recent") params.set("sort", sort);
     if (targetPage > 1) params.set("page", String(targetPage));
     const query = params.toString();
     return query ? `/orders?${query}` : "/orders";

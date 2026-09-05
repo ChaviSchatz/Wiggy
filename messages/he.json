@@ -245,6 +245,15 @@
       "searchPlaceholder": "חיפוש לפי מספר הזמנה, לקוח או הערות",
       "statusFilterLabel": "סינון לפי סטטוס",
       "statusFilterAll": "כל הסטטוסים",
+      "urgentOnly": "דחופות בלבד",
+      "dueSoonOnly": "לביצוע השבוע",
+      "sortLabel": "מיון",
+      "sort": {
+        "recent": "החדשות ביותר",
+        "urgency": "דחיפות",
+        "due": "תאריך יעד",
+        "status": "סטטוס"
+      },
       "emptyTitle": "אין עדיין הזמנות עבודה",
       "emptyDescription": "צרו את ההזמנה הראשונה כדי להתחיל.",
       "emptySearchTitle": "לא נמצאו תוצאות",
