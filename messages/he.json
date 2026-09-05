@@ -140,6 +140,7 @@
         "next": "הבא",
         "queue": "בתור",
         "blocked": "עתידי (חסום)",
+        "awaitingApproval": "ממתין לאישור",
         "completed": "הושלם"
       },
       "focus": {

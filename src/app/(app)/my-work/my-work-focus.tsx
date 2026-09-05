@@ -46,6 +46,7 @@ export function MyWorkFocus({
   next,
   queue,
   blocked,
+  awaitingApproval,
   completed,
   availabilityByTaskId,
   getBlockingInfo,
@@ -56,6 +57,7 @@ export function MyWorkFocus({
   next: BoardTask | null;
   queue: BoardTask[];
   blocked: BlockedEntry[];
+  awaitingApproval: BoardTask[];
   completed: CompletedQueueTask[];
   availabilityByTaskId: Map<string, Availability>;
   getBlockingInfo: (task: BoardTask) => BlockingTaskInfo | null;
@@ -103,6 +105,38 @@ export function MyWorkFocus({
           <p className="text-body text-muted">{t("focus.nowEmpty")}</p>
         </div>
       )}
+
+      {awaitingApproval.length > 0 ? (
+        <div className="rounded-card bg-peach-100/20 p-4">
+          <h2 className="mb-3 flex items-center gap-1.5 text-label text-peach-600">
+            <Clock className="size-4" aria-hidden />
+            {t("sections.awaitingApproval")}
+          </h2>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {awaitingApproval.map((task) => (
+              <PeekTrigger
+                key={task.id}
+                task={task}
+                availability={availabilityByTaskId.get(task.id) ?? "available"}
+                onStart={() => onStart(task)}
+                onComplete={() => onComplete(task)}
+              >
+                <span className="flex items-center gap-2 rounded-control bg-surface/60 px-3 py-2 hover:bg-surface">
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-meta text-ink">
+                      {task.title}
+                    </span>
+                    <span className="block truncate text-meta text-muted">
+                      {task.customerName ?? task.templateName ?? "—"} #
+                      {task.orderNumber}
+                    </span>
+                  </span>
+                </span>
+              </PeekTrigger>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {completed.length > 0 ? (
         <div className="rounded-card bg-sage-100/25 p-4">

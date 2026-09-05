@@ -249,11 +249,21 @@ export function MyWorkQueue({
         Boolean(entry.task),
     );
 
+  // `deriveQueueSections` deliberately drops these (ADR 0009: the approver's
+  // own queue shouldn't be cluttered with review work) -- but that's about
+  // the approver's queue, not about hiding a worker's own submitted task
+  // from themselves. Without this, tapping "Done" on an approval-required
+  // task just makes it vanish with no confirmation it's in review.
+  const awaitingApproval = myTasks.filter(
+    (task) => task.status === "awaiting_approval",
+  );
+
   const isEmpty =
     current.length === 0 &&
     !next &&
     queue.length === 0 &&
     blocked.length === 0 &&
+    awaitingApproval.length === 0 &&
     completed.length === 0;
 
   return (
@@ -277,6 +287,7 @@ export function MyWorkQueue({
               next={next}
               queue={queue}
               blocked={blocked}
+              awaitingApproval={awaitingApproval}
               completed={completed}
               availabilityByTaskId={availabilityByTaskId}
               getBlockingInfo={getBlockingInfo}
@@ -421,6 +432,38 @@ export function MyWorkQueue({
                       </div>
                     );
                   })}
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {awaitingApproval.length > 0 ? (
+              <Card className="border-peach-300/50 bg-peach-100/10">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs uppercase tracking-wide text-muted">
+                    {t("sections.awaitingApproval")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 pt-0">
+                  {awaitingApproval.map((task) => (
+                    <div
+                      key={task.id}
+                      className="flex items-center justify-between gap-3 rounded-control border border-line p-2"
+                    >
+                      <TaskRowTrigger
+                        task={task}
+                        availability={
+                          availabilityByTaskId.get(task.id) ?? "available"
+                        }
+                        onStart={() => handleStart(task)}
+                        onComplete={() => handleComplete(task)}
+                      >
+                        <TaskLine task={task} />
+                      </TaskRowTrigger>
+                      <Badge variant="warning">
+                        {t("sections.awaitingApproval")}
+                      </Badge>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             ) : null}
