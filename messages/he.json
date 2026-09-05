@@ -146,7 +146,6 @@
       "focus": {
         "nowEmpty": "אין משימה פעילה כרגע. התחילו את המשימה הבאה שממתינה לכם.",
         "nextUp": "הבא בתור",
-        "position": "{position} מתוך {total}",
         "blockedByName": "חסום — ממתין/ה ל{name}",
         "blockedGeneric": "חסום — ממתין לשלב קודם"
       },

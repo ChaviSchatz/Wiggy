@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Lock,
   Play,
+  Star,
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -17,7 +18,6 @@ import {
   TaskPeekContent,
   type BlockingTaskInfo,
 } from "@/components/domain/task-peek-content";
-import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -27,17 +27,19 @@ import type { CompletedQueueTask } from "@/lib/sprints/queries";
 import { cn } from "@/lib/utils";
 
 type BlockedEntry = { task: BoardTask; reason: "sequence" | "deferred" };
+type CardKind = "current" | "next" | "queue" | "blocked";
 
-const STATUS_BADGE_CLASS = "bg-info-100 text-info-600";
-const NEXT_BADGE_CLASS = "bg-peach-100 text-peach-600";
+type GridEntry =
+  | { kind: "current" | "next" | "queue"; task: BoardTask }
+  | { kind: "blocked"; task: BoardTask; reason: "sequence" | "deferred" };
 
 /**
- * Tablet/desktop "focus" layout for My Work: a dedicated work-management
- * view, not a smaller production board. Visual, not row-and-text -- icons,
- * badges, and an avatar carry meaning that used to be plain text, and the
- * three tiers (now / up next+queue / completed) get progressively quieter
- * treatment top to bottom instead of matching boxes. Mobile keeps its own
- * stacked-card layout untouched.
+ * Tablet/desktop "focus" layout for My Work. Every active task -- current,
+ * next, queued, or blocked -- renders as the same size card in one grid;
+ * only a badge and an accent border say which is which (design feedback:
+ * varying card size by state "looks like a mess"). Completed is the one
+ * deliberate exception, smaller and quieter, since it's the one state
+ * that's actually behind you. Mobile keeps its own stacked-card layout.
  */
 export function MyWorkFocus({
   current,
@@ -61,80 +63,46 @@ export function MyWorkFocus({
   onComplete: (task: BoardTask) => void;
 }) {
   const t = useTranslations("pages.myWork");
-  const totalActive = current.length + (next ? 1 : 0) + queue.length;
-  const restOfQueue = queue.length > 0 || blocked.length > 0;
+
+  const entries: GridEntry[] = [
+    ...current.map((task) => ({ kind: "current" as const, task })),
+    ...(next ? [{ kind: "next" as const, task: next }] : []),
+    ...queue.map((task) => ({ kind: "queue" as const, task })),
+    ...blocked.map(({ task, reason }) => ({
+      kind: "blocked" as const,
+      task,
+      reason,
+    })),
+  ];
 
   return (
     <div className="space-y-8">
-      <div
-        className={cn(
-          "grid gap-4",
-          next ? "items-stretch md:grid-cols-3" : "",
-        )}
-      >
-        <div className={next ? "md:col-span-2" : ""}>
-          {current.length > 0 ? (
-            <div className="space-y-3">
-              {current.map((task, index) => (
-                <NowCard
-                  key={task.id}
-                  task={task}
-                  position={index + 1}
-                  total={totalActive}
-                  availability={
-                    availabilityByTaskId.get(task.id) ?? "available"
-                  }
-                  onStart={() => onStart(task)}
-                  onComplete={() => onComplete(task)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="flex h-full min-h-32 items-center justify-center rounded-card border border-dashed border-line px-6 py-8 text-center">
-              <p className="text-body text-muted">{t("focus.nowEmpty")}</p>
-            </div>
-          )}
+      {entries.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+          {entries.map((entry) => (
+            <TaskGridCard
+              key={entry.task.id}
+              task={entry.task}
+              kind={entry.kind}
+              availability={
+                availabilityByTaskId.get(entry.task.id) ?? "available"
+              }
+              blockingInfo={
+                entry.kind === "blocked" && entry.reason === "sequence"
+                  ? getBlockingInfo(entry.task)
+                  : null
+              }
+              blockedReason={entry.kind === "blocked" ? entry.reason : undefined}
+              onStart={() => onStart(entry.task)}
+              onComplete={() => onComplete(entry.task)}
+            />
+          ))}
         </div>
-
-        {next ? (
-          <NextCard
-            task={next}
-            availability={availabilityByTaskId.get(next.id) ?? "available"}
-            onStart={() => onStart(next)}
-            onComplete={() => onComplete(next)}
-          />
-        ) : null}
-      </div>
-
-      {restOfQueue ? (
-        <div>
-          <h2 className="mb-3 text-label text-muted">{t("sections.queue")}</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {queue.map((task) => (
-              <QueueCard
-                key={task.id}
-                task={task}
-                availability={availabilityByTaskId.get(task.id) ?? "available"}
-                onStart={() => onStart(task)}
-                onComplete={() => onComplete(task)}
-              />
-            ))}
-            {blocked.map(({ task, reason }) => (
-              <BlockedCard
-                key={task.id}
-                task={task}
-                reason={reason}
-                blockingInfo={
-                  reason === "sequence" ? getBlockingInfo(task) : null
-                }
-                availability={availabilityByTaskId.get(task.id) ?? "available"}
-                onStart={() => onStart(task)}
-                onComplete={() => onComplete(task)}
-              />
-            ))}
-          </div>
+      ) : (
+        <div className="rounded-card border border-dashed border-line px-6 py-8 text-center">
+          <p className="text-body text-muted">{t("focus.nowEmpty")}</p>
         </div>
-      ) : null}
+      )}
 
       {completed.length > 0 ? (
         <div className="rounded-card bg-sage-100/25 p-4">
@@ -142,7 +110,7 @@ export function MyWorkFocus({
             <CheckCircle2 className="size-4" aria-hidden />
             {t("sections.completed")}
           </h2>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {completed.map((task) => (
               <Link
                 key={task.id}
@@ -218,14 +186,12 @@ function PeekTrigger({
   );
 }
 
-/** `due_at`/order due date, the only "when" data a task actually carries
- * (there's no persisted per-task duration estimate). */
 function DueLine({ task }: { task: BoardTask }) {
   const t = useTranslations("pages.board");
   const dueAt = task.due_at ?? task.orderDueAt;
   if (!dueAt) return null;
   return (
-    <span className="flex items-center gap-1.5 text-meta text-muted">
+    <span className="mt-1 flex items-center gap-1.5 text-meta text-muted">
       <CalendarClock className="size-3.5 shrink-0" aria-hidden />
       {t("dueLabel")}{" "}
       {new Date(dueAt).toLocaleDateString("he-IL", {
@@ -236,221 +202,125 @@ function DueLine({ task }: { task: BoardTask }) {
   );
 }
 
-function NowCard({
+const KIND_BORDER: Record<CardKind, string> = {
+  current: "border-mauve-600/50",
+  next: "border-peach-400/60",
+  queue: "border-line",
+  blocked: "border-line border-dashed",
+};
+
+/**
+ * The one card shape for every active task, whatever state it's in --
+ * `kind` only changes the top badge, the accent border colour, and the
+ * bottom action, never the card's size.
+ */
+function TaskGridCard({
   task,
-  position,
-  total,
+  kind,
   availability,
-  onStart,
-  onComplete,
-}: {
-  task: BoardTask;
-  position: number;
-  total: number;
-  availability: Availability;
-  onStart: () => void;
-  onComplete: () => void;
-}) {
-  const t = useTranslations("pages.myWork");
-  const identity = task.customerName ?? task.templateName ?? "";
-
-  return (
-    <div className="rounded-card border border-mauve-600/25 bg-surface p-5 shadow-sm">
-      <div className="flex items-center justify-between gap-2">
-        <span
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-meta font-medium",
-            STATUS_BADGE_CLASS,
-          )}
-        >
-          <Play className="size-3.5 shrink-0" fill="currentColor" aria-hidden />
-          {t("sections.current")}
-        </span>
-        {total > 1 ? (
-          <Badge variant="neutral">
-            {t("focus.position", { position, total })}
-          </Badge>
-        ) : null}
-      </div>
-
-      <PeekTrigger
-        task={task}
-        availability={availability}
-        onStart={onStart}
-        onComplete={onComplete}
-      >
-        <p className="mt-3 text-page text-ink">{task.title}</p>
-        <p className="mt-1.5 flex items-center gap-1.5 text-body text-muted">
-          <Building2 className="size-4 shrink-0" aria-hidden />
-          {identity} <span className="tabular-nums">#{task.orderNumber}</span>
-        </p>
-        <div className="mt-1.5">
-          <DueLine task={task} />
-        </div>
-      </PeekTrigger>
-
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-4">
-        <span className="flex items-center gap-2 text-meta text-muted">
-          <Avatar name={task.assignedStaffMemberName} size="sm" />
-          {task.assignedStaffMemberName}
-        </span>
-        <Button size="lg" onClick={onComplete}>
-          <CheckCircle2 className="me-1.5 size-5" aria-hidden />
-          {t("done")}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function NextCard({
-  task,
-  availability,
-  onStart,
-  onComplete,
-}: {
-  task: BoardTask;
-  availability: Availability;
-  onStart: () => void;
-  onComplete: () => void;
-}) {
-  const t = useTranslations("pages.myWork");
-  const identity = task.customerName ?? task.templateName ?? "";
-
-  return (
-    <div className="flex flex-col rounded-card border border-line bg-peach-100/20 p-4">
-      <span
-        className={cn(
-          "inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-meta font-medium",
-          NEXT_BADGE_CLASS,
-        )}
-      >
-        <Clock className="size-3.5 shrink-0" aria-hidden />
-        {t("focus.nextUp")}
-      </span>
-
-      <PeekTrigger
-        task={task}
-        availability={availability}
-        onStart={onStart}
-        onComplete={onComplete}
-      >
-        <p className="mt-2.5 truncate text-identity text-ink">{task.title}</p>
-        <p className="mt-1 flex items-center gap-1.5 truncate text-meta text-muted">
-          <Building2 className="size-3.5 shrink-0" aria-hidden />
-          {identity} #{task.orderNumber}
-        </p>
-        <div className="mt-1">
-          <DueLine task={task} />
-        </div>
-      </PeekTrigger>
-
-      <Button
-        size="sm"
-        variant="outline"
-        className="mt-3 w-full"
-        onClick={onStart}
-      >
-        <Play className="me-1 size-3.5" aria-hidden />
-        {t("start")}
-      </Button>
-    </div>
-  );
-}
-
-function QueueCard({
-  task,
-  availability,
-  onStart,
-  onComplete,
-}: {
-  task: BoardTask;
-  availability: Availability;
-  onStart: () => void;
-  onComplete: () => void;
-}) {
-  const t = useTranslations("pages.myWork");
-  const identity = task.customerName ?? task.templateName ?? "";
-
-  return (
-    <div className="flex flex-col rounded-card border border-line bg-surface p-3 transition-colors hover:border-line-strong">
-      <PeekTrigger
-        task={task}
-        availability={availability}
-        onStart={onStart}
-        onComplete={onComplete}
-      >
-        <span className="flex items-center gap-1.5">
-          <span className="size-2 shrink-0 rounded-full bg-mauve-600" aria-hidden />
-          <span className="truncate text-body font-medium text-ink">
-            {task.title}
-          </span>
-        </span>
-        <span className="mt-1 flex items-center gap-1.5 truncate text-meta text-muted">
-          <Building2 className="size-3.5 shrink-0" aria-hidden />
-          {identity} #{task.orderNumber}
-        </span>
-      </PeekTrigger>
-      <Button
-        size="sm"
-        variant="outline"
-        className="mt-2.5 w-full"
-        onClick={onStart}
-      >
-        {t("start")}
-      </Button>
-    </div>
-  );
-}
-
-function BlockedCard({
-  task,
-  reason,
   blockingInfo,
-  availability,
+  blockedReason,
   onStart,
   onComplete,
 }: {
   task: BoardTask;
-  reason: "sequence" | "deferred";
-  blockingInfo: BlockingTaskInfo | null;
+  kind: CardKind;
   availability: Availability;
+  blockingInfo?: BlockingTaskInfo | null;
+  blockedReason?: "sequence" | "deferred";
   onStart: () => void;
   onComplete: () => void;
 }) {
   const t = useTranslations("pages.myWork");
   const identity = task.customerName ?? task.templateName ?? "";
-  const label =
-    reason === "deferred"
+
+  const blockedLabel =
+    blockedReason === "deferred"
       ? t("deferredReason")
       : blockingInfo?.staffName
         ? t("focus.blockedByName", { name: blockingInfo.staffName })
         : t("focus.blockedGeneric");
 
   return (
-    <div className="flex flex-col rounded-card border border-dashed border-line bg-surface p-3 opacity-80">
+    <div
+      className={cn(
+        "flex h-full flex-col rounded-card border bg-surface p-3.5",
+        KIND_BORDER[kind],
+        kind === "blocked" && "opacity-80",
+      )}
+    >
+      <div className="mb-2 flex items-center justify-between gap-2">
+        {kind === "current" ? (
+          <Badge className="gap-1 bg-mauve-100 text-mauve-600">
+            <Play className="size-3" fill="currentColor" aria-hidden />
+            {t("sections.current")}
+          </Badge>
+        ) : kind === "next" ? (
+          <Badge className="gap-1 bg-peach-100 text-peach-600">
+            <Clock className="size-3" aria-hidden />
+            {t("focus.nextUp")}
+          </Badge>
+        ) : (
+          <span />
+        )}
+        {task.priority ? (
+          <StarIcon />
+        ) : null}
+      </div>
+
       <PeekTrigger
         task={task}
         availability={availability}
-        blockedBy={reason === "sequence" ? blockingInfo : null}
+        blockedBy={kind === "blocked" ? blockingInfo : null}
         onStart={onStart}
         onComplete={onComplete}
       >
-        <span className="flex items-center gap-1.5">
-          <span className="size-2 shrink-0 rounded-full bg-idle-600" aria-hidden />
-          <span className="truncate text-body font-medium text-ink">
-            {task.title}
-          </span>
-        </span>
-        <span className="mt-1 flex items-center gap-1.5 truncate text-meta text-muted">
+        <p className="truncate text-body font-semibold text-ink">
+          {task.title}
+        </p>
+        <p className="mt-1 flex items-center gap-1.5 truncate text-meta text-muted">
           <Building2 className="size-3.5 shrink-0" aria-hidden />
-          {identity} #{task.orderNumber}
-        </span>
+          {identity} <span className="tabular-nums">#{task.orderNumber}</span>
+        </p>
+        <DueLine task={task} />
       </PeekTrigger>
-      <Badge variant="neutral" className="mt-2.5 w-fit gap-1">
-        <Lock className="size-3" aria-hidden />
-        {label}
-      </Badge>
+
+      <div className="mt-3 border-t border-line pt-3">
+        {kind === "blocked" ? (
+          <Badge variant="neutral" className="w-full justify-center gap-1">
+            <Lock className="size-3" aria-hidden />
+            <span className="truncate">{blockedLabel}</span>
+          </Badge>
+        ) : kind === "current" ? (
+          <Button size="sm" className="w-full" onClick={onComplete}>
+            <CheckCircle2 className="me-1 size-4" aria-hidden />
+            {t("done")}
+          </Button>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full"
+            onClick={onStart}
+          >
+            <Play className="me-1 size-3.5" aria-hidden />
+            {t("start")}
+          </Button>
+        )}
+      </div>
     </div>
+  );
+}
+
+function StarIcon() {
+  const tCommon = useTranslations("common");
+  return (
+    <span aria-label={tCommon("priorityLabel")} title={tCommon("priorityLabel")}>
+      <Star
+        className="size-4 shrink-0 text-peach-500"
+        fill="currentColor"
+        aria-hidden
+      />
+    </span>
   );
 }
