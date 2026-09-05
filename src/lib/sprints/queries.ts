@@ -23,6 +23,26 @@ export async function fetchActiveSprint(
   return data;
 }
 
+/**
+ * Every non-closed sprint, newest first -- options for pickers that let a
+ * user choose which sprint a work order's tasks should be planned into
+ * (e.g. at order creation) rather than only inferring it from whichever
+ * sprint happens to be active when someone later assigns a task.
+ */
+export async function fetchOpenSprints(
+  supabase: SupabaseClient<Database>,
+  businessId: string,
+): Promise<Sprint[]> {
+  const { data, error } = await supabase
+    .from("sprints")
+    .select("*")
+    .eq("business_id", businessId)
+    .neq("status", "closed")
+    .order("starts_on", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function fetchSprintCadenceDays(
   supabase: SupabaseClient<Database>,
   businessId: string,

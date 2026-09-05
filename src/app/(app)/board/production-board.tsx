@@ -21,7 +21,6 @@ import type { Tables } from "@/lib/supabase/database.types";
 import { AssigneePickerDialog } from "./assignee-picker-dialog";
 import { BoardFilterBar, type BoardFilters } from "./board-filter-bar";
 import { TaskCard } from "./task-card";
-import { TaskPeekSheet } from "./task-peek-sheet";
 
 type WorkStage = Tables<"work_stages">;
 
@@ -52,8 +51,9 @@ export function ProductionBoard({
     staffId: "",
     taskTypeId: "",
     status: "",
+    urgentOnly: false,
+    dueBy: "",
   });
-  const [peekTask, setPeekTask] = useState<BoardTask | null>(null);
   const [assigneeTask, setAssigneeTask] = useState<BoardTask | null>(null);
   const [returnTaskId, setReturnTaskId] = useState<string | null>(null);
   const [undo, setUndo] = useState<{ taskId: string; entry: UndoEntry } | null>(
@@ -82,13 +82,24 @@ export function ProductionBoard({
   );
 
   const taskTypeOptions = useMemo(() => {
-    const seen = new Map<string, string>();
+    const seen = new Map<string, { name: string; stageIndex: number }>();
     for (const task of tasks) {
-      if (task.task_type_id && task.taskTypeName)
-        seen.set(task.task_type_id, task.taskTypeName);
+      if (task.task_type_id && task.taskTypeName) {
+        const stageIndex = stages.findIndex(
+          (stage) => stage.id === task.work_stage_id,
+        );
+        seen.set(task.task_type_id, {
+          name: task.taskTypeName,
+          stageIndex: Math.max(stageIndex, 0),
+        });
+      }
     }
-    return Array.from(seen.entries()).map(([id, name]) => ({ id, name }));
-  }, [tasks]);
+    return Array.from(seen.entries()).map(([id, { name, stageIndex }]) => ({
+      id,
+      name,
+      stageIndex,
+    }));
+  }, [tasks, stages]);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
@@ -104,6 +115,15 @@ export function ProductionBoard({
       if (filters.taskTypeId && task.task_type_id !== filters.taskTypeId)
         return false;
       if (filters.status && task.status !== filters.status) return false;
+      if (filters.urgentOnly && !task.priority) return false;
+      if (filters.dueBy) {
+        // The task's own due date wins; the order's is the fallback -- same
+        // rule TaskCard uses to decide what date a card is showing (ADR 0012).
+        const dueAt = task.due_at ?? task.orderDueAt;
+        if (!dueAt) return false;
+        const cutoff = new Date(`${filters.dueBy}T23:59:59.999`);
+        if (new Date(dueAt).getTime() > cutoff.getTime()) return false;
+      }
       return true;
     });
   }, [tasks, filters]);
@@ -235,7 +255,6 @@ export function ProductionBoard({
                     }
                     canManageBoard={canManageBoard}
                     canApprove={canApprove}
-                    onOpenPeek={() => setPeekTask(task)}
                     onOpenAssignee={() => setAssigneeTask(task)}
                     onStart={() => handleStart(task)}
                     onComplete={() => handleComplete(task)}
@@ -249,22 +268,6 @@ export function ProductionBoard({
           })}
         </div>
       )}
-
-      <TaskPeekSheet
-        task={peekTask}
-        availability={
-          peekTask ? availabilityByTaskId.get(peekTask.id) : undefined
-        }
-        onOpenChange={(open) => !open && setPeekTask(null)}
-        onStart={(task) => {
-          handleStart(task);
-          setPeekTask(null);
-        }}
-        onComplete={(task) => {
-          handleComplete(task);
-          setPeekTask(null);
-        }}
-      />
 
       <AssigneePickerDialog
         task={assigneeTask}

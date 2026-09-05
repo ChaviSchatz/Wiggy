@@ -2,10 +2,24 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Search } from "lucide-react";
+import { AlertTriangle, CalendarClock, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { FilterToggle } from "@/components/domain/filter-toggle";
+import {
+  statusVariant,
+  STATUS_DOT_CLASS,
+} from "@/components/domain/status-chip";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import type { WorkOrderSort } from "@/lib/work-orders/queries";
 
 const DEBOUNCE_MS = 300;
 const STATUSES = [
@@ -16,13 +30,21 @@ const STATUSES = [
   "on_hold",
   "cancelled",
 ] as const;
+const ALL_STATUS = "__all__";
+const SORTS: WorkOrderSort[] = ["recent", "urgency", "due", "status"];
 
 export function OrderFilters({
   defaultSearch,
   defaultStatus,
+  defaultPriority,
+  defaultDueSoon,
+  defaultSort,
 }: {
   defaultSearch: string;
   defaultStatus: string;
+  defaultPriority: string;
+  defaultDueSoon: boolean;
+  defaultSort: WorkOrderSort;
 }) {
   const t = useTranslations("pages.orders");
   const router = useRouter();
@@ -38,15 +60,26 @@ export function OrderFilters({
     };
   }, []);
 
-  function updateParams(next: { q?: string; status?: string }) {
+  function updateParams(next: {
+    q?: string;
+    status?: string;
+    priority?: string;
+    dueSoon?: boolean;
+    sort?: string;
+  }) {
     const params = new URLSearchParams(searchParams.toString());
-    if (next.q !== undefined) {
-      if (next.q.trim()) params.set("q", next.q.trim());
-      else params.delete("q");
+    const setOrDelete = (key: string, value: string | undefined) => {
+      if (value) params.set(key, value);
+      else params.delete(key);
+    };
+    if (next.q !== undefined) setOrDelete("q", next.q.trim() || undefined);
+    if (next.status !== undefined) setOrDelete("status", next.status);
+    if (next.priority !== undefined) setOrDelete("priority", next.priority);
+    if (next.dueSoon !== undefined) {
+      setOrDelete("dueSoon", next.dueSoon ? "true" : undefined);
     }
-    if (next.status !== undefined) {
-      if (next.status) params.set("status", next.status);
-      else params.delete("status");
+    if (next.sort !== undefined) {
+      setOrDelete("sort", next.sort === "recent" ? undefined : next.sort);
     }
     params.delete("page");
     const query = params.toString();
@@ -63,7 +96,7 @@ export function OrderFilters({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-2">
       <div className="relative w-full max-w-sm">
         <Search
           className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted"
@@ -77,19 +110,75 @@ export function OrderFilters({
           className="ps-9"
         />
       </div>
-      <select
-        value={defaultStatus}
-        onChange={(event) => updateParams({ status: event.target.value })}
-        aria-label={t("statusFilterLabel")}
-        className="h-10 rounded-control border border-line bg-surface px-3 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+
+      <Select
+        value={defaultStatus || ALL_STATUS}
+        onValueChange={(value) =>
+          updateParams({ status: value === ALL_STATUS ? "" : value })
+        }
       >
-        <option value="">{t("statusFilterAll")}</option>
-        {STATUSES.map((status) => (
-          <option key={status} value={status}>
-            {t(`status.${status}`)}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger
+          aria-label={t("statusFilterLabel")}
+          className="w-auto min-w-36"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALL_STATUS}>{t("statusFilterAll")}</SelectItem>
+          {STATUSES.map((status) => (
+            <SelectItem key={status} value={status}>
+              <StatusDot status={status} />
+              {t(`status.${status}`)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <FilterToggle
+        active={defaultPriority === "urgent"}
+        onClick={() =>
+          updateParams({
+            priority: defaultPriority === "urgent" ? "" : "urgent",
+          })
+        }
+        icon={<AlertTriangle className="size-3.5" aria-hidden />}
+        tone="danger"
+        label={t("urgentOnly")}
+      />
+
+      <FilterToggle
+        active={defaultDueSoon}
+        onClick={() => updateParams({ dueSoon: !defaultDueSoon })}
+        icon={<CalendarClock className="size-3.5" aria-hidden />}
+        tone="warning"
+        label={t("dueSoonOnly")}
+      />
+
+      <Select
+        value={defaultSort}
+        onValueChange={(value) => updateParams({ sort: value })}
+      >
+        <SelectTrigger aria-label={t("sortLabel")} className="w-auto min-w-32">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {SORTS.map((sort) => (
+            <SelectItem key={sort} value={sort}>
+              {t(`sort.${sort}`)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
+  );
+}
+
+function StatusDot({ status }: { status: (typeof STATUSES)[number] }) {
+  const variant = statusVariant("order", status) ?? "neutral";
+  return (
+    <span
+      className={cn("size-[6px] shrink-0 rounded-full", STATUS_DOT_CLASS[variant])}
+      aria-hidden="true"
+    />
   );
 }

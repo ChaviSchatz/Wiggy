@@ -65,7 +65,7 @@ export function statusVariant(
 // The `-500` mid-tone is reserved for dots and borders (never text --
 // see badge.tsx). `mauve` has no `-500` step, so `neutral` falls back to
 // `-600`, the same colour its label already uses.
-const DOT_CLASS: Record<BadgeVariant, string> = {
+export const STATUS_DOT_CLASS: Record<BadgeVariant, string> = {
   neutral: "bg-mauve-600",
   success: "bg-sage-500",
   warning: "bg-peach-500",
@@ -99,7 +99,10 @@ export function StatusChip({
       {icon ??
         (dot ? (
           <span
-            className={cn("size-[6px] shrink-0 rounded-full", DOT_CLASS[variant])}
+            className={cn(
+              "size-[6px] shrink-0 rounded-full",
+              STATUS_DOT_CLASS[variant],
+            )}
             aria-hidden="true"
           />
         ) : null)}

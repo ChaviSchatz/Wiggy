@@ -3,12 +3,27 @@ import { cn } from "@/lib/utils";
 // Cycled by column position, never `work_stages.color` -- a tenant-entered
 // hex carries no contrast guarantee and would sit outside the controlled
 // palette. This is a small, curated set the system owns instead.
-const TINT_CLASSES = [
+export const STAGE_TINT_CLASSES = [
   "bg-stage-1",
   "bg-stage-2",
   "bg-stage-3",
   "bg-stage-4",
   "bg-stage-5",
+] as const;
+
+/**
+ * Same stage-identity cycle as `STAGE_TINT_CLASSES`, in a solid colour a
+ * small dot can actually show (the tints are deliberately near-invisible
+ * backgrounds). Anywhere else in the product that needs to say "this is the
+ * same stage as that board column" -- the work-type and stage filters --
+ * indexes into this array instead of inventing its own palette.
+ */
+export const STAGE_DOT_CLASSES = [
+  "bg-peach-600",
+  "bg-sage-600",
+  "bg-mauve-600",
+  "bg-info-600",
+  "bg-idle-600",
 ] as const;
 
 /**
@@ -36,7 +51,7 @@ export function KanbanColumn({
   index?: number;
   children: React.ReactNode;
 }) {
-  const tint = TINT_CLASSES[index % TINT_CLASSES.length];
+  const tint = STAGE_TINT_CLASSES[index % STAGE_TINT_CLASSES.length];
 
   return (
     <section

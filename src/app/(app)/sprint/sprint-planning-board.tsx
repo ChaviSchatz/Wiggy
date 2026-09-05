@@ -49,7 +49,6 @@ export function SprintPlanningBoard({
 
   const [tasks, setTasks] = useState(initialTasks);
   const [filters, setFilters] = useState<SprintFilters>({
-    stageId: "",
     staffId: "",
     taskTypeId: "",
     status: "",
@@ -70,18 +69,27 @@ export function SprintPlanningBoard({
   );
 
   const taskTypeOptions = useMemo(() => {
-    const seen = new Map<string, string>();
+    const seen = new Map<string, { name: string; stageIndex: number }>();
     for (const task of tasks) {
-      if (task.task_type_id && task.taskTypeName)
-        seen.set(task.task_type_id, task.taskTypeName);
+      if (task.task_type_id && task.taskTypeName) {
+        const stageIndex = stages.findIndex(
+          (stage) => stage.id === task.work_stage_id,
+        );
+        seen.set(task.task_type_id, {
+          name: task.taskTypeName,
+          stageIndex: Math.max(stageIndex, 0),
+        });
+      }
     }
-    return Array.from(seen.entries()).map(([id, name]) => ({ id, name }));
-  }, [tasks]);
+    return Array.from(seen.entries()).map(([id, { name, stageIndex }]) => ({
+      id,
+      name,
+      stageIndex,
+    }));
+  }, [tasks, stages]);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
-      if (filters.stageId && task.work_stage_id !== filters.stageId)
-        return false;
       if (filters.taskTypeId && task.task_type_id !== filters.taskTypeId)
         return false;
       if (filters.status && task.status !== filters.status) return false;
@@ -105,7 +113,7 @@ export function SprintPlanningBoard({
   // partial view is inherently misleading, so simply disable the move
   // buttons whenever a filter narrows the list (Bug 5).
   const reorderDisabled = Boolean(
-    filters.stageId || filters.staffId || filters.taskTypeId || filters.status,
+    filters.staffId || filters.taskTypeId || filters.status,
   );
 
   function updateTask(taskId: string, patch: Partial<BoardTask>) {
@@ -151,7 +159,6 @@ export function SprintPlanningBoard({
       <SprintFilterBar
         filters={filters}
         onChange={setFilters}
-        stages={stages}
         staff={staff}
         taskTypeOptions={taskTypeOptions}
       />

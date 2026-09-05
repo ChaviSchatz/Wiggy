@@ -111,6 +111,14 @@ const TASK_TYPES = [
     durationMinutes: 15,
     requiresApproval: true,
   },
+  {
+    key: "pickup",
+    name: "איסוף",
+    stageKey: "pickup" as StageKey,
+    staffKey: null as StaffKey | null,
+    durationMinutes: 10,
+    requiresApproval: false,
+  },
 ] as const;
 type TaskTypeKey = (typeof TASK_TYPES)[number]["key"];
 

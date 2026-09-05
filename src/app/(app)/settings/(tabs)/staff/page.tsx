@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { PageHeader } from "@/components/layout/page-header";
 import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
@@ -74,8 +73,6 @@ export default async function StaffSettingsPage({
 
   return (
     <div>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
-
       {/* A plain link, not client state: the toggle works without JS and the
           URL stays shareable, like every other list filter in the app. */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">

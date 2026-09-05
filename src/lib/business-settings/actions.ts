@@ -47,6 +47,41 @@ export async function setBusinessTimezoneAction(
   return { success: true };
 }
 
+/**
+ * The tenant's own display name (design-language.md "tenant identity"):
+ * shown under the Wiggy wordmark in the side nav. Same admin-only gate as
+ * timezone -- both are tenant-identity settings, not day-to-day operations.
+ */
+export async function setBusinessNameAction(
+  name: string,
+): Promise<BusinessSettingsResult> {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "editBusinessSettings")) {
+    return { success: false, error: "forbidden" };
+  }
+
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return { success: false, error: "empty" };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("businesses")
+    .update({ name: trimmed })
+    .eq("id", user.businessId)
+    .select("id");
+  if (error) return { success: false, error: "generic" };
+  if (!data || data.length === 0) {
+    return { success: false, error: "forbidden" };
+  }
+
+  // The name renders in the side nav on every page.
+  revalidatePath("/", "layout");
+  revalidatePath("/settings/business");
+  return { success: true };
+}
+
 function isValidTimeZone(timezone: string): boolean {
   try {
     new Intl.DateTimeFormat("en-CA", { timeZone: timezone });

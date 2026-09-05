@@ -6,14 +6,26 @@ import { Button } from "@/components/ui/button";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { cn, ltrIsolate } from "@/lib/utils";
+import type { SprintOption } from "./wizard-types";
+
+const NO_SPRINT = "__none__";
 
 export function StepDetails({
   dueAt,
   priority,
   orderReceivedDate,
   notes,
+  sprintId,
+  sprintOptions,
   onChange,
   onBack,
   onSubmit,
@@ -24,12 +36,15 @@ export function StepDetails({
   priority: "normal" | "urgent";
   orderReceivedDate: string;
   notes: string;
+  sprintId: string | null;
+  sprintOptions: SprintOption[];
   onChange: (
     patch: Partial<{
       dueAt: string;
       priority: "normal" | "urgent";
       orderReceivedDate: string;
       notes: string;
+      sprintId: string | null;
     }>,
   ) => void;
   onBack: () => void;
@@ -38,6 +53,7 @@ export function StepDetails({
   error?: string;
 }) {
   const t = useTranslations("pages.orders.wizard.details");
+  const tSprintChip = useTranslations("pages.sprint");
 
   return (
     <div className="space-y-4">
@@ -98,6 +114,34 @@ export function StepDetails({
             {t("priorityUrgent")}
           </button>
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="order-sprint">{t("sprintLabel")}</Label>
+        <Select
+          value={sprintId ?? NO_SPRINT}
+          onValueChange={(value) =>
+            onChange({ sprintId: value === NO_SPRINT ? null : value })
+          }
+        >
+          <SelectTrigger id="order-sprint">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={NO_SPRINT}>{t("sprintNone")}</SelectItem>
+            {sprintOptions.map((sprint) => (
+              <SelectItem key={sprint.id} value={sprint.id}>
+                {sprint.name ??
+                  tSprintChip("sprintChip", {
+                    range: ltrIsolate(
+                      `${new Date(sprint.startsOn).toLocaleDateString("he-IL")} – ${new Date(sprint.endsOn).toLocaleDateString("he-IL")}`,
+                    ),
+                  })}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-meta text-muted">{t("sprintHelp")}</p>
       </div>
 
       <div className="space-y-1.5">
