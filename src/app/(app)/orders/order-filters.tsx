@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, CalendarClock, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { FilterToggle } from "@/components/domain/filter-toggle";
 import {
   statusVariant,
   STATUS_DOT_CLASS,
@@ -179,41 +180,5 @@ function StatusDot({ status }: { status: (typeof STATUSES)[number] }) {
       className={cn("size-[6px] shrink-0 rounded-full", STATUS_DOT_CLASS[variant])}
       aria-hidden="true"
     />
-  );
-}
-
-function FilterToggle({
-  active,
-  onClick,
-  icon,
-  label,
-  tone,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  label: string;
-  tone: "danger" | "warning";
-}) {
-  const toneClass =
-    tone === "danger"
-      ? "border-danger-200 bg-danger-100 text-danger-600"
-      : "border-peach-200 bg-peach-100 text-peach-600";
-
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        "flex h-[39px] items-center gap-1.5 rounded-xs border px-3 text-body font-medium transition-colors",
-        active
-          ? toneClass
-          : "border-line-strong bg-surface text-muted hover:bg-mauve-100/50",
-      )}
-    >
-      {icon}
-      {label}
-    </button>
   );
 }

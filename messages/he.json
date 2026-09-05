@@ -189,7 +189,10 @@
         "typeLabel": "סינון לפי סוג משימה",
         "typeAll": "כל הסוגים",
         "statusLabel": "סינון לפי סטטוס",
-        "statusAll": "כל הסטטוסים"
+        "statusAll": "כל הסטטוסים",
+        "urgentOnly": "משימות דחופות בלבד",
+        "dueByLabel": "עד תאריך",
+        "clearDueBy": "ניקוי סינון התאריך"
       },
       "assignee": {
         "title": "שיוך עובד/ת למשימה",

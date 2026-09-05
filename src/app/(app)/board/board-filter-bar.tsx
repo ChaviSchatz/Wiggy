@@ -1,9 +1,12 @@
 "use client";
 
+import { AlertTriangle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { FilterToggle } from "@/components/domain/filter-toggle";
 import { StaffFilterSelect } from "@/components/domain/staff-filter-select";
 import { TaskTypeFilterSelect } from "@/components/domain/task-type-filter-select";
+import { Input } from "@/components/ui/input";
 import type { AssignableStaffMember } from "@/lib/board/queries";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +14,9 @@ export type BoardFilters = {
   staffId: string;
   taskTypeId: string;
   status: string;
+  urgentOnly: boolean;
+  /** ISO date (yyyy-mm-dd); "" means unset. Shows tasks due on or before it. */
+  dueBy: string;
 };
 
 const FILTERABLE_STATUSES = [
@@ -97,6 +103,41 @@ export function BoardFilterBar({
           allLabel={t("typeAll")}
           className="w-auto min-w-36"
         />
+
+        <FilterToggle
+          active={filters.urgentOnly}
+          onClick={() =>
+            onChange({ ...filters, urgentOnly: !filters.urgentOnly })
+          }
+          icon={<AlertTriangle className="size-3.5" aria-hidden />}
+          tone="danger"
+          label={t("urgentOnly")}
+        />
+
+        <div className="flex items-center gap-1.5">
+          <label htmlFor="board-due-by" className="text-meta text-muted">
+            {t("dueByLabel")}
+          </label>
+          <Input
+            id="board-due-by"
+            type="date"
+            value={filters.dueBy}
+            onChange={(event) =>
+              onChange({ ...filters, dueBy: event.target.value })
+            }
+            className="w-auto"
+          />
+          {filters.dueBy ? (
+            <button
+              type="button"
+              onClick={() => onChange({ ...filters, dueBy: "" })}
+              aria-label={t("clearDueBy")}
+              className="flex size-6 items-center justify-center rounded-control text-muted hover:bg-mauve-100/50 hover:text-ink"
+            >
+              <X className="size-3.5" aria-hidden />
+            </button>
+          ) : null}
+        </div>
 
         {/*
           Three urgency states, not four (ADR 0012). "Normal" has no mark on the

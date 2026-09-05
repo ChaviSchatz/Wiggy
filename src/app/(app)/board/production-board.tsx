@@ -52,6 +52,8 @@ export function ProductionBoard({
     staffId: "",
     taskTypeId: "",
     status: "",
+    urgentOnly: false,
+    dueBy: "",
   });
   const [peekTask, setPeekTask] = useState<BoardTask | null>(null);
   const [assigneeTask, setAssigneeTask] = useState<BoardTask | null>(null);
@@ -115,6 +117,15 @@ export function ProductionBoard({
       if (filters.taskTypeId && task.task_type_id !== filters.taskTypeId)
         return false;
       if (filters.status && task.status !== filters.status) return false;
+      if (filters.urgentOnly && !task.priority) return false;
+      if (filters.dueBy) {
+        // The task's own due date wins; the order's is the fallback -- same
+        // rule TaskCard uses to decide what date a card is showing (ADR 0012).
+        const dueAt = task.due_at ?? task.orderDueAt;
+        if (!dueAt) return false;
+        const cutoff = new Date(`${filters.dueBy}T23:59:59.999`);
+        if (new Date(dueAt).getTime() > cutoff.getTime()) return false;
+      }
       return true;
     });
   }, [tasks, filters]);
