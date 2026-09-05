@@ -31,7 +31,9 @@
   },
   "a11y": {
     "primaryNav": "ניווט ראשי",
-    "secondaryNav": "ניווט תחתון"
+    "secondaryNav": "ניווט תחתון",
+    "collapseSideNav": "כיווץ סרגל הצד",
+    "expandSideNav": "הרחבת סרגל הצד"
   },
   "roles": {
     "admin": "מנהל/ת מערכת",
