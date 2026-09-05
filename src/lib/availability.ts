@@ -72,3 +72,33 @@ export function isTaskAvailable(
 ): boolean {
   return computeAvailability(allTasksInOrder).get(task.id) === "available";
 }
+
+type SequencedTask = Pick<
+  TaskAvailabilityInput,
+  "id" | "workOrderId" | "sequenceOrder" | "status"
+>;
+
+/**
+ * The specific earlier task holding up a sequence-blocked task -- not just
+ * "blocked", but "blocked *by this*" (My Work surfaces who that task is
+ * assigned to, so a worker knows who to ask). The earliest unresolved
+ * earlier task, since that's the actual next thing that has to happen
+ * before the chain can move; `null` means the task isn't sequence-blocked
+ * (or every earlier task is already done). Doesn't need
+ * `availabilityOverride` the way `computeAvailability` does, so callers can
+ * pass a plain projection of whatever task shape they already have.
+ */
+export function findBlockingTask<T extends SequencedTask>(
+  task: T,
+  allTasksInSameBusiness: T[],
+): T | null {
+  const blockers = allTasksInSameBusiness
+    .filter(
+      (t) =>
+        t.workOrderId === task.workOrderId &&
+        t.sequenceOrder < task.sequenceOrder &&
+        !TERMINAL_STATUSES.has(t.status),
+    )
+    .sort((a, b) => a.sequenceOrder - b.sequenceOrder);
+  return blockers[0] ?? null;
+}

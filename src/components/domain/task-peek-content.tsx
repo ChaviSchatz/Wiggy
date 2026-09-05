@@ -13,21 +13,36 @@ import type { BoardTask } from "@/lib/board/queries";
 const STARTABLE = new Set(["pending", "returned_for_rework"]);
 
 /**
- * The peek's content, shown inside a Popover anchored to its task card
- * (design-system.md "Popover" -- a quick glance next to what triggered it,
- * not a screen-edge drawer). Compact by design: everyday actions
- * (Start/Done) already live inline on the card right behind this, so this
- * only needs the details the card doesn't have room for, plus a way out to
- * the full order.
+ * Who and what a sequence-blocked task is actually waiting on -- not just
+ * "blocked", but a name and a task to ask about (see `findBlockingTask`).
+ */
+export type BlockingTaskInfo = {
+  staffName: string | null;
+  taskLabel: string;
+  status: string;
+};
+
+/**
+ * The peek's content, shown inside a Popover anchored to whatever task row
+ * or card opened it -- the board and My Work both use this (design-system.md
+ * "Popover": a quick glance next to what triggered it, not a screen-edge
+ * drawer). Compact by design: everyday actions (Start/Done) already live
+ * inline on the row right behind this, so this only needs the details that
+ * don't fit there, plus a way out to the full order.
  */
 export function TaskPeekContent({
   task,
   availability,
+  blockedBy,
   onStart,
   onComplete,
 }: {
   task: BoardTask;
   availability: Availability;
+  /** Only meaningful when `availability` is "blocked". `null`/omitted falls
+   * back to a plain "blocked" chip -- e.g. a deferred task isn't waiting on
+   * anyone in particular. */
+  blockedBy?: BlockingTaskInfo | null;
   onStart: () => void;
   onComplete: () => void;
 }) {
@@ -55,14 +70,38 @@ export function TaskPeekContent({
           />
         </div>
         {availability === "blocked" ? (
-          <div className="flex items-center justify-between">
-            <span className="text-muted">{t("peek.availability")}</span>
-            <StatusChip
-              kind="availability"
-              status="blocked"
-              label={t("blocked")}
-            />
-          </div>
+          blockedBy ? (
+            <div className="space-y-1.5 rounded-control bg-idle-100/50 p-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-muted">{t("peek.blockedWaitingFor")}</span>
+                <span className="flex items-center gap-1.5 font-medium text-ink">
+                  <Avatar name={blockedBy.staffName} size="sm" />
+                  {blockedBy.staffName ?? t("peek.blockedUnassigned")}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-muted">{t("peek.blockedWorkingOn")}</span>
+                <span className="truncate text-ink">{blockedBy.taskLabel}</span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-muted">{t("peek.status")}</span>
+                <StatusChip
+                  kind="task"
+                  status={blockedBy.status}
+                  label={tTaskStatus(blockedBy.status)}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <span className="text-muted">{t("peek.availability")}</span>
+              <StatusChip
+                kind="availability"
+                status="blocked"
+                label={t("blocked")}
+              />
+            </div>
+          )
         ) : null}
         <div className="flex items-center justify-between">
           <span className="text-muted">{t("peek.assignee")}</span>
