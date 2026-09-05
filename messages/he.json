@@ -143,6 +143,13 @@
         "blocked": "עתידי (חסום)",
         "completed": "הושלם"
       },
+      "focus": {
+        "nowEmpty": "אין משימה פעילה כרגע. התחילו את המשימה הבאה שממתינה לכם.",
+        "nextUp": "הבא בתור",
+        "position": "{position} מתוך {total}",
+        "blockedByName": "חסום — ממתין/ה ל{name}",
+        "blockedGeneric": "חסום — ממתין לשלב קודם"
+      },
       "emptyTitle": "אין משימות בתור",
       "emptyDescription": "משימות ישויכו אליך בתכנון הספרינט.",
       "noProfileTitle": "לא משויך/ת כאיש/אשת צוות",
@@ -210,7 +217,10 @@
         "yes": "כן",
         "description": "תיאור",
         "productionNotes": "הערות ייצור",
-        "openOrder": "פתיחת ההזמנה המלאה"
+        "openOrder": "פתיחת ההזמנה המלאה",
+        "blockedWaitingFor": "ממתין/ה ל",
+        "blockedWorkingOn": "עובד/ת על",
+        "blockedUnassigned": "טרם שויך/ה"
       }
     },
     "sprint": {

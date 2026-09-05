@@ -79,6 +79,7 @@ export async function fetchStaffMemberIdForUser(
 export type CompletedQueueTask = {
   id: string;
   title: string;
+  workOrderId: string;
   orderNumber: number;
   customerName: string | null;
   completedAt: string | null;
@@ -138,6 +139,7 @@ export async function fetchRecentlyCompletedTasksForStaff(
     return {
       id: task.id,
       title: task.title,
+      workOrderId: task.work_order_id,
       orderNumber: order?.number ?? 0,
       customerName: order?.customer_id
         ? (customerNameById.get(order.customer_id) ?? null)

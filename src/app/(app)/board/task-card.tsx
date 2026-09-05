@@ -5,13 +5,13 @@ import { Lock, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { StatusChip } from "@/components/domain/status-chip";
+import { TaskPeekContent } from "@/components/domain/task-peek-content";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { Availability } from "@/lib/availability";
 import type { BoardTask } from "@/lib/board/queries";
-import { TaskPeekContent } from "./task-peek-content";
 
 const STARTABLE = new Set(["pending", "returned_for_rework"]);
 
