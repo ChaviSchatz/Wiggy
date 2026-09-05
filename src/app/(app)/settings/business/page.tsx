@@ -12,9 +12,10 @@ export default async function BusinessSettingsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  // Two controls, two gates: tenant identity is admin-only (mirroring the RLS
-  // on `businesses`), sprint cadence is a manager-level operational setting.
+  // Two gates: tenant identity (name, timezone) is admin-only (mirroring the
+  // RLS on `businesses`), sprint cadence is a manager-level operational setting.
   const canEditTimezone = can(user.role, "editBusinessSettings");
+  const canEditName = canEditTimezone;
   const canEditCadence = can(user.role, "planSprint");
   if (!canEditTimezone && !canEditCadence) redirect("/");
 
@@ -27,8 +28,10 @@ export default async function BusinessSettingsPage() {
     <div>
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
       <BusinessSettingsForm
+        businessName={user.businessName}
         timezone={user.timezone}
         cadenceDays={cadenceDays}
+        canEditName={canEditName}
         canEditTimezone={canEditTimezone}
         canEditCadence={canEditCadence}
         // Resolved on the server and passed down, so the client never has to

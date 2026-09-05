@@ -9,7 +9,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { setBusinessTimezoneAction } from "@/lib/business-settings/actions";
+import {
+  setBusinessNameAction,
+  setBusinessTimezoneAction,
+} from "@/lib/business-settings/actions";
 import { setSprintCadenceAction } from "@/lib/sprints/actions";
 
 const CONTROL_CLASS =
@@ -21,25 +24,76 @@ const CONTROL_CLASS =
  * when the role may edit it.
  */
 export function BusinessSettingsForm({
+  businessName,
   timezone,
   cadenceDays,
+  canEditName,
   canEditTimezone,
   canEditCadence,
   timezones,
 }: {
+  businessName: string;
   timezone: string;
   cadenceDays: number;
+  canEditName: boolean;
   canEditTimezone: boolean;
   canEditCadence: boolean;
   timezones: string[];
 }) {
   return (
     <div className="space-y-4">
+      {canEditName ? <NameSection name={businessName} /> : null}
       {canEditTimezone ? (
         <TimezoneSection timezone={timezone} timezones={timezones} />
       ) : null}
       {canEditCadence ? <CadenceSection cadenceDays={cadenceDays} /> : null}
     </div>
+  );
+}
+
+function NameSection({ name }: { name: string }) {
+  const t = useTranslations("pages.settings.business.name");
+  const router = useRouter();
+  const [value, setValue] = useState(name);
+  const [status, setStatus] = useState<"idle" | "saved" | string>("idle");
+  const [pending, startTransition] = useTransition();
+
+  function save() {
+    setStatus("idle");
+    startTransition(async () => {
+      const result = await setBusinessNameAction(value);
+      setStatus(result.success ? "saved" : result.error);
+      if (result.success) router.refresh();
+    });
+  }
+
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="business-name">{t("label")}</Label>
+          <Input
+            id="business-name"
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+          />
+          <p className="text-meta text-muted">{t("help")}</p>
+        </div>
+
+        {status === "saved" ? (
+          <FormMessage variant="success">{t("saved")}</FormMessage>
+        ) : status !== "idle" ? (
+          <FormMessage variant="error">{t(`errors.${status}`)}</FormMessage>
+        ) : null}
+
+        <Button
+          onClick={save}
+          disabled={pending || !value.trim() || value === name}
+        >
+          {pending ? t("saving") : t("save")}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 
