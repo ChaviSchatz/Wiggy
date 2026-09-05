@@ -61,8 +61,10 @@ function dateOnly(daysFromToday: number): string {
 
 /**
  * `--reset` deletes only what this script created -- rows tagged with
- * QA_NOTE and customers named with QA_PREFIX -- then reseeds. Scoped
- * deliberately: it must never touch `seed:dev`'s catalog or `seed:demo`'s
+ * QA_NOTE and customers named with QA_PREFIX -- then reseeds. `--reset-only`
+ * does the same delete but exits before reseeding, for clearing QA debris
+ * out of a business someone is actually using day to day. Both are scoped
+ * deliberately: this must never touch `seed:dev`'s catalog or `seed:demo`'s
  * curated orders, so it keys off this script's own markers rather than
  * truncating tables.
  */
@@ -195,6 +197,7 @@ async function sweepOrphanedAttachments(
 async function main() {
   const supabase = createAdminClient();
   const shouldReset = process.argv.includes("--reset");
+  const resetOnly = process.argv.includes("--reset-only");
 
   const business = await supabase
     .from("businesses")
@@ -209,7 +212,8 @@ async function main() {
   }
   const businessId = business.data.id;
 
-  if (shouldReset) await resetQaData(supabase, businessId);
+  if (shouldReset || resetOnly) await resetQaData(supabase, businessId);
+  if (resetOnly) return;
 
   const template = await supabase
     .from("intake_templates")
