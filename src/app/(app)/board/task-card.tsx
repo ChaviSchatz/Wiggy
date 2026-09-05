@@ -78,23 +78,39 @@ export function TaskCard({
         onClick={onOpenPeek}
         className="block w-full text-start"
       >
-        <p className="flex items-center gap-1.5">
-          <span className="min-w-0 truncate text-identity text-ink">
-            {identity}{" "}
-            <span className="font-normal tabular-nums text-muted">
-              #{task.orderNumber}
+        <p className="flex items-center justify-between gap-1.5">
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span className="min-w-0 truncate text-identity text-ink">
+              {identity}{" "}
+              <span className="font-normal tabular-nums text-muted">
+                #{task.orderNumber}
+              </span>
             </span>
+            {task.priority ? (
+              <span
+                aria-label={tCommon("priorityLabel")}
+                title={tCommon("priorityLabel")}
+              >
+                <Star
+                  className="size-3.5 shrink-0 text-danger-500"
+                  fill="currentColor"
+                  aria-hidden
+                />
+              </span>
+            ) : null}
           </span>
-          {task.priority ? (
+          {dueAt ? (
             <span
-              aria-label={tCommon("priorityLabel")}
-              title={tCommon("priorityLabel")}
+              className={cn(
+                "shrink-0 text-meta tabular-nums",
+                isLate ? "font-medium text-danger-600" : "text-muted",
+              )}
+              title={t("dueLabel")}
             >
-              <Star
-                className="size-3.5 shrink-0 text-danger-500"
-                fill="currentColor"
-                aria-hidden
-              />
+              {new Date(dueAt).toLocaleDateString("he-IL", {
+                day: "2-digit",
+                month: "2-digit",
+              })}
             </span>
           ) : null}
         </p>
@@ -112,22 +128,7 @@ export function TaskCard({
           <Avatar name={task.assignedStaffMemberName} size="sm" />
         </button>
 
-        <div className="flex items-center gap-2">
-          {dueAt ? (
-            <span
-              className={cn(
-                "text-meta tabular-nums",
-                isLate ? "font-medium text-danger-600" : "text-muted",
-              )}
-              title={t("dueLabel")}
-            >
-              {new Date(dueAt).toLocaleDateString("he-IL", {
-                day: "2-digit",
-                month: "2-digit",
-              })}
-            </span>
-          ) : null}
-
+        <div className="flex min-w-0 items-center gap-2">
           {isBlocked ? (
             <>
               <StatusChip
