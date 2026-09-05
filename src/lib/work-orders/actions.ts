@@ -24,6 +24,10 @@ export type CreateWorkOrderInput = {
   priority: "normal" | "urgent";
   orderReceivedDate: string;
   notes: string;
+  /** Which sprint the order's tasks should be planned into, chosen at
+   * intake rather than left to whoever first assigns a task to staff. `null`
+   * means "not planned yet" -- same as a task nobody has touched. */
+  sprintId: string | null;
 };
 
 export type CreateWorkOrderResult =
@@ -126,6 +130,7 @@ export async function createWorkOrderAction(
         requires_approval: task.requiresApproval,
         source: task.source,
         origin_item_id: task.originItemId,
+        sprint_id: input.sprintId,
       })),
     );
 

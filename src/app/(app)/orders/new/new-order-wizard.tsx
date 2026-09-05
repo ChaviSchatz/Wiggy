@@ -14,6 +14,7 @@ import { StepIntake } from "./step-intake";
 import { StepTemplate } from "./step-template";
 import type {
   CustomerOption,
+  SprintOption,
   TemplateOption,
   WizardData,
 } from "./wizard-types";
@@ -28,10 +29,14 @@ export function NewOrderWizard({
   initialCustomers,
   templates,
   itemsByTemplateId,
+  sprintOptions,
+  defaultSprintId,
 }: {
   initialCustomers: CustomerOption[];
   templates: TemplateOption[];
   itemsByTemplateId: Record<string, ResolvedIntakeItem[]>;
+  sprintOptions: SprintOption[];
+  defaultSprintId: string | null;
 }) {
   const t = useTranslations("pages.orders.wizard");
   const router = useRouter();
@@ -45,6 +50,7 @@ export function NewOrderWizard({
     priority: "normal",
     orderReceivedDate: todayIso(),
     notes: "",
+    sprintId: defaultSprintId,
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | undefined>();
@@ -98,6 +104,7 @@ export function NewOrderWizard({
       priority: data.priority,
       orderReceivedDate: data.orderReceivedDate,
       notes: data.notes,
+      sprintId: data.sprintId,
     });
 
     if (!result.success) {
@@ -154,6 +161,8 @@ export function NewOrderWizard({
           priority={data.priority}
           orderReceivedDate={data.orderReceivedDate}
           notes={data.notes}
+          sprintId={data.sprintId}
+          sprintOptions={sprintOptions}
           onChange={(patch) => setData((d) => ({ ...d, ...patch }))}
           onBack={goBack}
           onSubmit={handleSubmit}

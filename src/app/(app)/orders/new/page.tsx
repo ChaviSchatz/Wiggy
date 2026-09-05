@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { getCurrentUser } from "@/lib/auth/server";
 import { listCustomers } from "@/lib/customers/queries";
 import { can } from "@/lib/roles";
+import { fetchOpenSprints } from "@/lib/sprints/queries";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   fetchActiveIntakeTemplates,
@@ -12,7 +13,7 @@ import {
 } from "@/lib/work-orders/queries";
 import type { ResolvedIntakeItem } from "@/lib/work-orders/types";
 import { NewOrderWizard } from "./new-order-wizard";
-import type { CustomerOption, TemplateOption } from "./wizard-types";
+import type { CustomerOption, SprintOption, TemplateOption } from "./wizard-types";
 
 export default async function NewOrderPage() {
   const user = await getCurrentUser();
@@ -25,9 +26,10 @@ export default async function NewOrderPage() {
 
   const supabase = await createServerSupabaseClient();
 
-  const [{ customers }, templates] = await Promise.all([
+  const [{ customers }, templates, openSprints] = await Promise.all([
     listCustomers(supabase, { businessId: user.businessId, page: 1 }),
     fetchActiveIntakeTemplates(supabase, user.businessId),
+    fetchOpenSprints(supabase, user.businessId),
   ]);
 
   const itemsByTemplateId: Record<string, ResolvedIntakeItem[]> = {};
@@ -51,12 +53,23 @@ export default async function NewOrderPage() {
     name: t.name,
     description: t.description,
   }));
+  const sprintOptions: SprintOption[] = openSprints.map((s) => ({
+    id: s.id,
+    name: s.name,
+    startsOn: s.starts_on,
+    endsOn: s.ends_on,
+  }));
+  // The newest non-closed sprint -- same pick `fetchActiveSprint` makes --
+  // is the sensible default; the wizard still lets the user change it.
+  const defaultSprintId = sprintOptions[0]?.id ?? null;
 
   return (
     <NewOrderPageView
       customerOptions={customerOptions}
       templateOptions={templateOptions}
       itemsByTemplateId={itemsByTemplateId}
+      sprintOptions={sprintOptions}
+      defaultSprintId={defaultSprintId}
     />
   );
 }
@@ -65,10 +78,14 @@ function NewOrderPageView({
   customerOptions,
   templateOptions,
   itemsByTemplateId,
+  sprintOptions,
+  defaultSprintId,
 }: {
   customerOptions: CustomerOption[];
   templateOptions: TemplateOption[];
   itemsByTemplateId: Record<string, ResolvedIntakeItem[]>;
+  sprintOptions: SprintOption[];
+  defaultSprintId: string | null;
 }) {
   const t = useTranslations("pages.orders.wizard");
 
@@ -79,6 +96,8 @@ function NewOrderPageView({
         initialCustomers={customerOptions}
         templates={templateOptions}
         itemsByTemplateId={itemsByTemplateId}
+        sprintOptions={sprintOptions}
+        defaultSprintId={defaultSprintId}
       />
     </div>
   );

@@ -13,6 +13,13 @@ export type TemplateOption = {
   description: string | null;
 };
 
+export type SprintOption = {
+  id: string;
+  name: string | null;
+  startsOn: string;
+  endsOn: string;
+};
+
 export type CustomerChoice =
   | { kind: "none" }
   | { kind: "existing"; customer: CustomerOption }
@@ -26,4 +33,7 @@ export type WizardData = {
   priority: "normal" | "urgent";
   orderReceivedDate: string;
   notes: string;
+  /** `null` means "not planned into a sprint yet" -- same default as a task
+   * that has never been touched in Sprint Planning. */
+  sprintId: string | null;
 };
