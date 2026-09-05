@@ -11,6 +11,7 @@ import {
   setSprintCadenceAction,
 } from "@/lib/sprints/actions";
 import type { Sprint } from "@/lib/sprints/queries";
+import { ltrIsolate } from "@/lib/utils";
 
 const CADENCE_OPTIONS = [2, 7, 14];
 
@@ -58,8 +59,13 @@ export function SprintHeader({
       {sprint ? (
         <span className="rounded-control border border-mauve-200 bg-mauve-100 px-3 py-1.5 text-xs font-medium text-mauve-600">
           {t("sprintChip", {
-            start: new Date(sprint.starts_on).toLocaleDateString("he-IL"),
-            end: new Date(sprint.ends_on).toLocaleDateString("he-IL"),
+            // The dash between two dates is meaningless if the bidi
+            // algorithm is free to reorder the two LTR runs around it in
+            // this RTL sentence -- isolate the whole "start – end" as one
+            // block so it can't.
+            range: ltrIsolate(
+              `${new Date(sprint.starts_on).toLocaleDateString("he-IL")} – ${new Date(sprint.ends_on).toLocaleDateString("he-IL")}`,
+            ),
           })}
         </span>
       ) : (

@@ -27,7 +27,7 @@ import type { MissingItemListItem } from "@/lib/missing-items/queries";
 import { can, type Role } from "@/lib/roles";
 import { fetchStaffMemberIdForUser } from "@/lib/sprints/queries";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
+import { cn, ltrIsolate } from "@/lib/utils";
 
 /**
  * Dashboard / home (screen inventory #7), role-tailored per
@@ -221,10 +221,12 @@ function OfficeDashboardView({
               <div className="space-y-2">
                 <p className="text-sm font-medium text-ink">
                   {data.sprint.name ??
-                    t("sprint.dateRange", {
-                      from: formatDate(data.sprint.startsOn),
-                      to: formatDate(data.sprint.endsOn),
-                    })}
+                    ltrIsolate(
+                      t("sprint.dateRange", {
+                        from: formatDate(data.sprint.startsOn),
+                        to: formatDate(data.sprint.endsOn),
+                      }),
+                    )}
                 </p>
                 <p className="text-sm text-muted">
                   {t("sprint.progress", {

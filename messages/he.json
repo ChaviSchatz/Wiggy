@@ -215,7 +215,7 @@
     },
     "sprint": {
       "title": "תכנון ספרינט",
-      "sprintChip": "ספרינט · {start} – {end}",
+      "sprintChip": "ספרינט · {range}",
       "noActiveSprint": "אין ספרינט פעיל",
       "cadenceLabel": "משך ספרינט:",
       "cadenceDays": "{count} ימים",
