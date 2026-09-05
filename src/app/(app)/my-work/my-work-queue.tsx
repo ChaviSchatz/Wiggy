@@ -5,7 +5,10 @@ import { CircleCheck, ExternalLink, Lock, Play, Star } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { TaskPeekContent } from "@/components/domain/task-peek-content";
+import {
+  TaskPeekContent,
+  type BlockingTaskInfo,
+} from "@/components/domain/task-peek-content";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,12 +63,14 @@ function TaskLine({ task }: { task: BoardTask }) {
 function TaskRowTrigger({
   task,
   availability,
+  blockedBy,
   onStart,
   onComplete,
   children,
 }: {
   task: BoardTask;
   availability: Availability;
+  blockedBy?: BlockingTaskInfo | null;
   onStart: () => void;
   onComplete: () => void;
   children: React.ReactNode;
@@ -82,6 +87,7 @@ function TaskRowTrigger({
         <TaskPeekContent
           task={task}
           availability={availability}
+          blockedBy={blockedBy}
           onStart={() => {
             setOpen(false);
             onStart();
@@ -379,31 +385,42 @@ export function MyWorkQueue({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 pt-0">
-                  {blocked.map(({ task, reason }) => (
-                    <div
-                      key={task.id}
-                      className={cn(
-                        "flex items-center justify-between gap-3 rounded-control border border-dashed border-line p-2 opacity-70",
-                      )}
-                    >
-                      <TaskRowTrigger
-                        task={task}
-                        availability={
-                          availabilityByTaskId.get(task.id) ?? "available"
-                        }
-                        onStart={() => handleStart(task)}
-                        onComplete={() => handleComplete(task)}
+                  {blocked.map(({ task, reason }) => {
+                    const blockingInfo =
+                      reason === "sequence" ? getBlockingInfo(task) : null;
+                    const label =
+                      reason === "deferred"
+                        ? t("deferredReason")
+                        : blockingInfo?.staffName
+                          ? t("focus.blockedByName", {
+                              name: blockingInfo.staffName,
+                            })
+                          : t("focus.blockedGeneric");
+                    return (
+                      <div
+                        key={task.id}
+                        className={cn(
+                          "flex items-center justify-between gap-3 rounded-control border border-dashed border-line p-2 opacity-70",
+                        )}
                       >
-                        <TaskLine task={task} />
-                      </TaskRowTrigger>
-                      <Badge variant="neutral">
-                        <Lock className="me-1 size-3" aria-hidden />
-                        {reason === "deferred"
-                          ? t("deferredReason")
-                          : t("sequenceReason")}
-                      </Badge>
-                    </div>
-                  ))}
+                        <TaskRowTrigger
+                          task={task}
+                          availability={
+                            availabilityByTaskId.get(task.id) ?? "available"
+                          }
+                          blockedBy={blockingInfo}
+                          onStart={() => handleStart(task)}
+                          onComplete={() => handleComplete(task)}
+                        >
+                          <TaskLine task={task} />
+                        </TaskRowTrigger>
+                        <Badge variant="neutral">
+                          <Lock className="me-1 size-3" aria-hidden />
+                          {label}
+                        </Badge>
+                      </div>
+                    );
+                  })}
                 </CardContent>
               </Card>
             ) : null}

@@ -134,7 +134,6 @@
       "title": "העבודה שלי",
       "start": "התחלה",
       "done": "סיום",
-      "sequenceReason": "ממתין לשלב קודם",
       "deferredReason": "נדחה",
       "sections": {
         "current": "עכשיו",
