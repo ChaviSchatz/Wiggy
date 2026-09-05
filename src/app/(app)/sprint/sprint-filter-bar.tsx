@@ -2,26 +2,12 @@
 
 import { useTranslations } from "next-intl";
 
-import { STAGE_DOT_CLASSES } from "@/components/domain/kanban-column";
 import { StaffFilterSelect } from "@/components/domain/staff-filter-select";
-import {
-  statusVariant,
-  STATUS_DOT_CLASS,
-} from "@/components/domain/status-chip";
+import { TaskStatusFilterSelect } from "@/components/domain/task-status-filter-select";
 import { TaskTypeFilterSelect } from "@/components/domain/task-type-filter-select";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { AssignableStaffMember } from "@/lib/board/queries";
-import type { Tables } from "@/lib/supabase/database.types";
-import { cn } from "@/lib/utils";
 
 export type SprintFilters = {
-  stageId: string;
   staffId: string;
   taskTypeId: string;
   status: string;
@@ -35,16 +21,21 @@ const FILTERABLE_STATUSES = [
   "deferred",
 ] as const;
 
+/**
+ * Stage isn't a separate filter here (dropped -- with each task type mapped
+ * to exactly one stage, it duplicated the type filter). Status, type, and
+ * employee stay visually distinct from each other: status reads as a status
+ * (icon badge, same language as the task's own StatusChip), type as a stage
+ * identity (dot), employee as a person (avatar) -- see their own components.
+ */
 export function SprintFilterBar({
   filters,
   onChange,
-  stages,
   staff,
   taskTypeOptions,
 }: {
   filters: SprintFilters;
   onChange: (filters: SprintFilters) => void;
-  stages: Tables<"work_stages">[];
   staff: AssignableStaffMember[];
   taskTypeOptions: { id: string; name: string; stageIndex: number }[];
 }) {
@@ -53,32 +44,6 @@ export function SprintFilterBar({
 
   return (
     <div className="mb-4 flex flex-wrap gap-3">
-      <Select
-        value={filters.stageId || STAGE_ALL}
-        onValueChange={(value) =>
-          onChange({ ...filters, stageId: value === STAGE_ALL ? "" : value })
-        }
-      >
-        <SelectTrigger aria-label={t("stageLabel")} className="w-auto min-w-36">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={STAGE_ALL}>{t("stageAll")}</SelectItem>
-          {stages.map((stage, index) => (
-            <SelectItem key={stage.id} value={stage.id}>
-              <span
-                className={cn(
-                  "size-[8px] shrink-0 rounded-full",
-                  STAGE_DOT_CLASSES[index % STAGE_DOT_CLASSES.length],
-                )}
-                aria-hidden="true"
-              />
-              <span className="truncate">{stage.name}</span>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
       <StaffFilterSelect
         ariaLabel={t("employeeLabel")}
         value={filters.staffId}
@@ -96,34 +61,14 @@ export function SprintFilterBar({
         className="w-auto min-w-36"
       />
 
-      <Select
-        value={filters.status || STATUS_ALL}
-        onValueChange={(value) =>
-          onChange({ ...filters, status: value === STATUS_ALL ? "" : value })
-        }
-      >
-        <SelectTrigger aria-label={t("statusLabel")} className="w-auto min-w-36">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={STATUS_ALL}>{t("statusAll")}</SelectItem>
-          {FILTERABLE_STATUSES.map((status) => (
-            <SelectItem key={status} value={status}>
-              <span
-                className={cn(
-                  "size-[6px] shrink-0 rounded-full",
-                  STATUS_DOT_CLASS[statusVariant("task", status) ?? "neutral"],
-                )}
-                aria-hidden="true"
-              />
-              {tTaskStatus(status)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <TaskStatusFilterSelect
+        ariaLabel={t("statusLabel")}
+        value={filters.status}
+        onChange={(status) => onChange({ ...filters, status })}
+        statuses={FILTERABLE_STATUSES}
+        getLabel={tTaskStatus}
+        allLabel={t("statusAll")}
+      />
     </div>
   );
 }
-
-const STAGE_ALL = "__all__";
-const STATUS_ALL = "__all__";

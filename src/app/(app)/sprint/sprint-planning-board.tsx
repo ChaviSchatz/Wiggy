@@ -49,7 +49,6 @@ export function SprintPlanningBoard({
 
   const [tasks, setTasks] = useState(initialTasks);
   const [filters, setFilters] = useState<SprintFilters>({
-    stageId: "",
     staffId: "",
     taskTypeId: "",
     status: "",
@@ -91,8 +90,6 @@ export function SprintPlanningBoard({
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
-      if (filters.stageId && task.work_stage_id !== filters.stageId)
-        return false;
       if (filters.taskTypeId && task.task_type_id !== filters.taskTypeId)
         return false;
       if (filters.status && task.status !== filters.status) return false;
@@ -116,7 +113,7 @@ export function SprintPlanningBoard({
   // partial view is inherently misleading, so simply disable the move
   // buttons whenever a filter narrows the list (Bug 5).
   const reorderDisabled = Boolean(
-    filters.stageId || filters.staffId || filters.taskTypeId || filters.status,
+    filters.staffId || filters.taskTypeId || filters.status,
   );
 
   function updateTask(taskId: string, patch: Partial<BoardTask>) {
@@ -162,7 +159,6 @@ export function SprintPlanningBoard({
       <SprintFilterBar
         filters={filters}
         onChange={setFilters}
-        stages={stages}
         staff={staff}
         taskTypeOptions={taskTypeOptions}
       />

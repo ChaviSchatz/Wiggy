@@ -233,8 +233,6 @@
       "moveUp": "הזזה למעלה",
       "moveDown": "הזזה למטה",
       "filters": {
-        "stageLabel": "סינון לפי שלב",
-        "stageAll": "כל השלבים",
         "employeeLabel": "סינון לפי עובד/ת",
         "employeeAll": "כל העובדים",
         "typeLabel": "סינון לפי סוג משימה",
