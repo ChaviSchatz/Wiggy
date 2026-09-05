@@ -71,7 +71,6 @@ function OfficeDashboardView({
   role: Role;
 }) {
   const t = useTranslations("pages.dashboard");
-  const tMissing = useTranslations("pages.missingItems");
   // A secretary runs intake, not the production plan: no sprint/approval KPIs.
   const showsProductionPlan = can(role, "planSprint");
 
@@ -93,7 +92,7 @@ function OfficeDashboardView({
           value={data.urgentOrders}
           icon={AlertTriangle}
           tone={data.urgentOrders > 0 ? "danger" : "neutral"}
-          href="/orders"
+          href="/orders?priority=urgent"
         />
         <KpiCard
           label={t("kpis.dueSoon")}
@@ -101,7 +100,7 @@ function OfficeDashboardView({
           hint={t("kpis.dueSoonHint")}
           icon={CalendarClock}
           tone={data.dueSoonOrders > 0 ? "warning" : "neutral"}
-          href="/orders"
+          href="/orders?dueSoon=true"
         />
         <KpiCard
           label={t("kpis.missingItems")}
@@ -176,7 +175,9 @@ function OfficeDashboardView({
           {showsProductionPlan && data.attention.approvals.length > 0 ? (
             <AttentionGroup
               icon={CheckCircle2}
+              tone="warning"
               title={t("attention.approvals")}
+              count={data.attention.approvals.length}
               href="/approvals"
               hrefLabel={t("attention.viewAll")}
             >
@@ -184,11 +185,9 @@ function OfficeDashboardView({
                 <AttentionRow
                   key={task.id}
                   href={`/orders/${task.workOrderId}`}
-                  title={task.title}
-                  subtitle={t("attention.orderLine", {
-                    number: task.orderNumber,
-                    customer: task.customerName ?? tMissing("noCustomer"),
-                  })}
+                  title={task.customerName ?? task.title}
+                  subtitle={`#${task.orderNumber}`}
+                  tone="warning"
                 />
               ))}
             </AttentionGroup>
@@ -197,7 +196,9 @@ function OfficeDashboardView({
           {data.attention.deferred.length > 0 ? (
             <AttentionGroup
               icon={PauseCircle}
+              tone="idle"
               title={t("attention.deferred")}
+              count={data.attention.deferred.length}
               href="/board"
               hrefLabel={t("attention.viewAll")}
             >
@@ -205,11 +206,9 @@ function OfficeDashboardView({
                 <AttentionRow
                   key={task.id}
                   href={`/orders/${task.workOrderId}`}
-                  title={task.title}
-                  subtitle={t("attention.orderLine", {
-                    number: task.orderNumber,
-                    customer: task.customerName ?? tMissing("noCustomer"),
-                  })}
+                  title={task.customerName ?? task.title}
+                  subtitle={`#${task.orderNumber}`}
+                  tone="idle"
                 />
               ))}
             </AttentionGroup>
@@ -326,15 +325,32 @@ function WorkerDashboardView({ data }: { data: WorkerDashboard }) {
   );
 }
 
+type AttentionTone = "danger" | "warning" | "idle";
+
+const ATTENTION_BADGE_CLASS: Record<AttentionTone, string> = {
+  danger: "bg-danger-100 text-danger-600",
+  warning: "bg-peach-100 text-peach-600",
+  idle: "bg-idle-100 text-idle-600",
+};
+const ATTENTION_DOT_CLASS: Record<AttentionTone, string> = {
+  danger: "bg-danger-500",
+  warning: "bg-peach-500",
+  idle: "bg-idle-500",
+};
+
 function AttentionGroup({
   icon: Icon,
+  tone,
   title,
+  count,
   href,
   hrefLabel,
   children,
 }: {
   icon: typeof PackageX;
+  tone: AttentionTone;
   title: string;
+  count: number;
   href: string;
   hrefLabel: string;
   children: React.ReactNode;
@@ -342,15 +358,28 @@ function AttentionGroup({
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="flex items-center gap-2 text-sm font-medium text-ink">
-          <Icon className="size-4 text-muted" aria-hidden />
-          {title}
-        </h3>
-        <Link href={href} className="text-xs text-mauve-600 hover:underline">
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            className={cn(
+              "flex size-7 shrink-0 items-center justify-center rounded-full",
+              ATTENTION_BADGE_CLASS[tone],
+            )}
+          >
+            <Icon className="size-3.5" aria-hidden />
+          </span>
+          <h3 className="truncate text-label text-ink">{title}</h3>
+          <span className="shrink-0 rounded-full bg-mauve-100 px-2 py-0.5 text-meta font-medium tabular-nums text-mauve-600">
+            {count}
+          </span>
+        </div>
+        <Link
+          href={href}
+          className="shrink-0 text-meta text-mauve-600 hover:underline"
+        >
           {hrefLabel}
         </Link>
       </div>
-      <ul className="space-y-1">{children}</ul>
+      <ul className="space-y-0.5">{children}</ul>
     </section>
   );
 }
@@ -380,7 +409,9 @@ function MissingItemsAttention({ items }: { items: MissingItemListItem[] }) {
         <AttentionGroup
           key={kind}
           icon={PackageX}
-          title={`${tMissing(`kind.${kind}`)} (${kindItems.length})`}
+          tone="danger"
+          title={tMissing(`kind.${kind}`)}
+          count={kindItems.length}
           href={`/missing-items?kind=${kind}`}
           hrefLabel={t("attention.viewAll")}
         >
@@ -390,6 +421,7 @@ function MissingItemsAttention({ items }: { items: MissingItemListItem[] }) {
               href={`/orders/${item.work_order_id}`}
               title={item.customerName ?? tMissing("noCustomer")}
               subtitle={`#${item.orderNumber}`}
+              tone="danger"
             />
           ))}
         </AttentionGroup>
@@ -402,19 +434,30 @@ function AttentionRow({
   href,
   title,
   subtitle,
+  tone,
 }: {
   href: string;
   title: string;
   subtitle: string;
+  tone: AttentionTone;
 }) {
   return (
     <li>
       <Link
         href={href}
-        className="flex flex-wrap items-baseline gap-x-2 text-sm hover:underline"
+        className="-mx-2 flex items-center gap-2 rounded-control px-2 py-1.5 text-sm hover:bg-mauve-100/40"
       >
-        <span className="text-ink">{title}</span>
-        <span className="text-xs text-muted">{subtitle}</span>
+        <span
+          className={cn(
+            "size-[6px] shrink-0 rounded-full",
+            ATTENTION_DOT_CLASS[tone],
+          )}
+          aria-hidden="true"
+        />
+        <span className="min-w-0 flex-1 truncate text-ink">{title}</span>
+        <span className="shrink-0 text-meta tabular-nums text-muted">
+          {subtitle}
+        </span>
       </Link>
     </li>
   );
