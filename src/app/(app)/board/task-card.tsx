@@ -5,13 +5,13 @@ import { Lock, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { StatusChip } from "@/components/domain/status-chip";
+import { TaskPeekContent } from "@/components/domain/task-peek-content";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { Availability } from "@/lib/availability";
 import type { BoardTask } from "@/lib/board/queries";
-import { TaskPeekContent } from "./task-peek-content";
 
 const STARTABLE = new Set(["pending", "returned_for_rework"]);
 
@@ -29,6 +29,7 @@ export function TaskCard({
   task,
   availability,
   canManageBoard,
+  canActOnTask,
   canApprove,
   onOpenAssignee,
   onStart,
@@ -40,6 +41,10 @@ export function TaskCard({
   task: BoardTask;
   availability: Availability;
   canManageBoard: boolean;
+  /** Whether the viewer may Start/Done *this specific* task -- a plain
+   * worker only when it's assigned to them, a manager (`canManageBoard`)
+   * always. Reassigning/unlocking stay manager-only regardless. */
+  canActOnTask: boolean;
   canApprove: boolean;
   onOpenAssignee: () => void;
   onStart: () => void;
@@ -124,6 +129,7 @@ export function TaskCard({
           <TaskPeekContent
             task={task}
             availability={availability}
+            canActOnTask={canActOnTask}
             onStart={() => {
               setPeekOpen(false);
               onStart();
@@ -162,11 +168,11 @@ export function TaskCard({
                 </Button>
               ) : null}
             </>
-          ) : STARTABLE.has(task.status) ? (
+          ) : STARTABLE.has(task.status) && canActOnTask ? (
             <Button size="sm" variant="outline" onClick={onStart}>
               {t("start")}
             </Button>
-          ) : task.status === "in_progress" ? (
+          ) : task.status === "in_progress" && canActOnTask ? (
             <Button size="sm" onClick={onComplete}>
               {t("done")}
             </Button>

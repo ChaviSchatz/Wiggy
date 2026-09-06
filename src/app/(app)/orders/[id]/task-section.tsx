@@ -19,6 +19,7 @@ import {
   setAvailabilityOverrideAction,
   startTaskAction,
 } from "@/lib/board/actions";
+import { canActOnTask } from "@/lib/board/transitions";
 import type { HubData, HubTask } from "@/lib/work-orders/hub-queries";
 import { AddTaskDialog } from "./task-dialogs";
 
@@ -36,6 +37,7 @@ export function TaskSection({
   canApprove,
   canManageBoard,
   canManageOrder,
+  myStaffMemberId,
 }: {
   workOrderId: string;
   tasks: HubTask[];
@@ -46,6 +48,9 @@ export function TaskSection({
   canApprove: boolean;
   canManageBoard: boolean;
   canManageOrder: boolean;
+  /** `null` for a manager/admin (irrelevant -- `canManageBoard` already lets
+   * them act on anything) or a user with no linked staff-member profile. */
+  myStaffMemberId: string | null;
 }) {
   const t = useTranslations("pages.orders.detail.hub.tasks");
   const router = useRouter();
@@ -73,7 +78,8 @@ export function TaskSection({
       availability.get(task.id) === "available" &&
       (task.status === "pending" ||
         task.status === "returned_for_rework" ||
-        task.status === "in_progress"),
+        task.status === "in_progress") &&
+      canActOnTask(canManageBoard, myStaffMemberId, task.assigned_staff_member_id),
   );
 
   function run(action: () => Promise<{ success: boolean }>) {
@@ -143,6 +149,11 @@ export function TaskSection({
                 isBlocked={availability.get(task.id) === "blocked"}
                 staff={staff}
                 canWorkTasks={canWorkTasks}
+                canActOnTask={canActOnTask(
+                  canManageBoard,
+                  myStaffMemberId,
+                  task.assigned_staff_member_id,
+                )}
                 canApprove={canApprove}
                 canManageBoard={canManageBoard}
                 pending={pending}
@@ -190,6 +201,7 @@ function TaskRow({
   isBlocked,
   staff,
   canWorkTasks,
+  canActOnTask,
   canApprove,
   canManageBoard,
   pending,
@@ -206,6 +218,9 @@ function TaskRow({
   isBlocked: boolean;
   staff: HubData["staff"];
   canWorkTasks: boolean;
+  /** Whether the viewer may Start/Done/Defer/Resume *this* task -- a plain
+   * worker only when it's assigned to them, a manager always. */
+  canActOnTask: boolean;
   canApprove: boolean;
   canManageBoard: boolean;
   pending: boolean;
@@ -280,7 +295,7 @@ function TaskRow({
               {t("approveAction")}
             </Button>
           </>
-        ) : status === "deferred" && canWorkTasks ? (
+        ) : status === "deferred" && canWorkTasks && canActOnTask ? (
           <Button
             size="sm"
             variant="outline"
@@ -289,7 +304,7 @@ function TaskRow({
           >
             {t("resumeAction")}
           </Button>
-        ) : STARTABLE.has(status) && canWorkTasks ? (
+        ) : STARTABLE.has(status) && canWorkTasks && canActOnTask ? (
           <>
             <Button
               size="sm"
@@ -310,7 +325,7 @@ function TaskRow({
               </Button>
             ) : null}
           </>
-        ) : status === "in_progress" && canWorkTasks ? (
+        ) : status === "in_progress" && canWorkTasks && canActOnTask ? (
           <>
             <Button size="sm" onClick={onComplete} disabled={pending}>
               {t("done")}

@@ -12,26 +12,35 @@ import {
 import { getCurrentUser } from "@/lib/auth/server";
 import { computeAppendRank } from "@/lib/queue/append-rank";
 import { can } from "@/lib/roles";
+import { fetchStaffMemberIdForUser } from "@/lib/sprints/queries";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { recomputeOrderStatus } from "@/lib/work-orders/recompute";
-import { canUndoComplete, canUndoStart } from "./transitions";
+import { canActOnTask, canUndoComplete, canUndoStart } from "./transitions";
 
 export type TaskActionResult =
   { success: true } | { success: false; error: string };
 
 /**
- * `workOwnTasks` gates board task actions broadly ("can do production
- * work"), not literally restricted to the acting user's own assignment --
- * shared station tablets mean any worker present may advance an unassigned
- * or a colleague's task (docs/ui/information-architecture.md: "Production
- * workers: shared station tablets ... 'who's at this station' switching").
- * Per-worker queue scoping is Slice 7's personal queue, a UI concern, not
- * a permission.
+ * `workOwnTasks` gates board task actions ("can do production work"), but
+ * *which* tasks depends on `manageBoard`: a manager/admin may act on any
+ * task (covering for someone, general oversight), while a plain worker is
+ * restricted to tasks actually assigned to them -- see `canActOnTask`,
+ * checked by each action once it knows which task is in play.
  */
 async function requireBoardWorker() {
   const user = await getCurrentUser();
   if (!user || !can(user.role, "workOwnTasks")) return null;
-  return user;
+
+  const canActOnAnyTask = can(user.role, "manageBoard");
+  if (canActOnAnyTask) return { user, staffMemberId: null, canActOnAnyTask };
+
+  const supabase = await createServerSupabaseClient();
+  const staffMemberId = await fetchStaffMemberIdForUser(
+    supabase,
+    user.businessId,
+    user.id,
+  );
+  return { user, staffMemberId, canActOnAnyTask };
 }
 
 async function requireBoardManager() {
@@ -114,16 +123,26 @@ const STARTABLE_STATUSES: TaskStatus[] = ["pending", "returned_for_rework"];
 export async function startTaskAction(
   taskId: string,
 ): Promise<TaskActionResult> {
-  const user = await requireBoardWorker();
-  if (!user) return { success: false, error: "forbidden" };
+  const auth = await requireBoardWorker();
+  if (!auth) return { success: false, error: "forbidden" };
+  const { user, staffMemberId, canActOnAnyTask } = auth;
 
   const supabase = await createServerSupabaseClient();
   const { data: existingTask, error: fetchError } = await supabase
     .from("runtime_tasks")
-    .select("id, work_order_id, status")
+    .select("id, work_order_id, status, assigned_staff_member_id")
     .eq("id", taskId)
     .maybeSingle();
   if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (
+    !canActOnTask(
+      canActOnAnyTask,
+      staffMemberId,
+      existingTask.assigned_staff_member_id,
+    )
+  ) {
+    return { success: false, error: "forbidden" };
+  }
   if (!STARTABLE_STATUSES.includes(existingTask.status as TaskStatus)) {
     return { success: false, error: "invalidTransition" };
   }
@@ -157,16 +176,26 @@ export async function startTaskAction(
 export async function undoStartTaskAction(
   taskId: string,
 ): Promise<TaskActionResult> {
-  const user = await requireBoardWorker();
-  if (!user) return { success: false, error: "forbidden" };
+  const auth = await requireBoardWorker();
+  if (!auth) return { success: false, error: "forbidden" };
+  const { user, staffMemberId, canActOnAnyTask } = auth;
 
   const supabase = await createServerSupabaseClient();
   const { data: existingTask, error: fetchError } = await supabase
     .from("runtime_tasks")
-    .select("id, work_order_id, status")
+    .select("id, work_order_id, status, assigned_staff_member_id")
     .eq("id", taskId)
     .maybeSingle();
   if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (
+    !canActOnTask(
+      canActOnAnyTask,
+      staffMemberId,
+      existingTask.assigned_staff_member_id,
+    )
+  ) {
+    return { success: false, error: "forbidden" };
+  }
   if (!canUndoStart(existingTask.status as TaskStatus)) {
     return { success: false, error: "invalidTransition" };
   }
@@ -201,16 +230,28 @@ export async function undoStartTaskAction(
 export async function completeTaskAction(
   taskId: string,
 ): Promise<TaskActionResult> {
-  const user = await requireBoardWorker();
-  if (!user) return { success: false, error: "forbidden" };
+  const auth = await requireBoardWorker();
+  if (!auth) return { success: false, error: "forbidden" };
+  const { user, staffMemberId, canActOnAnyTask } = auth;
 
   const supabase = await createServerSupabaseClient();
   const { data: existingTask, error: fetchError } = await supabase
     .from("runtime_tasks")
-    .select("id, work_order_id, status, requires_approval")
+    .select(
+      "id, work_order_id, status, requires_approval, assigned_staff_member_id",
+    )
     .eq("id", taskId)
     .maybeSingle();
   if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (
+    !canActOnTask(
+      canActOnAnyTask,
+      staffMemberId,
+      existingTask.assigned_staff_member_id,
+    )
+  ) {
+    return { success: false, error: "forbidden" };
+  }
   if (existingTask.status !== "in_progress") {
     return { success: false, error: "invalidTransition" };
   }
@@ -246,16 +287,28 @@ export async function completeTaskAction(
 export async function undoCompleteTaskAction(
   taskId: string,
 ): Promise<TaskActionResult> {
-  const user = await requireBoardWorker();
-  if (!user) return { success: false, error: "forbidden" };
+  const auth = await requireBoardWorker();
+  if (!auth) return { success: false, error: "forbidden" };
+  const { user, staffMemberId, canActOnAnyTask } = auth;
 
   const supabase = await createServerSupabaseClient();
   const { data: existingTask, error: fetchError } = await supabase
     .from("runtime_tasks")
-    .select("id, work_order_id, status, requires_approval")
+    .select(
+      "id, work_order_id, status, requires_approval, assigned_staff_member_id",
+    )
     .eq("id", taskId)
     .maybeSingle();
   if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (
+    !canActOnTask(
+      canActOnAnyTask,
+      staffMemberId,
+      existingTask.assigned_staff_member_id,
+    )
+  ) {
+    return { success: false, error: "forbidden" };
+  }
   if (
     !canUndoComplete(
       existingTask.status as TaskStatus,
@@ -477,8 +530,9 @@ export async function deferTaskAction(
   reason: string,
   resumeDate: string | null,
 ): Promise<TaskActionResult> {
-  const user = await requireBoardWorker();
-  if (!user) return { success: false, error: "forbidden" };
+  const auth = await requireBoardWorker();
+  if (!auth) return { success: false, error: "forbidden" };
+  const { user, staffMemberId, canActOnAnyTask } = auth;
 
   const trimmedReason = reason.trim();
   if (!trimmedReason) return { success: false, error: "reasonRequired" };
@@ -486,10 +540,19 @@ export async function deferTaskAction(
   const supabase = await createServerSupabaseClient();
   const { data: existingTask, error: fetchError } = await supabase
     .from("runtime_tasks")
-    .select("id, work_order_id, status")
+    .select("id, work_order_id, status, assigned_staff_member_id")
     .eq("id", taskId)
     .maybeSingle();
   if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (
+    !canActOnTask(
+      canActOnAnyTask,
+      staffMemberId,
+      existingTask.assigned_staff_member_id,
+    )
+  ) {
+    return { success: false, error: "forbidden" };
+  }
   if (!DEFERRABLE_STATUSES.includes(existingTask.status as TaskStatus)) {
     return { success: false, error: "invalidTransition" };
   }
@@ -519,16 +582,26 @@ export async function deferTaskAction(
 export async function resumeTaskAction(
   taskId: string,
 ): Promise<TaskActionResult> {
-  const user = await requireBoardWorker();
-  if (!user) return { success: false, error: "forbidden" };
+  const auth = await requireBoardWorker();
+  if (!auth) return { success: false, error: "forbidden" };
+  const { user, staffMemberId, canActOnAnyTask } = auth;
 
   const supabase = await createServerSupabaseClient();
   const { data: existingTask, error: fetchError } = await supabase
     .from("runtime_tasks")
-    .select("id, work_order_id, status")
+    .select("id, work_order_id, status, assigned_staff_member_id")
     .eq("id", taskId)
     .maybeSingle();
   if (fetchError || !existingTask) return { success: false, error: "notFound" };
+  if (
+    !canActOnTask(
+      canActOnAnyTask,
+      staffMemberId,
+      existingTask.assigned_staff_member_id,
+    )
+  ) {
+    return { success: false, error: "forbidden" };
+  }
   if (existingTask.status !== "deferred") {
     return { success: false, error: "invalidTransition" };
   }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   computeAvailability,
+  findBlockingTask,
   isTaskAvailable,
   type TaskAvailabilityInput,
 } from "./availability";
@@ -128,6 +129,48 @@ describe("computeAvailability", () => {
     ];
 
     expect(computeAvailability(tasks).get("t2")).toBe("blocked");
+  });
+});
+
+describe("findBlockingTask", () => {
+  it("returns null when the task isn't blocked", () => {
+    const t1 = task({ id: "t1", sequenceOrder: 0, status: "pending" });
+    expect(findBlockingTask(t1, [t1])).toBeNull();
+  });
+
+  it("returns the earlier unresolved task", () => {
+    const t1 = task({ id: "t1", sequenceOrder: 0, status: "in_progress" });
+    const t2 = task({ id: "t2", sequenceOrder: 1, status: "pending" });
+    expect(findBlockingTask(t2, [t1, t2])?.id).toBe("t1");
+  });
+
+  it("returns the earliest of several unresolved earlier tasks", () => {
+    const t1 = task({ id: "t1", sequenceOrder: 0, status: "pending" });
+    const t2 = task({ id: "t2", sequenceOrder: 1, status: "in_progress" });
+    const t3 = task({ id: "t3", sequenceOrder: 2, status: "pending" });
+    expect(findBlockingTask(t3, [t1, t2, t3])?.id).toBe("t1");
+  });
+
+  it("ignores done/skipped/cancelled earlier tasks", () => {
+    const t1 = task({ id: "t1", sequenceOrder: 0, status: "done" });
+    const t2 = task({ id: "t2", sequenceOrder: 1, status: "pending" });
+    expect(findBlockingTask(t2, [t1, t2])).toBeNull();
+  });
+
+  it("only looks within the same work order", () => {
+    const other = task({
+      id: "a1",
+      workOrderId: "order-a",
+      sequenceOrder: 0,
+      status: "pending",
+    });
+    const t2 = task({
+      id: "b2",
+      workOrderId: "order-b",
+      sequenceOrder: 1,
+      status: "pending",
+    });
+    expect(findBlockingTask(t2, [other, t2])).toBeNull();
   });
 });
 

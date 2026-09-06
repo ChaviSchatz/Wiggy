@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { getCurrentUser } from "@/lib/auth/server";
 import { fetchAssignableStaff, fetchBoardTasks } from "@/lib/board/queries";
 import { can } from "@/lib/roles";
+import { fetchStaffMemberIdForUser } from "@/lib/sprints/queries";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { fetchActiveWorkStages } from "@/lib/work-orders/queries";
 import { ProductionBoard } from "./production-board";
@@ -19,10 +20,11 @@ export default async function BoardPage() {
   }
 
   const supabase = await createServerSupabaseClient();
-  const [stages, tasks, staff] = await Promise.all([
+  const [stages, tasks, staff, myStaffMemberId] = await Promise.all([
     fetchActiveWorkStages(supabase, user.businessId),
     fetchBoardTasks(supabase, user.businessId),
     fetchAssignableStaff(supabase, user.businessId),
+    fetchStaffMemberIdForUser(supabase, user.businessId, user.id),
   ]);
 
   return (
@@ -32,6 +34,7 @@ export default async function BoardPage() {
       staff={staff}
       canManageBoard={can(user.role, "manageBoard")}
       canApprove={can(user.role, "approveTasks")}
+      myStaffMemberId={myStaffMemberId}
     />
   );
 }
@@ -42,12 +45,14 @@ function BoardPageView({
   staff,
   canManageBoard,
   canApprove,
+  myStaffMemberId,
 }: {
   stages: Awaited<ReturnType<typeof fetchActiveWorkStages>>;
   tasks: Awaited<ReturnType<typeof fetchBoardTasks>>;
   staff: Awaited<ReturnType<typeof fetchAssignableStaff>>;
   canManageBoard: boolean;
   canApprove: boolean;
+  myStaffMemberId: string | null;
 }) {
   const t = useTranslations("pages.board");
 
@@ -60,6 +65,7 @@ function BoardPageView({
         staff={staff}
         canManageBoard={canManageBoard}
         canApprove={canApprove}
+        myStaffMemberId={myStaffMemberId}
       />
     </div>
   );

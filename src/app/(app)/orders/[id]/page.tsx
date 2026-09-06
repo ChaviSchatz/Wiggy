@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/auth/server";
 import { can } from "@/lib/roles";
+import { fetchStaffMemberIdForUser } from "@/lib/sprints/queries";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getHubData } from "@/lib/work-orders/hub-queries";
 import { WorkOrderHub } from "./work-order-hub";
@@ -27,7 +28,10 @@ export default async function OrderDetailPage({
   }
 
   const supabase = await createServerSupabaseClient();
-  const data = await getHubData(supabase, user.businessId, params.id);
+  const [data, myStaffMemberId] = await Promise.all([
+    getHubData(supabase, user.businessId, params.id),
+    fetchStaffMemberIdForUser(supabase, user.businessId, user.id),
+  ]);
   if (!data) {
     notFound();
   }
@@ -35,6 +39,7 @@ export default async function OrderDetailPage({
   return (
     <WorkOrderHub
       data={data}
+      myStaffMemberId={myStaffMemberId}
       permissions={{
         canManageOrder: can(user.role, "createOrders"),
         canApprove: can(user.role, "approveTasks"),

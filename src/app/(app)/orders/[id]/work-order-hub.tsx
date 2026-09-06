@@ -34,9 +34,11 @@ export type HubPermissions = {
 export function WorkOrderHub({
   data,
   permissions,
+  myStaffMemberId,
 }: {
   data: HubData;
   permissions: HubPermissions;
+  myStaffMemberId: string | null;
 }) {
   const [editIntakeOpen, setEditIntakeOpen] = useState(false);
 
@@ -85,6 +87,7 @@ export function WorkOrderHub({
         canApprove={permissions.canApprove}
         canManageBoard={permissions.canManageBoard}
         canManageOrder={permissions.canManageOrder}
+        myStaffMemberId={myStaffMemberId}
       />
 
       <NotesSection
