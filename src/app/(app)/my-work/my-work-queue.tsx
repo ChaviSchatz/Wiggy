@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { CircleCheck, ExternalLink, Lock, Play, Star } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CircleCheck, ExternalLink, Lock, Play, RotateCcw, Star } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -15,7 +16,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { completeTaskAction, startTaskAction } from "@/lib/board/actions";
+import {
+  completeTaskAction,
+  startTaskAction,
+  undoCompleteTaskAction,
+} from "@/lib/board/actions";
 import type { BoardTask } from "@/lib/board/queries";
 import {
   computeAvailability,
@@ -66,6 +71,7 @@ function TaskRowTrigger({
   blockedBy,
   onStart,
   onComplete,
+  onReopen,
   children,
 }: {
   task: BoardTask;
@@ -73,6 +79,7 @@ function TaskRowTrigger({
   blockedBy?: BlockingTaskInfo | null;
   onStart: () => void;
   onComplete: () => void;
+  onReopen?: () => void;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -96,6 +103,13 @@ function TaskRowTrigger({
             setOpen(false);
             onComplete();
           }}
+          onReopen={
+            onReopen &&
+            (() => {
+              setOpen(false);
+              onReopen();
+            })
+          }
         />
       </PopoverContent>
     </Popover>
@@ -112,7 +126,16 @@ export function MyWorkQueue({
   completed: CompletedQueueTask[];
 }) {
   const t = useTranslations("pages.myWork");
+  const tPeek = useTranslations("pages.board.peek");
+  const router = useRouter();
   const [tasks, setTasks] = useState(initialTasks);
+
+  // Resyncs after `router.refresh()` -- reopening a *completed* task (not
+  // part of this optimistic `tasks` state, see `handleReopenCompleted`)
+  // needs the server's fresh data to make it reappear as in-progress.
+  useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
 
   const availabilityByTaskId = useMemo(
     () =>
@@ -220,6 +243,24 @@ export function MyWorkQueue({
     }
   }
 
+  /** Undoes a mistaken "Done" -- e.g. an awaiting-approval task, still in
+   * `tasks` state, so this can update optimistically like handleComplete. */
+  async function handleReopen(task: BoardTask) {
+    const previous = { status: task.status, completed_at: task.completed_at };
+    updateTask(task.id, { status: "in_progress", completed_at: null });
+    const result = await undoCompleteTaskAction(task.id);
+    if (!result.success) updateTask(task.id, previous);
+  }
+
+  /** Same undo, for a task in the separately-fetched `completed` list (a
+   * `CompletedQueueTask`, not a `BoardTask` -- there's no client-side copy
+   * to update optimistically), so this just asks the server component to
+   * refetch instead. */
+  async function handleReopenCompleted(task: CompletedQueueTask) {
+    const result = await undoCompleteTaskAction(task.id);
+    if (result.success) router.refresh();
+  }
+
   if (!staffMemberId) {
     return (
       <div>
@@ -293,6 +334,8 @@ export function MyWorkQueue({
               getBlockingInfo={getBlockingInfo}
               onStart={handleStart}
               onComplete={handleComplete}
+              onReopen={handleReopen}
+              onReopenCompleted={handleReopenCompleted}
             />
           </div>
 
@@ -456,6 +499,7 @@ export function MyWorkQueue({
                         }
                         onStart={() => handleStart(task)}
                         onComplete={() => handleComplete(task)}
+                        onReopen={() => handleReopen(task)}
                       >
                         <TaskLine task={task} />
                       </TaskRowTrigger>
@@ -477,30 +521,48 @@ export function MyWorkQueue({
                 </CardHeader>
                 <CardContent className="space-y-2 pt-0">
                   {completed.map((task) => (
-                    <Link
+                    <div
                       key={task.id}
-                      href={`/orders/${task.workOrderId}`}
-                      className="flex items-center justify-between gap-3 rounded-control border border-line p-2 hover:border-line-strong"
+                      className="flex items-center justify-between gap-2 rounded-control border border-line p-2"
                     >
-                      <p className="text-sm text-ink">
-                        {task.customerName ?? "—"}{" "}
-                        <span className="text-muted">#{task.orderNumber}</span>{" "}
-                        · {task.title}
-                      </p>
-                      <span className="flex shrink-0 items-center gap-2">
-                        <Badge variant="success">
-                          {task.completedAt
-                            ? new Date(task.completedAt).toLocaleDateString(
-                                "he-IL",
-                              )
-                            : ""}
-                        </Badge>
-                        <ExternalLink
-                          className="size-3.5 text-muted"
-                          aria-hidden
-                        />
-                      </span>
-                    </Link>
+                      <Link
+                        href={`/orders/${task.workOrderId}`}
+                        className="flex min-w-0 flex-1 items-center justify-between gap-3 hover:opacity-80"
+                      >
+                        <p className="truncate text-sm text-ink">
+                          {task.customerName ?? "—"}{" "}
+                          <span className="text-muted">
+                            #{task.orderNumber}
+                          </span>{" "}
+                          · {task.title}
+                        </p>
+                        <span className="flex shrink-0 items-center gap-2">
+                          <Badge variant="success">
+                            {task.completedAt
+                              ? new Date(task.completedAt).toLocaleDateString(
+                                  "he-IL",
+                                )
+                              : ""}
+                          </Badge>
+                          <ExternalLink
+                            className="size-3.5 text-muted"
+                            aria-hidden
+                          />
+                        </span>
+                      </Link>
+                      {!task.requiresApproval ? (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="size-8 shrink-0"
+                          onClick={() => handleReopenCompleted(task)}
+                          aria-label={tPeek("reopen")}
+                          title={tPeek("reopen")}
+                        >
+                          <RotateCcw className="size-3.5" aria-hidden />
+                        </Button>
+                      ) : null}
+                    </div>
                   ))}
                 </CardContent>
               </Card>

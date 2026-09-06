@@ -17,6 +17,7 @@ import {
   undoStartTaskAction,
 } from "@/lib/board/actions";
 import type { AssignableStaffMember, BoardTask } from "@/lib/board/queries";
+import { canActOnTask } from "@/lib/board/transitions";
 import type { Tables } from "@/lib/supabase/database.types";
 import { AssigneePickerDialog } from "./assignee-picker-dialog";
 import { BoardFilterBar, type BoardFilters } from "./board-filter-bar";
@@ -37,12 +38,16 @@ export function ProductionBoard({
   staff,
   canManageBoard,
   canApprove,
+  myStaffMemberId,
 }: {
   stages: WorkStage[];
   initialTasks: BoardTask[];
   staff: AssignableStaffMember[];
   canManageBoard: boolean;
   canApprove: boolean;
+  /** `null` for a manager/admin (irrelevant -- `canManageBoard` already lets
+   * them act on anything) or a user with no linked staff-member profile. */
+  myStaffMemberId: string | null;
 }) {
   const t = useTranslations("pages.board");
 
@@ -254,6 +259,11 @@ export function ProductionBoard({
                       availabilityByTaskId.get(task.id) ?? "available"
                     }
                     canManageBoard={canManageBoard}
+                    canActOnTask={canActOnTask(
+                      canManageBoard,
+                      myStaffMemberId,
+                      task.assigned_staff_member_id,
+                    )}
                     canApprove={canApprove}
                     onOpenAssignee={() => setAssigneeTask(task)}
                     onStart={() => handleStart(task)}

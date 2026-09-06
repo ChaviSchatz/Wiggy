@@ -83,6 +83,10 @@ export type CompletedQueueTask = {
   orderNumber: number;
   customerName: string | null;
   completedAt: string | null;
+  /** Whether reaching "done" needed an approver's sign-off -- if so, an
+   * approver already acted on it, so it can't be self-reopened the way a
+   * no-approval task can (see `canUndoComplete`). */
+  requiresApproval: boolean;
 };
 
 /** Recently-completed tasks for the "Completed" section of My Work. */
@@ -94,7 +98,7 @@ export async function fetchRecentlyCompletedTasksForStaff(
 ): Promise<CompletedQueueTask[]> {
   const { data: taskRows, error } = await supabase
     .from("runtime_tasks")
-    .select("id, title, work_order_id, completed_at")
+    .select("id, title, work_order_id, completed_at, requires_approval")
     .eq("business_id", businessId)
     .eq("assigned_staff_member_id", staffMemberId)
     .eq("status", "done")
@@ -145,6 +149,7 @@ export async function fetchRecentlyCompletedTasksForStaff(
         ? (customerNameById.get(order.customer_id) ?? null)
         : null,
       completedAt: task.completed_at,
+      requiresApproval: task.requires_approval,
     };
   });
 }

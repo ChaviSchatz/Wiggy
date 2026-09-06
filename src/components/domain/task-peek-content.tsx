@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { StatusChip } from "@/components/domain/status-chip";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Availability } from "@/lib/availability";
+import type { Availability, TaskStatus } from "@/lib/availability";
+import { canUndoComplete } from "@/lib/board/transitions";
 import type { BoardTask } from "@/lib/board/queries";
 
 const STARTABLE = new Set(["pending", "returned_for_rework"]);
@@ -34,8 +36,10 @@ export function TaskPeekContent({
   task,
   availability,
   blockedBy,
+  canActOnTask = true,
   onStart,
   onComplete,
+  onReopen,
 }: {
   task: BoardTask;
   availability: Availability;
@@ -43,11 +47,26 @@ export function TaskPeekContent({
    * back to a plain "blocked" chip -- e.g. a deferred task isn't waiting on
    * anyone in particular. */
   blockedBy?: BlockingTaskInfo | null;
+  /** Whether the viewer may Start/Done *this* task (`canActOnTask` in
+   * `board/transitions.ts`) -- a plain worker only on their own assignment,
+   * a manager on any. Defaults to true for callers (like My Work) that only
+   * ever show the viewer's own tasks in the first place. */
+  canActOnTask?: boolean;
   onStart: () => void;
   onComplete: () => void;
+  /** Undoes a mistaken "done"/"awaiting approval" back to in-progress
+   * (`undoCompleteTaskAction`). Omit where there's nothing to reopen into
+   * (e.g. the board, which already offers this via its own UndoToast).
+   * Hidden once an approver has actually acted on the task -- see
+   * `canUndoComplete`. */
+  onReopen?: () => void;
 }) {
   const t = useTranslations("pages.board");
   const tTaskStatus = useTranslations("pages.orders.taskStatus");
+  const canReopen =
+    Boolean(onReopen) &&
+    canActOnTask &&
+    canUndoComplete(task.status as TaskStatus, task.requires_approval);
 
   const identity = task.customerName ?? task.templateName ?? "";
 
@@ -131,21 +150,35 @@ export function TaskPeekContent({
       </div>
 
       <div className="flex flex-col gap-1.5 border-t border-line pt-3">
-        {availability !== "blocked" && STARTABLE.has(task.status) ? (
+        {canActOnTask && availability !== "blocked" && STARTABLE.has(task.status) ? (
           <Button size="sm" onClick={onStart}>
             {t("start")}
           </Button>
         ) : null}
-        {task.status === "in_progress" ? (
+        {canActOnTask && task.status === "in_progress" ? (
           <Button size="sm" onClick={onComplete}>
             {t("done")}
           </Button>
         ) : null}
-        <Button size="sm" variant="outline" asChild>
-          <Link href={`/orders/${task.work_order_id}`}>
-            {t("peek.openOrder")}
-          </Link>
-        </Button>
+        <div className="flex items-center gap-1.5">
+          {canReopen ? (
+            <Button
+              size="icon"
+              variant="outline"
+              className="size-8 shrink-0"
+              onClick={onReopen}
+              aria-label={t("peek.reopen")}
+              title={t("peek.reopen")}
+            >
+              <RotateCcw className="size-3.5" aria-hidden />
+            </Button>
+          ) : null}
+          <Button size="sm" variant="outline" className="flex-1" asChild>
+            <Link href={`/orders/${task.work_order_id}`}>
+              {t("peek.openOrder")}
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canUndoComplete, canUndoStart } from "./transitions";
+import { canActOnTask, canUndoComplete, canUndoStart } from "./transitions";
 
 describe("canUndoStart", () => {
   it("allows undoing a start that is still in progress", () => {
@@ -38,5 +38,30 @@ describe("canUndoComplete", () => {
   it("refuses on a task that was never completed", () => {
     expect(canUndoComplete("in_progress", false)).toBe(false);
     expect(canUndoComplete("pending", false)).toBe(false);
+  });
+});
+
+describe("canActOnTask", () => {
+  it("lets a manager/admin act on any task, assigned or not", () => {
+    expect(canActOnTask(true, "me", "someone-else")).toBe(true);
+    expect(canActOnTask(true, "me", null)).toBe(true);
+    expect(canActOnTask(true, null, "someone-else")).toBe(true);
+  });
+
+  it("lets a plain worker act on their own assigned task", () => {
+    expect(canActOnTask(false, "me", "me")).toBe(true);
+  });
+
+  it("refuses a plain worker acting on a colleague's task", () => {
+    expect(canActOnTask(false, "me", "someone-else")).toBe(false);
+  });
+
+  it("refuses a plain worker acting on an unassigned task", () => {
+    expect(canActOnTask(false, "me", null)).toBe(false);
+  });
+
+  it("refuses when the acting user has no linked staff-member profile", () => {
+    expect(canActOnTask(false, null, "someone-else")).toBe(false);
+    expect(canActOnTask(false, null, null)).toBe(false);
   });
 });

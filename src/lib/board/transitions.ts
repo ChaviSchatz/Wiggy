@@ -36,3 +36,19 @@ export function canUndoComplete(
   if (status === "awaiting_approval") return true;
   return status === "done" && !requiresApproval;
 }
+
+/**
+ * Who may start/complete/undo/defer a specific task. `manageBoard`
+ * (manager/admin) can act on anyone's -- covering for an absent colleague,
+ * general oversight. A plain `workOwnTasks` worker is restricted to tasks
+ * actually assigned to them, including an unassigned task (`null`): being
+ * unassigned isn't the same as being assigned to *you*.
+ */
+export function canActOnTask(
+  canActOnAnyTask: boolean,
+  staffMemberId: string | null,
+  assignedStaffMemberId: string | null,
+): boolean {
+  if (canActOnAnyTask) return true;
+  return staffMemberId !== null && staffMemberId === assignedStaffMemberId;
+}

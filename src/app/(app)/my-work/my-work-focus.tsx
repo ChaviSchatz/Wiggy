@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Lock,
   Play,
+  RotateCcw,
   Star,
 } from "lucide-react";
 import { useState } from "react";
@@ -52,6 +53,8 @@ export function MyWorkFocus({
   getBlockingInfo,
   onStart,
   onComplete,
+  onReopen,
+  onReopenCompleted,
 }: {
   current: BoardTask[];
   next: BoardTask | null;
@@ -63,6 +66,8 @@ export function MyWorkFocus({
   getBlockingInfo: (task: BoardTask) => BlockingTaskInfo | null;
   onStart: (task: BoardTask) => void;
   onComplete: (task: BoardTask) => void;
+  onReopen: (task: BoardTask) => void;
+  onReopenCompleted: (task: CompletedQueueTask) => void;
 }) {
   const t = useTranslations("pages.myWork");
 
@@ -120,6 +125,7 @@ export function MyWorkFocus({
                 availability={availabilityByTaskId.get(task.id) ?? "available"}
                 onStart={() => onStart(task)}
                 onComplete={() => onComplete(task)}
+                onReopen={() => onReopen(task)}
               >
                 <span className="flex items-center gap-2 rounded-control bg-surface/60 px-3 py-2 hover:bg-surface">
                   <span className="min-w-0 flex-1">
@@ -146,30 +152,39 @@ export function MyWorkFocus({
           </h2>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {completed.map((task) => (
-              <Link
+              <div
                 key={task.id}
-                href={`/orders/${task.workOrderId}`}
-                className="flex items-start gap-2 rounded-control bg-surface/60 px-3 py-2 hover:bg-surface"
+                className="flex items-start gap-1 rounded-control bg-surface/60 px-3 py-2 hover:bg-surface"
               >
-                <CheckCircle2
-                  className="mt-0.5 size-3.5 shrink-0 text-sage-500"
-                  aria-hidden
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-meta text-ink">
-                    {task.title}
+                <Link
+                  href={`/orders/${task.workOrderId}`}
+                  className="flex min-w-0 flex-1 items-start gap-2"
+                >
+                  <CheckCircle2
+                    className="mt-0.5 size-3.5 shrink-0 text-sage-500"
+                    aria-hidden
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-meta text-ink">
+                      {task.title}
+                    </span>
+                    <span className="block truncate text-meta text-muted">
+                      {task.customerName ?? "—"} #{task.orderNumber}
+                    </span>
                   </span>
-                  <span className="block truncate text-meta text-muted">
-                    {task.customerName ?? "—"} #{task.orderNumber}
+                  <span className="flex shrink-0 items-center gap-1 text-meta text-sage-600">
+                    {task.completedAt
+                      ? new Date(task.completedAt).toLocaleDateString("he-IL")
+                      : ""}
+                    <ExternalLink className="size-3" aria-hidden />
                   </span>
-                </span>
-                <span className="flex shrink-0 items-center gap-1 text-meta text-sage-600">
-                  {task.completedAt
-                    ? new Date(task.completedAt).toLocaleDateString("he-IL")
-                    : ""}
-                  <ExternalLink className="size-3" aria-hidden />
-                </span>
-              </Link>
+                </Link>
+                {!task.requiresApproval ? (
+                  <ReopenCompletedButton
+                    onClick={() => onReopenCompleted(task)}
+                  />
+                ) : null}
+              </div>
             ))}
           </div>
         </div>
@@ -184,6 +199,7 @@ function PeekTrigger({
   blockedBy,
   onStart,
   onComplete,
+  onReopen,
   children,
 }: {
   task: BoardTask;
@@ -191,6 +207,7 @@ function PeekTrigger({
   blockedBy?: BlockingTaskInfo | null;
   onStart: () => void;
   onComplete: () => void;
+  onReopen?: () => void;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -214,6 +231,13 @@ function PeekTrigger({
             setOpen(false);
             onComplete();
           }}
+          onReopen={
+            onReopen &&
+            (() => {
+              setOpen(false);
+              onReopen();
+            })
+          }
         />
       </PopoverContent>
     </Popover>
@@ -356,5 +380,23 @@ function StarIcon() {
         aria-hidden
       />
     </span>
+  );
+}
+
+/** Undoes a mistaken "Done" straight from the Completed strip -- no need to
+ * open the order or the peek just to send a task back to in-progress. */
+function ReopenCompletedButton({ onClick }: { onClick: () => void }) {
+  const tPeek = useTranslations("pages.board.peek");
+  return (
+    <Button
+      size="icon"
+      variant="ghost"
+      className="size-7 shrink-0 text-sage-600 hover:text-sage-700"
+      onClick={onClick}
+      aria-label={tPeek("reopen")}
+      title={tPeek("reopen")}
+    >
+      <RotateCcw className="size-3.5" aria-hidden />
+    </Button>
   );
 }

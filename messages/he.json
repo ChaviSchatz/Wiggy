@@ -217,6 +217,7 @@
         "description": "תיאור",
         "productionNotes": "הערות ייצור",
         "openOrder": "פתיחת ההזמנה המלאה",
+        "reopen": "החזרה לביצוע",
         "blockedWaitingFor": "ממתין/ה ל",
         "blockedWorkingOn": "עובד/ת על",
         "blockedUnassigned": "טרם שויך/ה"
