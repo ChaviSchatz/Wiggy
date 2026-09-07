@@ -1,5 +1,6 @@
 # Wiggy
 
+
 A Hebrew-first (RTL) production-management web app for a wig salon.
 
 This repository is a single-monolith Next.js app. **Slice 0** scaffolded the
