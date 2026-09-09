@@ -144,7 +144,13 @@ export async function bootstrapProfileAction(formData: FormData) {
   }
 
   const user = await getCurrentUserFromClient(supabase);
-  redirect(user ? landingPathForRole(user.role) : "/");
+  if (user) {
+    redirect(landingPathForRole(user.role));
+  }
+  if (isPlatformAdmin(userData.user.email)) {
+    redirect("/platform");
+  }
+  redirect("/");
 }
 
 /** Updates the current user's display name from the profile screen. */
