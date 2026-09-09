@@ -32,6 +32,7 @@ needed.
 ### Task 1: `isPlatformAdmin` — the allowlist check
 
 **Files:**
+
 - Create: `src/lib/platform-admin/is-platform-admin.ts`
 - Test: `src/lib/platform-admin/is-platform-admin.test.ts`
 
@@ -132,6 +133,7 @@ git commit -m "feat(platform-admin): add allowlist-based isPlatformAdmin check"
 ### Task 2: `isValidSlug` — business slug format
 
 **Files:**
+
 - Create: `src/lib/platform-admin/slug.ts`
 - Test: `src/lib/platform-admin/slug.test.ts`
 
@@ -220,6 +222,7 @@ git commit -m "feat(platform-admin): add business slug format validation"
 ### Task 3: Env var scaffolding
 
 **Files:**
+
 - Modify: `.env.example`
 
 - [ ] **Step 1: Add the new var**
@@ -255,6 +258,7 @@ git commit -m "feat(platform-admin): document PLATFORM_ADMIN_EMAILS env var"
 ### Task 4: i18n strings
 
 **Files:**
+
 - Modify: `messages/he.json`
 
 - [ ] **Step 1: Add the `platformAdmin` namespace**
@@ -325,6 +329,7 @@ git commit -m "feat(platform-admin): add i18n strings for the platform admin con
 ### Task 5: `createTenantAction` — the provisioning server action
 
 **Files:**
+
 - Create: `src/lib/platform-admin/actions.ts`
 
 This action is Supabase-Admin-API-dependent (creates real auth users, sends real invite emails) and
@@ -534,10 +539,12 @@ export async function createTenantAction(formData: FormData) {
       `${origin}/reset-password`,
     );
 
-    const membership = await admin.from("memberships").upsert(
-      { user_id: userId, business_id: businessId, role: "admin" },
-      { onConflict: "user_id,business_id" },
-    );
+    const membership = await admin
+      .from("memberships")
+      .upsert(
+        { user_id: userId, business_id: businessId, role: "admin" },
+        { onConflict: "user_id,business_id" },
+      );
     if (membership.error) throw new TenantActionError("generic");
   } catch (error) {
     const code = error instanceof TenantActionError ? error.code : "generic";
@@ -566,6 +573,7 @@ git commit -m "feat(platform-admin): add createTenantAction (business + invite +
 ### Task 6: `listTenants` — cross-tenant listing query
 
 **Files:**
+
 - Create: `src/lib/platform-admin/queries.ts`
 
 - [ ] **Step 1: Write the query module**
@@ -641,13 +649,14 @@ git commit -m "feat(platform-admin): add listTenants cross-tenant query"
 ### Task 7: Fix the sign-in redirect loop for platform admins
 
 **Files:**
+
 - Modify: `src/lib/auth/actions.ts`
 
 **Context:** `signInAction` currently does, at the end:
 
 ```typescript
-  const user = await getCurrentUserFromClient(supabase);
-  redirect(user ? landingPathForRole(user.role) : "/");
+const user = await getCurrentUserFromClient(supabase);
+redirect(user ? landingPathForRole(user.role) : "/");
 ```
 
 A signed-in user with no active business membership (which every platform-admin-only account has)
@@ -667,21 +676,21 @@ import { isPlatformAdmin } from "@/lib/platform-admin/is-platform-admin";
 Find this block near the end of `signInAction`:
 
 ```typescript
-  const user = await getCurrentUserFromClient(supabase);
-  redirect(user ? landingPathForRole(user.role) : "/");
+const user = await getCurrentUserFromClient(supabase);
+redirect(user ? landingPathForRole(user.role) : "/");
 ```
 
 Replace it with:
 
 ```typescript
-  const user = await getCurrentUserFromClient(supabase);
-  if (user) {
-    redirect(landingPathForRole(user.role));
-  }
-  if (isPlatformAdmin(email)) {
-    redirect("/platform");
-  }
-  redirect("/");
+const user = await getCurrentUserFromClient(supabase);
+if (user) {
+  redirect(landingPathForRole(user.role));
+}
+if (isPlatformAdmin(email)) {
+  redirect("/platform");
+}
+redirect("/");
 ```
 
 (The final `redirect("/")` preserves today's behavior for a non-platform-admin account with no
@@ -692,7 +701,7 @@ above; it's pre-existing and out of scope for this plan.)
 
 Run: `npm run test`
 Expected: PASS. (No existing test directly exercises `signInAction` — it's Supabase-dependent, same
-category as Task 5 — so this step confirms nothing *else* broke.)
+category as Task 5 — so this step confirms nothing _else_ broke.)
 
 - [ ] **Step 4: Commit**
 
@@ -706,6 +715,7 @@ git commit -m "fix(auth): send platform admins to /platform instead of looping t
 ### Task 8: `/platform` route group — layout, list, and create pages
 
 **Files:**
+
 - Create: `src/app/(platform)/platform/layout.tsx`
 - Create: `src/app/(platform)/platform/page.tsx`
 - Create: `src/app/(platform)/platform/new/page.tsx`
@@ -938,6 +948,7 @@ git commit -m "feat(platform-admin): add /platform layout, tenant list, and crea
 ### Task 9: Update docs
 
 **Files:**
+
 - Modify: `docs/architecture.md`
 - Modify: `AGENTS.md`
 
@@ -978,7 +989,6 @@ groups (#46–49) remain read-only and deferred.` — the last sentence of the b
 paragraph immediately after it, still inside the `>` blockquote:
 
 ```markdown
->
 > A **platform admin console** then shipped (`docs/superpowers/specs/2026-09-09-platform-admin-console-design.md`)
 > — `/platform`, gated by a static `PLATFORM_ADMIN_EMAILS` allowlist rather than any
 > `memberships.role`, since a platform admin by definition belongs to no business. v1 is
@@ -1045,6 +1055,7 @@ run silently exercises production instead.
    set-your-password screen) instead of on `/reset-password`.** Before Step 3 (and before the real
    salon is onboarded), check the same thing against the hosted dashboard — see the new pre-flight
    bullet there.
+
 8. Resubmit the exact same `/platform/new` form (same name/slug/timezone/admin) a second time —
    confirm no error and no duplicate business/membership (idempotency check).
 
@@ -1088,7 +1099,7 @@ scratch test if different.
 
 ## What's next (not part of this plan)
 
-Once this ships and is verified, the actual first real salon gets onboarded by *using* `/platform/new`
+Once this ships and is verified, the actual first real salon gets onboarded by _using_ `/platform/new`
 for real (no scratch cleanup this time), then running the customer-data-migration script described
 in the design spec's Part B against the resulting `business_id`, sourced from
 `context-files/import/customers_rows.csv`.

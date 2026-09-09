@@ -71,7 +71,7 @@ Fix, scoped narrowly to this path: when `user` is `null`, check `isPlatformAdmin
 falling back to `/`; platform admins go to `/platform` instead. This is the only change to existing
 auth code — everything else is additive.
 
-(Note for later: this same loop would also catch any *non*-platform-admin account with zero active
+(Note for later: this same loop would also catch any _non_-platform-admin account with zero active
 memberships, e.g. a fully deactivated user. That's a pre-existing bug, out of scope here — flagging
 it so it isn't rediscovered as a surprise.)
 
@@ -193,11 +193,11 @@ rather than stamped at import time.
 
 **Dedup, decided against the actual data (46 same-name groups found):**
 
-| Group type | Count | Handling |
-| --- | --- | --- |
-| Same name + same normalized phone | 22 groups (33 rows) | Merge into one customer. |
-| Same name, no row in the group has any phone | 22 groups | Merge into one customer. **Append a note** recommending staff collect a phone number next time they're in touch with this customer. |
-| Same name, phones present but disagree (מירי גרליץ, מלכי יעקובסון) | 2 groups | Keep as separate, distinct customers — conflicting phone is treated as evidence of two different people. |
+| Group type                                                         | Count               | Handling                                                                                                                            |
+| ------------------------------------------------------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Same name + same normalized phone                                  | 22 groups (33 rows) | Merge into one customer.                                                                                                            |
+| Same name, no row in the group has any phone                       | 22 groups           | Merge into one customer. **Append a note** recommending staff collect a phone number next time they're in touch with this customer. |
+| Same name, phones present but disagree (מירי גרליץ, מלכי יעקובסון) | 2 groups            | Keep as separate, distinct customers — conflicting phone is treated as evidence of two different people.                            |
 
 Any other customer that ends up with no phone at all after migration (not just merged ones) also
 gets the same recommend-a-phone-number note, so front-desk staff have a consistent signal to close
@@ -223,7 +223,7 @@ against `.env.local`. `src/lib/platform-admin/{actions,queries}.ts` changed that
 crashes with `Missing Supabase env vars` the moment anything calls `createAdminClient()` if this
 isn't set in Vercel's Production environment (Project Settings → Environment Variables), separately
 from `.env.local`. Set it, then redeploy — Vercel only applies new env vars to deployments created
-*after* they're added.
+_after_ they're added.
 
 **2. `PLATFORM_ADMIN_EMAILS` — same deal.** Set in Vercel Production, and needs a fresh deployment
 to take effect. Forgetting to redeploy after adding it looks like "the allowlist isn't working" when
@@ -237,6 +237,7 @@ requested URL isn't on the **Redirect URLs** allowlist — no error, the admin A
 200, the link just lands the user somewhere unhelpful (was observed landing users on their own
 `localhost:3000`, and later on bare `https://wiggy.app` instead of `/reset-password`). Fix, in the
 Supabase Dashboard → Authentication → URL Configuration:
+
 - **Site URL:** `https://wiggy.app` (the real production domain)
 - **Redirect URLs:** must include a **wildcard**, e.g. `https://wiggy.app/**` — the bare origin
   alone (`https://wiggy.app`) matches only itself, not `/reset-password` or any other path.
@@ -247,28 +248,28 @@ a strict per-project rate limit (observed failing with `429: email rate limit ex
 handful of emails in under an hour), and — more fundamentally — **a project with no custom SMTP
 configured can only deliver to the project owner's own email address**, per Resend's own sandbox
 restriction (`"You can only send testing emails to your own email address"`). Since the entire
-point of the platform-admin console is inviting *other* people, custom SMTP isn't optional. Set up
+point of the platform-admin console is inviting _other_ people, custom SMTP isn't optional. Set up
 (Supabase Dashboard → Project Settings → Authentication → SMTP Settings):
 
-| Field | Value |
-| --- | --- |
+| Field        | Value                                                    |
+| ------------ | -------------------------------------------------------- |
 | Sender email | `noreply@wiggy.app` (must be on a domain verified below) |
-| Sender name | `Wiggy` |
-| Host | `smtp.resend.com` |
-| Port | `465` |
-| Username | `resend` (literal) |
-| Password | a Resend API key |
+| Sender name  | `Wiggy`                                                  |
+| Host         | `smtp.resend.com`                                        |
+| Port         | `465`                                                    |
+| Username     | `resend` (literal)                                       |
+| Password     | a Resend API key                                         |
 
 **Verifying the sending domain in Resend** (Domains → Add Domain → `wiggy.app`) requires three DNS
 records — add them wherever the domain's DNS is actually managed (check with `dig NS <domain>`;
 `wiggy.app` turned out to use Vercel's own nameservers, so its records live in Vercel → Domains →
 `wiggy.app` → DNS Records, not at a registrar):
 
-| Type | Name | Value | Priority |
-| --- | --- | --- | --- |
-| TXT | `resend._domainkey` | the DKIM public key Resend generates per-domain | — |
-| MX | `send` | `feedback-smtp.<region>.amazonses.com` | 10 |
-| TXT | `send` | `v=spf1 include:amazonses.com ~all` | — |
+| Type | Name                | Value                                           | Priority |
+| ---- | ------------------- | ----------------------------------------------- | -------- |
+| TXT  | `resend._domainkey` | the DKIM public key Resend generates per-domain | —        |
+| MX   | `send`              | `feedback-smtp.<region>.amazonses.com`          | 10       |
+| TXT  | `send`              | `v=spf1 include:amazonses.com ~all`             | —        |
 
 Until the domain shows **Verified** in Resend (not just "records added" — propagation plus Resend's
 own async check takes a few minutes to an hour), sending to anyone other than the account owner

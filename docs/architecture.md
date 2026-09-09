@@ -120,7 +120,7 @@ See `docs/domains/` for per-domain detail.
 ### 4.2 Work Stages & Staff
 
 - **`work_stages`** — `id, business_id, key, name, sort_order, color, is_active`. Tenant-configurable-but-governed (admin edits; never per work order). Seeded from a system default set. **Board columns are `work_stages` ordered by `sort_order`.**
-- **`staff_members`** — `id, business_id, full_name, title, default_work_stage_id?, user_id?→profiles (nullable), is_active`. Assignable to tasks; a login is optional. (Capacity fields are planning-engine future.)
+- **`staff_members`** — `id, business_id, full_name, title, default_work_stage_id?, user_id?→profiles (nullable), is_active, is_assignable`. **The spine for every person in a salon** (ADR 0013): `memberships` hangs off it via `user_id`, which is linked when an invite is _sent_, not when it is accepted — so tasks assigned to someone who has not signed in yet are waiting in their queue when they do. Tasks reference this table, never a login, so a person with no account is fully assignable. `is_assignable` gates the assignee pickers only (`fetchAssignableStaff`, the Work-Order Hub staff list); name resolution by id deliberately ignores it, or completed tasks would lose their attribution. (Capacity fields are planning-engine future.)
 
 ### 4.3 Work Definition (tenant-configurable catalog)
 

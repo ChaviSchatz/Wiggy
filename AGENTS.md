@@ -154,6 +154,26 @@ human working in this repo. Read it first.
 > default silently swallows every `redirectTo` path otherwise), and custom SMTP (Resend, with the
 > sending domain verified) is required for invite/reset emails — the built-in mailer can't deliver
 > to anyone but the project owner without a verified domain, on top of its own rate limit.
+>
+> The **People** slice then closed the gap that console left behind: a salon's own admin can now
+> add, invite and role-manage their staff without anyone touching the service-role API by hand.
+> Screens #53 (staff members) and #54 (users & roles) **merged into one Settings → People screen**
+> (ADR 0013, `docs/superpowers/specs/2026-09-10-people-management-design.md`): `staff_members` is
+> the spine for every person, `memberships` hangs off it via `user_id`, and `src/lib/staff/` was
+> absorbed into `src/lib/people/`. The load-bearing property is that **assignment never depends on
+> the invite** — `runtime_tasks.assigned_staff_member_id` points at the roster row, and `user_id`
+> is linked when the invite is _sent_ (the auth user exists from `inviteUserByEmail` onward), so
+> work assigned to someone who has not accepted is waiting in their My Work queue the first time
+> they sign in. Invite state is therefore a **badge, never a gate**. New
+> `staff_members.is_assignable` gates the two assignee-picker queries only — the three reads that
+> resolve names by id must keep seeing everyone, or completed tasks lose their attribution. The
+> find-or-invite auth mechanics moved to a shared `src/lib/invites/` that platform-admin also
+> calls; it deliberately takes **no `business_id`**, because the two callers derive scope
+> differently and that difference is the tenant-isolation boundary. `manageUsers` (admin-only,
+> previously defined with zero usages) finally has a consumer: a manager sees the whole list and
+> keeps their roster powers, but every access control is admin-only and re-checked server-side.
+> Note this is the **first tenant-facing page to use the service-role client** — it reads
+> `last_sign_in_at` for the Invited badge, degrading to `null` rather than failing the page.
 
 ## Start here (read in this order)
 
