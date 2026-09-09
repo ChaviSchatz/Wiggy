@@ -98,6 +98,10 @@ export async function getHubData(
       .select("id, full_name")
       .eq("business_id", businessId)
       .eq("is_active", true)
+      // Assignee options only -- see `fetchAssignableStaff`. The second
+      // `staff_members` read below resolves names for already-assigned tasks
+      // and deliberately does not filter this.
+      .eq("is_assignable", true)
       .order("full_name", { ascending: true }),
     supabase
       .from("task_types")

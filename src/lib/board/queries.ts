@@ -142,6 +142,11 @@ export async function fetchAssignableStaff(
     .select("id, full_name")
     .eq("business_id", businessId)
     .eq("is_active", true)
+    // Separate from `is_active`: an office-only person (the owner, a
+    // secretary) is active but does no bench work, so they must never be
+    // offered as an assignee. Name *resolution* elsewhere deliberately
+    // ignores this flag, or historical attribution would render blank.
+    .eq("is_assignable", true)
     .order("full_name", { ascending: true });
   if (error) throw error;
   return data ?? [];
