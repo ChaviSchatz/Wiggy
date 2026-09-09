@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { isPlatformAdmin } from "@/lib/platform-admin/is-platform-admin";
 import { getCurrentUserFromClient, landingPathForRole } from "./current-user";
 
 const MIN_PASSWORD_LENGTH = 6;
@@ -56,7 +57,13 @@ export async function signInAction(formData: FormData) {
   }
 
   const user = await getCurrentUserFromClient(supabase);
-  redirect(user ? landingPathForRole(user.role) : "/");
+  if (user) {
+    redirect(landingPathForRole(user.role));
+  }
+  if (isPlatformAdmin(email)) {
+    redirect("/platform");
+  }
+  redirect("/");
 }
 
 /** Signs the current user out and returns them to the login screen. */
