@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { InviteError, findOrInviteUser } from "@/lib/invites";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { isPlatformAdmin } from "./is-platform-admin";
@@ -94,52 +95,27 @@ async function findOrCreateBusiness(
   return inserted.data.id;
 }
 
-/** The admin list API is paginated; scan until the email is found or the pages run out (same approach as `scripts/seed-dev.ts`). */
-async function findUserIdByEmail(
-  admin: AdminClient,
-  email: string,
-): Promise<string | undefined> {
-  for (let page = 1; ; page++) {
-    const { data, error } = await admin.auth.admin.listUsers({
-      page,
-      perPage: 200,
-    });
-    if (error) throw new TenantActionError("generic");
-    const match = data.users.find((u) => u.email === email);
-    if (match) return match.id;
-    if (data.users.length < 200) return undefined;
-  }
-}
-
 /**
- * Finds or invites the admin user, then sets their display name (the
- * `handle_new_user` trigger only sets id/email — `scripts/seed-dev.ts` fills
- * this same gap manually). Returns the user id for the membership upsert.
+ * Finds or invites the admin user via the shared helper (`src/lib/invites/`),
+ * which the People screen also uses. Its error codes are remapped onto this
+ * module's own so the redirect behaviour here is unchanged.
+ *
+ * Scoping stays here on purpose: the helper knows nothing about businesses,
+ * because this caller takes the business from its form while People derives
+ * it from the caller's session.
  */
 async function findOrInviteAdmin(
   admin: AdminClient,
   input: { email: string; fullName: string },
   redirectTo: string,
 ): Promise<string> {
-  let userId = await findUserIdByEmail(admin, input.email);
-  if (!userId) {
-    const invited = await admin.auth.admin.inviteUserByEmail(input.email, {
-      data: { full_name: input.fullName },
-      redirectTo,
-    });
-    if (invited.error || !invited.data.user) {
-      throw new TenantActionError("generic");
-    }
-    userId = invited.data.user.id;
+  try {
+    const { userId } = await findOrInviteUser(admin, input, redirectTo);
+    return userId;
+  } catch (error) {
+    if (error instanceof InviteError) throw new TenantActionError("generic");
+    throw error;
   }
-
-  const updated = await admin
-    .from("profiles")
-    .update({ full_name: input.fullName })
-    .eq("id", userId);
-  if (updated.error) throw new TenantActionError("generic");
-
-  return userId;
 }
 
 export async function createTenantAction(formData: FormData) {
