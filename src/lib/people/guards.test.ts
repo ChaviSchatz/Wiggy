@@ -33,7 +33,9 @@ describe("derivePersonAccessState", () => {
   });
 
   it("is active once they have signed in", () => {
-    expect(derivePersonAccessState("u1", "2026-09-10T00:00:00Z")).toBe("active");
+    expect(derivePersonAccessState("u1", "2026-09-10T00:00:00Z")).toBe(
+      "active",
+    );
   });
 
   // A failed service-role lookup degrades to null, which must read as

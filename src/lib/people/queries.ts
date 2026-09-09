@@ -18,7 +18,11 @@ export type PersonListItem = Person & {
 };
 
 type StageRow = { id: string; name: string };
-type ProfileRow = { id: string; full_name: string | null; email: string | null };
+type ProfileRow = {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+};
 type MembershipRow = { user_id: string; role: string; is_active: boolean };
 
 /**
@@ -85,7 +89,9 @@ export async function listPeople(
     ),
   );
   const userIds = Array.from(
-    new Set(rows.map((p) => p.user_id).filter((id): id is string => Boolean(id))),
+    new Set(
+      rows.map((p) => p.user_id).filter((id): id is string => Boolean(id)),
+    ),
   );
 
   const [stagesResult, profilesResult, membershipsResult] = await Promise.all([

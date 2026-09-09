@@ -40,9 +40,9 @@ describe("validatePersonInput", () => {
   // Access is all-or-nothing: a membership row cannot exist without a role,
   // and a role means nothing without someone to attach it to.
   it("requires a role when an email is given", () => {
-    expect(validatePersonInput({ ...base, email: "dina@example.com" }).role).toBe(
-      "required",
-    );
+    expect(
+      validatePersonInput({ ...base, email: "dina@example.com" }).role,
+    ).toBe("required");
   });
 
   it("requires an email when a role is given", () => {
