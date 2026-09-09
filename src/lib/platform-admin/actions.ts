@@ -156,36 +156,36 @@ export async function createTenantAction(formData: FormData) {
   const adminName = String(formData.get("adminName") ?? "").trim();
   const adminEmail = String(formData.get("adminEmail") ?? "").trim();
 
-  const fieldParams = { name, slug, timezone, adminName, adminEmail };
+  const echoParams = { name, slug, timezone, adminName };
 
   if (!name || !slug || !adminName || !adminEmail) {
     redirect(
-      redirectPath("/platform/new", { ...fieldParams, error: "missingFields" }),
+      redirectPath("/platform/new", { ...echoParams, error: "missingFields" }),
     );
   }
   if (!isValidSlug(slug)) {
     redirect(
-      redirectPath("/platform/new", { ...fieldParams, error: "invalidSlug" }),
+      redirectPath("/platform/new", { ...echoParams, error: "invalidSlug" }),
     );
   }
   if (!isValidEmail(adminEmail)) {
     redirect(
-      redirectPath("/platform/new", { ...fieldParams, error: "invalidEmail" }),
+      redirectPath("/platform/new", { ...echoParams, error: "invalidEmail" }),
     );
   }
   if (!isValidTimeZone(timezone)) {
     redirect(
       redirectPath("/platform/new", {
-        ...fieldParams,
+        ...echoParams,
         error: "invalidTimezone",
       }),
     );
   }
 
-  const admin = createAdminClient();
-  const origin = await getSiteOrigin();
-
   try {
+    const admin = createAdminClient();
+    const origin = await getSiteOrigin();
+
     const businessId = await findOrCreateBusiness(admin, {
       name,
       slug,
@@ -206,7 +206,7 @@ export async function createTenantAction(formData: FormData) {
     if (membership.error) throw new TenantActionError("generic");
   } catch (error) {
     const code = error instanceof TenantActionError ? error.code : "generic";
-    redirect(redirectPath("/platform/new", { ...fieldParams, error: code }));
+    redirect(redirectPath("/platform/new", { ...echoParams, error: code }));
   }
 
   redirect(redirectPath("/platform", { created: slug }));
