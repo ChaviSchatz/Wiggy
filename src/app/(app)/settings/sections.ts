@@ -3,7 +3,7 @@ import { Building2, FileText, Users, type LucideIcon } from "lucide-react";
 import { can, type Permission, type Role } from "@/lib/roles";
 
 export type SettingsSection = {
-  key: "staff" | "business" | "templates";
+  key: "people" | "business" | "templates";
   href: string;
   icon: LucideIcon;
   /** Any one of these is enough to open the section. */
@@ -19,8 +19,8 @@ export type SettingsSection = {
  */
 export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
-    key: "staff",
-    href: "/settings/staff",
+    key: "people",
+    href: "/settings/people",
     icon: Users,
     permissions: ["manageStaff"],
   },

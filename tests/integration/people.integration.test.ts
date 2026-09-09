@@ -1,13 +1,12 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { countOpenTasksForStaff, listStaffMembers } from "@/lib/staff/queries";
+import { countOpenTasksForPerson, listPeople } from "@/lib/people/queries";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 
 /**
- * Settings slice 1 (screen inventory #53) — the staff editor's RLS boundary
- * and the deactivation contract.
+ * The People editor's RLS boundary and the deactivation contract (ADR 0013).
  *
  * 20260830120000_staff_settings_rls.sql grants INSERT and UPDATE but
  * deliberately withholds DELETE, because removal is deactivation: a hard
@@ -170,7 +169,7 @@ describe("staff_members write access under RLS", () => {
     const [a, b] = tenants;
     await insertStaff(b, `B private ${runId}`);
 
-    const visible = await listStaffMembers(a.client, b.businessId);
+    const visible = await listPeople(a.client, b.businessId);
 
     expect(visible).toHaveLength(0);
   });
@@ -233,7 +232,7 @@ describe("deactivation", () => {
       .single();
     if (task.error) throw task.error;
 
-    expect(await countOpenTasksForStaff(a.client, a.businessId, staffId)).toBe(
+    expect(await countOpenTasksForPerson(a.client, a.businessId, staffId)).toBe(
       1,
     );
 

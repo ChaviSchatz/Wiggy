@@ -15,55 +15,102 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FormMessage } from "@/components/ui/form-message";
-import { setStaffMemberActiveAction } from "@/lib/staff/actions";
-import type { StaffListItem } from "@/lib/staff/queries";
-import { StaffFormDialog, type StageOption } from "./staff-form-dialog";
+import { setPersonActiveAction } from "@/lib/people/actions";
+import type { PersonAccessState } from "@/lib/people/guards";
+import type { PersonListItem } from "@/lib/people/queries";
+import {
+  ChangeRoleDialog,
+  CorrectEmailDialog,
+  InviteDialog,
+  ResendInviteButton,
+  RevokeAccessDialog,
+} from "./access-dialogs";
+import { PersonFormDialog, type StageOption } from "./person-form-dialog";
 
-export function StaffRowActions({
-  member,
+/**
+ * Roster actions first, then the access actions that apply to this row's
+ * state. Unavailable actions are absent rather than disabled: a manager's row
+ * simply ends earlier instead of showing a line of dead controls.
+ */
+export function PersonRowActions({
+  person,
   stages,
   openTaskCount,
+  accessState,
+  canManageAccess,
 }: {
-  member: StaffListItem;
+  person: PersonListItem;
   stages: StageOption[];
   openTaskCount: number;
+  accessState: PersonAccessState;
+  canManageAccess: boolean;
 }) {
-  const t = useTranslations("pages.settings.staff");
+  const t = useTranslations("pages.settings.people");
 
   return (
-    <div className="flex flex-wrap gap-2">
-      <StaffFormDialog
+    <div className="flex flex-wrap items-center gap-2">
+      <PersonFormDialog
         stages={stages}
-        member={member}
+        person={person}
+        canManageAccess={canManageAccess}
         trigger={
           <Button size="sm" variant="outline">
             {t("edit")}
           </Button>
         }
       />
-      {member.is_active ? (
-        <DeactivateDialog member={member} openTaskCount={openTaskCount} />
+
+      {person.is_active ? (
+        <DeactivateDialog
+          person={person}
+          openTaskCount={openTaskCount}
+          hasLogin={accessState !== "rosterOnly"}
+        />
       ) : (
-        <ReactivateButton member={member} />
+        <ReactivateButton person={person} />
       )}
+
+      {canManageAccess && person.is_active ? (
+        <>
+          <span className="h-4 w-px bg-line" aria-hidden />
+          {accessState === "rosterOnly" ? (
+            <InviteDialog person={person} />
+          ) : null}
+          {accessState === "invited" ? (
+            <>
+              <ResendInviteButton person={person} />
+              <CorrectEmailDialog person={person} />
+            </>
+          ) : null}
+          {accessState !== "rosterOnly" ? (
+            <>
+              <ChangeRoleDialog person={person} />
+              <RevokeAccessDialog person={person} />
+            </>
+          ) : null}
+        </>
+      ) : null}
     </div>
   );
 }
 
 /**
  * Deactivation is the only removal path -- the database withholds the DELETE
- * grant. The dialog spells out the consequence because it is not obvious:
- * the person leaves every assignee picker immediately, but their existing
- * assignments and history stay exactly as they are.
+ * grant. The dialog spells out the consequences because they are not
+ * self-evident: the person leaves every assignee picker immediately and loses
+ * their login, but their existing assignments and history stay exactly as
+ * they are.
  */
 function DeactivateDialog({
-  member,
+  person,
   openTaskCount,
+  hasLogin,
 }: {
-  member: StaffListItem;
+  person: PersonListItem;
   openTaskCount: number;
+  hasLogin: boolean;
 }) {
-  const t = useTranslations("pages.settings.staff");
+  const t = useTranslations("pages.settings.people");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [formError, setFormError] = useState<string | undefined>();
@@ -72,7 +119,7 @@ function DeactivateDialog({
   function handleConfirm() {
     setFormError(undefined);
     startTransition(async () => {
-      const result = await setStaffMemberActiveAction(member.id, false);
+      const result = await setPersonActiveAction(person.id, false);
       if (!result.success) {
         setFormError(result.formError ?? "generic");
         return;
@@ -106,6 +153,9 @@ function DeactivateDialog({
             {t("deactivate.openTasks", { count: openTaskCount })}
           </p>
           <p className="text-muted">{t("deactivate.keepsHistory")}</p>
+          {hasLogin ? (
+            <p className="text-muted">{t("deactivate.losesLogin")}</p>
+          ) : null}
         </div>
 
         {formError ? (
@@ -135,8 +185,8 @@ function DeactivateDialog({
 }
 
 /** Reactivating is not destructive, so it needs no confirmation. */
-function ReactivateButton({ member }: { member: StaffListItem }) {
-  const t = useTranslations("pages.settings.staff");
+function ReactivateButton({ person }: { person: PersonListItem }) {
+  const t = useTranslations("pages.settings.people");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -147,7 +197,7 @@ function ReactivateButton({ member }: { member: StaffListItem }) {
       disabled={pending}
       onClick={() =>
         startTransition(async () => {
-          const result = await setStaffMemberActiveAction(member.id, true);
+          const result = await setPersonActiveAction(person.id, true);
           if (result.success) router.refresh();
         })
       }
