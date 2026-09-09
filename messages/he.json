@@ -959,5 +959,42 @@
         "mismatch": "הסיסמאות אינן תואמות."
       }
     }
+  },
+  "platformAdmin": {
+    "signOut": "התנתקות",
+    "list": {
+      "title": "עסקים",
+      "newTenant": "עסק חדש",
+      "createdMessage": "העסק \"{slug}\" נוצר בהצלחה.",
+      "emptyTitle": "עדיין אין עסקים",
+      "emptyDescription": "צרו את העסק הראשון כדי להתחיל.",
+      "noSlug": "—",
+      "columns": {
+        "name": "שם",
+        "slug": "מזהה",
+        "timezone": "אזור זמן",
+        "members": "משתמשים",
+        "created": "נוצר בתאריך"
+      }
+    },
+    "new": {
+      "title": "יצירת עסק חדש",
+      "subtitle": "יוצר עסק חדש ושולח הזמנה בדוא\"ל למנהל/ת שלו",
+      "nameLabel": "שם העסק",
+      "slugLabel": "מזהה (slug)",
+      "slugHelp": "אותיות לועזיות קטנות, ספרות ומקפים בלבד, לדוגמה: my-salon",
+      "timezoneLabel": "אזור זמן",
+      "adminNameLabel": "שם מלא של המנהל/ת",
+      "adminEmailLabel": "אימייל של המנהל/ת",
+      "submit": "יצירה ושליחת הזמנה",
+      "errors": {
+        "missingFields": "יש למלא את כל השדות.",
+        "invalidSlug": "המזהה יכול להכיל רק אותיות לועזיות קטנות, ספרות ומקפים, ללא רווחים.",
+        "slugTaken": "המזהה הזה כבר תפוס על ידי עסק אחר.",
+        "invalidEmail": "כתובת האימייל אינה תקינה.",
+        "invalidTimezone": "אזור הזמן אינו תקין.",
+        "generic": "משהו השתבש. נסו שוב."
+      }
+    }
   }
 }

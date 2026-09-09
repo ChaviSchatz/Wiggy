@@ -135,6 +135,15 @@ human working in this repo. Read it first.
 > `work_orders.template_name` at generation and display `customerName ?? templateName`. The column
 > survives on both tables (NOT NULL + check) but is vestigial and defaulted; don't add readers.
 > Task types and groups (#46–49) remain read-only and deferred.
+>
+> A **platform admin console** then shipped (`docs/superpowers/specs/2026-09-09-platform-admin-console-design.md`)
+> — `/platform`, gated by a static `PLATFORM_ADMIN_EMAILS` allowlist rather than any
+> `memberships.role`, since a platform admin by definition belongs to no business. v1 is
+> provisioning only: create a business, invite its admin (`createTenantAction`,
+> `src/lib/platform-admin/`), find-or-create at every step so a failed submission can simply be
+> resubmitted. Fixed a latent redirect loop in `signInAction` that any no-membership account
+> (platform admin included) would have hit. Customer CSV import for an onboarded tenant stays a
+> manual script for now, not part of the console.
 
 ## Start here (read in this order)
 

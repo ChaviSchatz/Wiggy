@@ -82,6 +82,12 @@ unless there is a strong, documented need.
   - permission map together). `memberships.role` is stored as **plain text validated against
     that set** (not a Postgres enum), so **adding a role = editing one file** — no migration.
     Enforced in server actions (the real check) and reflected in the UI.
+- **Platform admin (cross-tenant, exception to the above):** a small allowlist of operator emails
+  (`PLATFORM_ADMIN_EMAILS`, `src/lib/platform-admin/is-platform-admin.ts`) may reach `/platform`
+  to create a new business and invite its first admin. This is not a `memberships.role` — a
+  platform admin has no business membership at all. Every operation there runs through the
+  service-role client (bypasses RLS by design, same trust boundary as seeding). v1 scope is
+  provisioning only; see `docs/superpowers/specs/2026-09-09-platform-admin-console-design.md`.
 
 ---
 
