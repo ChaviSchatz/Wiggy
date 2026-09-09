@@ -154,7 +154,12 @@ export async function createTenantAction(formData: FormData) {
   const timezone =
     String(formData.get("timezone") ?? "").trim() || DEFAULT_TIMEZONE;
   const adminName = String(formData.get("adminName") ?? "").trim();
-  const adminEmail = String(formData.get("adminEmail") ?? "").trim();
+  // Lowercased so a differently-cased resubmission (e.g. autocorrect) still
+  // matches the existing auth user on retry instead of hitting "already
+  // registered" from a fresh inviteUserByEmail call.
+  const adminEmail = String(formData.get("adminEmail") ?? "")
+    .trim()
+    .toLowerCase();
 
   const echoParams = { name, slug, timezone, adminName };
 
@@ -200,7 +205,14 @@ export async function createTenantAction(formData: FormData) {
     const membership = await admin
       .from("memberships")
       .upsert(
-        { user_id: userId, business_id: businessId, role: "admin" },
+        {
+          user_id: userId,
+          business_id: businessId,
+          role: "admin",
+          // Re-inviting someone to a business they were previously
+          // deactivated in should restore their access, not just their role.
+          is_active: true,
+        },
         { onConflict: "user_id,business_id" },
       );
     if (membership.error) throw new TenantActionError("generic");

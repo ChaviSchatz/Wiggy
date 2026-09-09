@@ -143,6 +143,14 @@ Inviting an email that already has a full account (not just an invited/pending o
 who's already an admin of another business) is a supported case, not an error: they simply gain a
 second membership. No email is sent in that case since they already have credentials.
 
+**Known interaction with an existing multi-tenancy gap:** `getCurrentUserFromClient`
+(`src/lib/auth/current-user.ts`) picks a membership via `.limit(1)` with no `ORDER BY` when a user
+has more than one active membership, landing them in an arbitrary business on every login (backend
+audit finding #2, 2026-08-27, still open — no business switcher exists to correct it). This console
+makes multi-membership easier to create (any second invite to an existing email), so it makes that
+existing gap easier to hit too. Not a reason to block this console — just don't be surprised if an
+admin invited to a second business reports landing in the "wrong" one after login.
+
 On success: redirect to `/platform` showing the new business. On a validation or DB error: redirect
 back to `/platform/new` with an error message, form values preserved via query params (matching the
 `redirectPath` pattern already used in `src/lib/auth/actions.ts`).

@@ -1005,7 +1005,7 @@ code is unit-tested. Do this twice: once locally against local Supabase, once ag
 `wiggy-production` with a disposable scratch tenant (deleted afterward, so production stays clean
 until the real salon is onboarded deliberately).
 
-- [ ] **Step 1: Local dry run**
+- [x] **Step 1: Local dry run** — done 2026-09-09.
 
 ```bash
 colima start
@@ -1017,7 +1017,12 @@ Set `PLATFORM_ADMIN_EMAILS` in `.env.local` to an email you can receive mail for
 `admin@wiggy.local` (the dev seed's own admin — this lets you sign in with a password you already
 know, `wiggy-dev-password`, to reach `/platform` without needing a real inbox).
 
-- [ ] **Step 2: Walk through the flow locally**
+**Caveat if your main checkout's `.env.local` already points at `wiggy-production`** (it did, on
+this Mac — the local-Supabase values were present but commented out): build a genuinely local
+`.env.local` from `npx supabase status`'s output before running `npm run dev`, or this "local" dry
+run silently exercises production instead.
+
+- [x] **Step 2: Walk through the flow locally** — done 2026-09-09, all 8 sub-steps passed.
 
 1. Sign in at `/login` as your `PLATFORM_ADMIN_EMAILS` address.
 2. Confirm you land on `/platform` (not stuck in a redirect loop, not on `/`).
@@ -1029,10 +1034,29 @@ know, `wiggy-dev-password`, to reach `/platform` without needing a real inbox).
 7. Check the invite email arrived (local Supabase logs emails to the Inbucket UI printed by
    `supabase status`, usually `http://127.0.0.1:54324`) and that clicking it lands on
    `/reset-password` with a working "set password" form.
+
+   **Known finding, not yet fixed:** on this Mac, the invite link's `redirect_to` silently dropped
+   to the bare origin (`http://127.0.0.1:3000`) instead of `/reset-password`. Root cause: local
+   Supabase's `supabase/config.toml` → `[auth] additional_redirect_urls` only allowlists exact
+   URLs, and GoTrue falls back to bare `site_url` for anything not on that list, no path included.
+   An attempted fix (adding a `/**` wildcard entry) did not propagate into the running GoTrue
+   container on this CLI version and was reverted rather than leave a no-op config change in the
+   repo. **This means an invited admin may land in the app directly (skipping the
+   set-your-password screen) instead of on `/reset-password`.** Before Step 3 (and before the real
+   salon is onboarded), check the same thing against the hosted dashboard — see the new pre-flight
+   bullet there.
 8. Resubmit the exact same `/platform/new` form (same name/slug/timezone/admin) a second time —
    confirm no error and no duplicate business/membership (idempotency check).
 
 - [ ] **Step 3: Production dry run with a scratch tenant**
+
+**Pre-flight, before anything else in this step:** in the Supabase Dashboard for `wiggy-production`
+(project `mzbgpkiiruczufiaietn`) → Authentication → URL Configuration, confirm the redirect
+allowlist includes `<production-domain>/reset-password` (or a wildcard covering it). Step 2's local
+run found that an unlisted `redirectTo` path is silently dropped to the bare site URL rather than
+rejected — there is no error to notice if this is misconfigured, only an invited admin who never
+sees the password-setup screen. Confirm this **before** relying on the invite flow for the real
+salon's admin.
 
 Against `wiggy-production` (Supabase project `mzbgpkiiruczufiaietn`), with `PLATFORM_ADMIN_EMAILS`
 set in the Vercel production environment to your real email, repeat steps 2.1–2.7 using a throwaway
