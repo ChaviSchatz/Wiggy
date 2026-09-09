@@ -965,6 +965,7 @@
     "list": {
       "title": "עסקים",
       "newTenant": "עסק חדש",
+      "createdMessage": "העסק \"{slug}\" נוצר בהצלחה.",
       "emptyTitle": "עדיין אין עסקים",
       "emptyDescription": "צרו את העסק הראשון כדי להתחיל.",
       "noSlug": "—",

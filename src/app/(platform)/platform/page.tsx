@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormMessage } from "@/components/ui/form-message";
 import {
   Table,
   TableBody,
@@ -13,12 +14,30 @@ import {
 } from "@/components/ui/table";
 import { listTenants } from "@/lib/platform-admin/queries";
 
-export default async function PlatformTenantsPage() {
+type SearchParams = { [key: string]: string | string[] | undefined };
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function PlatformTenantsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const t = await getTranslations("platformAdmin.list");
   const tenants = await listTenants();
 
+  const created = firstParam(searchParams.created);
+  const showSuccessBanner = !!created;
+
   return (
     <div className="space-y-4">
+      {showSuccessBanner ? (
+        <FormMessage variant="success">
+          {t("createdMessage", { slug: created })}
+        </FormMessage>
+      ) : null}
       <div className="flex items-center justify-between">
         <h1 className="font-display text-section text-ink">{t("title")}</h1>
         <Button asChild>
