@@ -206,3 +206,70 @@ the gap during a customer's next visit rather than only on merged records.
 This section is a record of the agreed migration rules, not a task tracked through
 `writing-plans` — it's executed by hand once the tenant exists, with `execute_sql`/the admin client,
 and verified by row count + a spot check in Supabase Studio.
+
+---
+
+## Part C (appendix) — production rollout requirements
+
+Discovered by actually running this feature against `wiggy-production` after merge, not anticipated
+in the original design or plan. None of this is a code change — it's environment/dashboard
+configuration that has to exist before the console (or, for the SMTP piece, any auth email at all)
+works in production. Recorded here so the next environment (or a rebuild of this one) doesn't have
+to rediscover it by trial and error.
+
+**1. `SUPABASE_SERVICE_ROLE_KEY` must be set in Vercel.** Before this feature, nothing in the
+deployed app used the service-role client at runtime — it was only ever used by local seed scripts
+against `.env.local`. `src/lib/platform-admin/{actions,queries}.ts` changed that: `/platform`
+crashes with `Missing Supabase env vars` the moment anything calls `createAdminClient()` if this
+isn't set in Vercel's Production environment (Project Settings → Environment Variables), separately
+from `.env.local`. Set it, then redeploy — Vercel only applies new env vars to deployments created
+*after* they're added.
+
+**2. `PLATFORM_ADMIN_EMAILS` — same deal.** Set in Vercel Production, and needs a fresh deployment
+to take effect. Forgetting to redeploy after adding it looks like "the allowlist isn't working" when
+it's actually just not live yet.
+
+**3. Supabase Auth → URL Configuration needs the real domain, not the `localhost` default.**
+A fresh Supabase project defaults **Site URL** to `http://127.0.0.1:3000` / `http://localhost:3000`.
+Every `redirectTo` this app passes (invite emails → `/reset-password`, password-reset emails →
+`/reset-password`) falls back **silently** to whatever Site URL is configured whenever the exact
+requested URL isn't on the **Redirect URLs** allowlist — no error, the admin API call still returns
+200, the link just lands the user somewhere unhelpful (was observed landing users on their own
+`localhost:3000`, and later on bare `https://wiggy.app` instead of `/reset-password`). Fix, in the
+Supabase Dashboard → Authentication → URL Configuration:
+- **Site URL:** `https://wiggy.app` (the real production domain)
+- **Redirect URLs:** must include a **wildcard**, e.g. `https://wiggy.app/**` — the bare origin
+  alone (`https://wiggy.app`) matches only itself, not `/reset-password` or any other path.
+
+**4. Custom SMTP is required — the built-in mailer cannot support real invites.** Supabase's
+built-in email sending has two limits that make it unusable for this feature beyond a single test:
+a strict per-project rate limit (observed failing with `429: email rate limit exceeded` after a
+handful of emails in under an hour), and — more fundamentally — **a project with no custom SMTP
+configured can only deliver to the project owner's own email address**, per Resend's own sandbox
+restriction (`"You can only send testing emails to your own email address"`). Since the entire
+point of the platform-admin console is inviting *other* people, custom SMTP isn't optional. Set up
+(Supabase Dashboard → Project Settings → Authentication → SMTP Settings):
+
+| Field | Value |
+| --- | --- |
+| Sender email | `noreply@wiggy.app` (must be on a domain verified below) |
+| Sender name | `Wiggy` |
+| Host | `smtp.resend.com` |
+| Port | `465` |
+| Username | `resend` (literal) |
+| Password | a Resend API key |
+
+**Verifying the sending domain in Resend** (Domains → Add Domain → `wiggy.app`) requires three DNS
+records — add them wherever the domain's DNS is actually managed (check with `dig NS <domain>`;
+`wiggy.app` turned out to use Vercel's own nameservers, so its records live in Vercel → Domains →
+`wiggy.app` → DNS Records, not at a registrar):
+
+| Type | Name | Value | Priority |
+| --- | --- | --- | --- |
+| TXT | `resend._domainkey` | the DKIM public key Resend generates per-domain | — |
+| MX | `send` | `feedback-smtp.<region>.amazonses.com` | 10 |
+| TXT | `send` | `v=spf1 include:amazonses.com ~all` | — |
+
+Until the domain shows **Verified** in Resend (not just "records added" — propagation plus Resend's
+own async check takes a few minutes to an hour), sending to anyone other than the account owner
+continues to fail with the sandbox restriction above even with SMTP otherwise configured correctly.

@@ -142,8 +142,18 @@ human working in this repo. Read it first.
 > provisioning only: create a business, invite its admin (`createTenantAction`,
 > `src/lib/platform-admin/`), find-or-create at every step so a failed submission can simply be
 > resubmitted. Fixed a latent redirect loop in `signInAction` that any no-membership account
-> (platform admin included) would have hit. Customer CSV import for an onboarded tenant stays a
-> manual script for now, not part of the console.
+> (platform admin included) would have hit — the same loop also existed in `bootstrapProfileAction`
+> and got the identical fix. Customer CSV import for an onboarded tenant stays a manual script for
+> now, not part of the console.
+>
+> Rolling this out against `wiggy-production` surfaced environment/dashboard requirements the
+> feature depends on but doesn't enforce in code — see Part C of the design spec for the full
+> runbook: `SUPABASE_SERVICE_ROLE_KEY` and `PLATFORM_ADMIN_EMAILS` must be set in Vercel (nothing
+> deployed used the service-role client before this feature, so it was never there), Supabase
+> Auth's Site URL/Redirect URLs must point at the real domain with a wildcard (the `localhost`
+> default silently swallows every `redirectTo` path otherwise), and custom SMTP (Resend, with the
+> sending domain verified) is required for invite/reset emails — the built-in mailer can't deliver
+> to anyone but the project owner without a verified domain, on top of its own rate limit.
 
 ## Start here (read in this order)
 
