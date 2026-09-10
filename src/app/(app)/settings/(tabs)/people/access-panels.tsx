@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Mail, Shield } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
@@ -26,6 +27,14 @@ import { ROLES, type Role } from "@/lib/roles";
 import type { PanelState } from "./people-page-client";
 
 type AccessPanelKind = Exclude<PanelState["kind"], "create" | "edit">;
+
+function FieldIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-fill-subtle text-muted">
+      {children}
+    </span>
+  );
+}
 
 function useSubmit() {
   const router = useRouter();
@@ -123,7 +132,12 @@ function InvitePanel({
         <p className="text-body text-muted">{t("invite.description")}</p>
 
         <FormField
-          label={t("form.email")}
+          label={
+            <span className="flex items-center gap-2">
+              <FieldIcon><Mail className="size-3.5" /></FieldIcon>
+              {t("form.email")}
+            </span>
+          }
           htmlFor="access-email"
           required
           error={errors.email ? t(`form.errors.${errors.email}`) : undefined}
@@ -139,7 +153,12 @@ function InvitePanel({
         </FormField>
 
         <FormField
-          label={t("form.role")}
+          label={
+            <span className="flex items-center gap-2">
+              <FieldIcon><Shield className="size-3.5" /></FieldIcon>
+              {t("form.role")}
+            </span>
+          }
           htmlFor="access-role"
           required
           error={errors.role ? t(`form.errors.${errors.role}`) : undefined}
@@ -192,7 +211,12 @@ function CorrectEmailPanel({
         </p>
 
         <FormField
-          label={t("form.email")}
+          label={
+            <span className="flex items-center gap-2">
+              <FieldIcon><Mail className="size-3.5" /></FieldIcon>
+              {t("form.email")}
+            </span>
+          }
           htmlFor="correct-email"
           required
           error={errors.email ? t(`form.errors.${errors.email}`) : undefined}
@@ -241,7 +265,15 @@ function ChangeRolePanel({
   return (
     <div className="flex flex-col flex-1 min-h-0">
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-        <FormField label={t("form.role")} htmlFor="change-role">
+        <FormField
+          label={
+            <span className="flex items-center gap-2">
+              <FieldIcon><Shield className="size-3.5" /></FieldIcon>
+              {t("form.role")}
+            </span>
+          }
+          htmlFor="change-role"
+        >
           <RoleSelect id="change-role" value={role} onChange={setRole} />
         </FormField>
 

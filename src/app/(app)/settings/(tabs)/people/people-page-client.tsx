@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { X } from "lucide-react";
+import { UserPlus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Avatar } from "@/components/ui/avatar";
@@ -193,22 +193,31 @@ export function PeoplePageClient({
 
       {/* Inline detail panel — part of the page flow, no overlay */}
       {panel ? (
-        <div className="w-[360px] shrink-0 rounded-xl border border-line bg-surface shadow-sm flex flex-col overflow-hidden">
+        <div className="w-[420px] shrink-0 rounded-xl border border-line bg-surface shadow-sm flex flex-col overflow-hidden">
           {/* Panel header */}
-          <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
-            <div className="min-w-0">
-              <p className="font-semibold text-ink leading-snug">
-                {panelTitle()}
-              </p>
-              {panel.kind !== "create" ? (
-                <p className="text-meta text-muted mt-0.5 truncate">
-                  {panel.person.full_name}
+          <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
+            <div className="flex items-center gap-3 min-w-0">
+              {panel.kind === "create" ? (
+                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-mauve-100 text-mauve-600">
+                  <UserPlus className="size-5" aria-hidden />
+                </span>
+              ) : (
+                <Avatar name={panel.person.full_name} size="lg" className="shrink-0" />
+              )}
+              <div className="min-w-0">
+                <p className="font-semibold text-ink leading-snug">
+                  {panelTitle()}
                 </p>
-              ) : null}
+                {panel.kind !== "create" ? (
+                  <p className="text-meta text-muted mt-0.5 truncate">
+                    {panel.person.full_name}
+                  </p>
+                ) : null}
+              </div>
             </div>
             <button
               onClick={close}
-              className="mt-0.5 shrink-0 rounded-control p-1 text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="mt-1 shrink-0 rounded-control p-1 text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               aria-label="סגור"
             >
               <X className="size-4" aria-hidden />

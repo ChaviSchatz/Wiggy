@@ -3,6 +3,14 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import {
+  Briefcase,
+  CheckCircle,
+  Layers,
+  Mail,
+  Shield,
+  User,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
@@ -22,6 +30,14 @@ import { ROLES } from "@/lib/roles";
 import type { StageOption } from "./people-page-client";
 
 const NO_VALUE = "__none__";
+
+function FieldIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-fill-subtle text-muted">
+      {children}
+    </span>
+  );
+}
 
 function SelectField({
   name,
@@ -99,13 +115,17 @@ export function PersonPanel({
   return (
     <form onSubmit={onSubmit} className="flex flex-col flex-1 min-h-0">
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+
         <FormField
-          label={t("form.fullName")}
+          label={
+            <span className="flex items-center gap-2">
+              <FieldIcon><User className="size-3.5" /></FieldIcon>
+              {t("form.fullName")}
+            </span>
+          }
           htmlFor="panel-full-name"
           required
-          error={
-            errors.fullName ? t(`form.errors.${errors.fullName}`) : undefined
-          }
+          error={errors.fullName ? t(`form.errors.${errors.fullName}`) : undefined}
         >
           <Input
             id="panel-full-name"
@@ -116,7 +136,15 @@ export function PersonPanel({
           />
         </FormField>
 
-        <FormField label={t("form.jobTitle")} htmlFor="panel-title">
+        <FormField
+          label={
+            <span className="flex items-center gap-2">
+              <FieldIcon><Briefcase className="size-3.5" /></FieldIcon>
+              {t("form.jobTitle")}
+            </span>
+          }
+          htmlFor="panel-title"
+        >
           <Input
             id="panel-title"
             name="title"
@@ -124,7 +152,15 @@ export function PersonPanel({
           />
         </FormField>
 
-        <FormField label={t("form.defaultStage")} htmlFor="panel-stage">
+        <FormField
+          label={
+            <span className="flex items-center gap-2">
+              <FieldIcon><Layers className="size-3.5" /></FieldIcon>
+              {t("form.defaultStage")}
+            </span>
+          }
+          htmlFor="panel-stage"
+        >
           <SelectField
             id="panel-stage"
             name="defaultWorkStageId"
@@ -141,37 +177,48 @@ export function PersonPanel({
           </SelectField>
         </FormField>
 
-        <label className="flex items-start gap-3 text-body text-ink cursor-pointer">
-          <input
-            type="checkbox"
-            name="isAssignable"
-            defaultChecked={person ? person.is_assignable : true}
-            className="mt-0.5 size-4 rounded-xs border-line-strong text-mauve-600 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-mauve-100"
-          />
-          <span>
+        <label className="flex items-start gap-3 text-body text-ink cursor-pointer rounded-lg border border-line bg-fill-subtle/50 px-3 py-2.5">
+          <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-fill-subtle text-muted mt-0.5">
+            <CheckCircle className="size-3.5" />
+          </span>
+          <span className="flex-1">
             {t("form.isAssignable")}
             <span className="block text-meta text-muted mt-0.5">
               {t("form.isAssignableHint")}
             </span>
           </span>
+          <input
+            type="checkbox"
+            name="isAssignable"
+            defaultChecked={person ? person.is_assignable : true}
+            className="mt-1 size-4 rounded-xs border-line-strong text-mauve-600 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-mauve-100"
+          />
         </label>
 
         {showAccess ? (
           <div className="rounded-lg border border-line bg-fill-subtle p-4 space-y-4">
-            <div>
-              <p className="text-body font-medium text-ink">
-                {t("form.accessSection")}
-              </p>
-              <p className="text-meta text-muted mt-0.5">
-                {t("form.accessHint")}
-              </p>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-mauve-100 text-mauve-600">
+                <Shield className="size-3.5" />
+              </span>
+              <div>
+                <p className="text-body font-medium text-ink">
+                  {t("form.accessSection")}
+                </p>
+                <p className="text-meta text-muted">
+                  {t("form.accessHint")}
+                </p>
+              </div>
             </div>
             <FormField
-              label={t("form.email")}
-              htmlFor="panel-email"
-              error={
-                errors.email ? t(`form.errors.${errors.email}`) : undefined
+              label={
+                <span className="flex items-center gap-2">
+                  <FieldIcon><Mail className="size-3.5" /></FieldIcon>
+                  {t("form.email")}
+                </span>
               }
+              htmlFor="panel-email"
+              error={errors.email ? t(`form.errors.${errors.email}`) : undefined}
             >
               <Input
                 id="panel-email"
@@ -181,11 +228,14 @@ export function PersonPanel({
               />
             </FormField>
             <FormField
-              label={t("form.role")}
-              htmlFor="panel-role"
-              error={
-                errors.role ? t(`form.errors.${errors.role}`) : undefined
+              label={
+                <span className="flex items-center gap-2">
+                  <FieldIcon><Shield className="size-3.5" /></FieldIcon>
+                  {t("form.role")}
+                </span>
               }
+              htmlFor="panel-role"
+              error={errors.role ? t(`form.errors.${errors.role}`) : undefined}
             >
               <SelectField
                 id="panel-role"
