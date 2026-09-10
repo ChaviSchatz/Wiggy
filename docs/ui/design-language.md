@@ -123,6 +123,78 @@ the information needed to do the task in hand.
 metadata; it does not simply reflow every desktop element into one column. The same thing stays
 most important at every width.
 
+## Icons in forms and settings panels
+
+Every form field and settings section gets a contextual icon. This is mandatory, not optional — a
+form without icons reads as generic and AI-generated. Icons cost nothing and make the interface
+feel considered.
+
+**Two patterns, one rule each:**
+
+### Field-level icon (inline panels, dialogs)
+
+Used when the form is dense and fields are stacked — e.g. the person panel, invite form.
+
+```tsx
+<FormField
+  label={
+    <span className="flex items-center gap-2">
+      <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-fill-subtle text-muted">
+        <User className="size-3.5" />
+      </span>
+      {t("form.fullName")}
+    </span>
+  }
+  htmlFor="..."
+>
+```
+
+The icon chip is `size-7` (`28px`), `rounded-md`, `bg-fill-subtle text-muted`. The icon itself is
+`size-3.5` (`14px`). Do not use colour here — the chip is intentionally neutral.
+
+### Section-level icon (settings cards, grouped forms)
+
+Used when the form is divided into named sections — e.g. business settings.
+
+```tsx
+function SectionHeader({ icon, title, description }) {
+  return (
+    <div className="flex items-start gap-3 pb-3">
+      <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-mauve-100 text-mauve-600">
+        {icon}
+      </span>
+      <div>
+        <p className="text-body font-medium text-ink">{title}</p>
+        <p className="text-meta text-muted mt-0.5">{description}</p>
+      </div>
+    </div>
+  );
+}
+```
+
+The section icon chip is `size-9` (`36px`), `rounded-lg`, `bg-mauve-100 text-mauve-600` — the
+single touch of brand colour allowed in a non-primary-action context.
+
+**Canonical icon choices (lucide-react):**
+
+| Field / section | Icon |
+|---|---|
+| Person name / full name | `User` |
+| Job title | `Briefcase` |
+| Work stage / pipeline | `Layers` |
+| Assignable / checkbox | `CheckCircle` |
+| Email | `Mail` |
+| Role / permissions | `Shield` |
+| Business / salon name | `Building2` |
+| Timezone | `Globe` |
+| Sprint / cadence | `CalendarDays` |
+| Invite / add user | `UserPlus` |
+| Phone | `Phone` |
+| Date | `Calendar` |
+| Notes | `FileText` |
+
+When in doubt, pick the most concrete noun the field represents, not the action.
+
 ## RTL
 
 Hebrew is the default and RTL is the native reading direction, not a mirrored afterthought.

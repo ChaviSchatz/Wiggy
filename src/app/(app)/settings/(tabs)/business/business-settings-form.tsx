@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { Building2, CalendarDays, Globe } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,6 +18,28 @@ import { setSprintCadenceAction } from "@/lib/sprints/actions";
 
 const CONTROL_CLASS =
   "h-[39px] w-full rounded-xs border border-line-strong bg-surface px-3 text-body text-ink focus-visible:border-mauve-600 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-mauve-100";
+
+function SectionHeader({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 pb-3">
+      <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-mauve-100 text-mauve-600">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className="text-body font-medium text-ink leading-snug">{title}</p>
+        <p className="text-meta text-muted mt-0.5">{description}</p>
+      </div>
+    </div>
+  );
+}
 
 /**
  * Business settings (screen inventory #56). One card, not three -- these are
@@ -74,14 +97,18 @@ function NameSection({ name }: { name: string }) {
 
   return (
     <div className="space-y-3 p-4">
+      <SectionHeader
+        icon={<Building2 className="size-4" />}
+        title={t("label")}
+        description={t("help")}
+      />
       <div className="space-y-1.5">
-        <Label htmlFor="business-name">{t("label")}</Label>
+        <Label htmlFor="business-name" className="sr-only">{t("label")}</Label>
         <Input
           id="business-name"
           value={value}
           onChange={(event) => setValue(event.target.value)}
         />
-        <p className="text-meta text-muted">{t("help")}</p>
       </div>
 
       {status === "saved" ? (
@@ -124,8 +151,13 @@ function TimezoneSection({
 
   return (
     <div className="space-y-3 p-4">
+      <SectionHeader
+        icon={<Globe className="size-4" />}
+        title={t("label")}
+        description={t("help")}
+      />
       <div className="space-y-1.5">
-        <Label htmlFor="business-timezone">{t("label")}</Label>
+        <Label htmlFor="business-timezone" className="sr-only">{t("label")}</Label>
         <select
           id="business-timezone"
           value={value}
@@ -138,7 +170,6 @@ function TimezoneSection({
             </option>
           ))}
         </select>
-        <p className="text-meta text-muted">{t("help")}</p>
       </div>
 
       {status === "saved" ? (
@@ -164,7 +195,6 @@ function CadenceSection({ cadenceDays }: { cadenceDays: number }) {
   function save() {
     setStatus("idle");
     startTransition(async () => {
-      // Same action the sprint header uses -- one action, two call sites.
       const result = await setSprintCadenceAction(Number(value));
       setStatus(result.success ? "saved" : result.error);
       if (result.success) router.refresh();
@@ -173,8 +203,13 @@ function CadenceSection({ cadenceDays }: { cadenceDays: number }) {
 
   return (
     <div className="space-y-3 p-4">
+      <SectionHeader
+        icon={<CalendarDays className="size-4" />}
+        title={t("label")}
+        description={t("help")}
+      />
       <div className="space-y-1.5">
-        <Label htmlFor="sprint-cadence">{t("label")}</Label>
+        <Label htmlFor="sprint-cadence" className="sr-only">{t("label")}</Label>
         <Input
           id="sprint-cadence"
           type="number"
@@ -182,7 +217,6 @@ function CadenceSection({ cadenceDays }: { cadenceDays: number }) {
           value={value}
           onChange={(event) => setValue(event.target.value)}
         />
-        <p className="text-meta text-muted">{t("help")}</p>
       </div>
 
       {status === "saved" ? (
