@@ -15,50 +15,39 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FormMessage } from "@/components/ui/form-message";
-import { setPersonActiveAction } from "@/lib/people/actions";
+import {
+  reinvitePersonAction,
+  revokeAccessAction,
+  setPersonActiveAction,
+} from "@/lib/people/actions";
 import type { PersonAccessState } from "@/lib/people/guards";
 import type { PersonListItem } from "@/lib/people/queries";
-import {
-  ChangeRoleDialog,
-  CorrectEmailDialog,
-  InviteDialog,
-  ResendInviteButton,
-  RevokeAccessDialog,
-} from "./access-dialogs";
-import { PersonFormDialog, type StageOption } from "./person-form-dialog";
+import type { PanelState } from "./people-page-client";
 
-/**
- * Roster actions first, then the access actions that apply to this row's
- * state. Unavailable actions are absent rather than disabled: a manager's row
- * simply ends earlier instead of showing a line of dead controls.
- */
 export function PersonRowActions({
   person,
-  stages,
   openTaskCount,
   accessState,
   canManageAccess,
+  onOpenPanel,
 }: {
   person: PersonListItem;
-  stages: StageOption[];
   openTaskCount: number;
   accessState: PersonAccessState;
   canManageAccess: boolean;
+  onOpenPanel: (panel: PanelState) => void;
 }) {
   const t = useTranslations("pages.settings.people");
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <PersonFormDialog
-        stages={stages}
-        person={person}
-        canManageAccess={canManageAccess}
-        trigger={
-          <Button size="sm" variant="outline">
-            {t("edit")}
-          </Button>
-        }
-      />
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => onOpenPanel({ kind: "edit", person })}
+      >
+        {t("edit")}
+      </Button>
 
       {person.is_active ? (
         <DeactivateDialog
@@ -74,17 +63,35 @@ export function PersonRowActions({
         <>
           <span className="h-4 w-px bg-line" aria-hidden />
           {accessState === "rosterOnly" ? (
-            <InviteDialog person={person} />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onOpenPanel({ kind: "invite", person })}
+            >
+              {t("invite.action")}
+            </Button>
           ) : null}
           {accessState === "invited" ? (
             <>
               <ResendInviteButton person={person} />
-              <CorrectEmailDialog person={person} />
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onOpenPanel({ kind: "correctEmail", person })}
+              >
+                {t("correctEmail.action")}
+              </Button>
             </>
           ) : null}
           {accessState !== "rosterOnly" ? (
             <>
-              <ChangeRoleDialog person={person} />
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onOpenPanel({ kind: "changeRole", person })}
+              >
+                {t("changeRole.action")}
+              </Button>
               <RevokeAccessDialog person={person} />
             </>
           ) : null}
@@ -94,13 +101,6 @@ export function PersonRowActions({
   );
 }
 
-/**
- * Deactivation is the only removal path -- the database withholds the DELETE
- * grant. The dialog spells out the consequences because they are not
- * self-evident: the person leaves every assignee picker immediately and loses
- * their login, but their existing assignments and history stay exactly as
- * they are.
- */
 function DeactivateDialog({
   person,
   openTaskCount,
@@ -184,7 +184,6 @@ function DeactivateDialog({
   );
 }
 
-/** Reactivating is not destructive, so it needs no confirmation. */
 function ReactivateButton({ person }: { person: PersonListItem }) {
   const t = useTranslations("pages.settings.people");
   const router = useRouter();
@@ -204,5 +203,93 @@ function ReactivateButton({ person }: { person: PersonListItem }) {
     >
       {t("reactivate.action")}
     </Button>
+  );
+}
+
+function ResendInviteButton({ person }: { person: PersonListItem }) {
+  const t = useTranslations("pages.settings.people");
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      disabled={pending}
+      onClick={() =>
+        startTransition(async () => {
+          await reinvitePersonAction(person.id);
+          router.refresh();
+        })
+      }
+    >
+      {pending ? t("resend.sending") : t("resend.action")}
+    </Button>
+  );
+}
+
+function RevokeAccessDialog({ person }: { person: PersonListItem }) {
+  const t = useTranslations("pages.settings.people");
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [formError, setFormError] = useState<string | undefined>();
+  const [pending, startTransition] = useTransition();
+
+  function handleConfirm() {
+    setFormError(undefined);
+    startTransition(async () => {
+      const result = await revokeAccessAction(person.id);
+      if (!result.success) {
+        setFormError(result.formError ?? "generic");
+        return;
+      }
+      setOpen(false);
+      router.refresh();
+    });
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) setFormError(undefined);
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button size="sm" variant="danger-soft">
+          {t("revoke.action")}
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t("revoke.title")}</DialogTitle>
+        </DialogHeader>
+
+        <p className="text-body text-ink">{t("revoke.confirm")}</p>
+
+        {formError ? (
+          <FormMessage variant="error">
+            {t(`form.errors.${formError}`)}
+          </FormMessage>
+        ) : null}
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              {t("revoke.cancel")}
+            </Button>
+          </DialogClose>
+          <Button
+            type="button"
+            variant="danger"
+            disabled={pending}
+            onClick={handleConfirm}
+          >
+            {pending ? t("revoke.submitting") : t("revoke.submit")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
