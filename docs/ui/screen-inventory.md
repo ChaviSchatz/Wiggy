@@ -91,8 +91,8 @@ types/groups, intake templates, and staff are seeded via migrations for the firs
 50. Intake templates — list **[config]** — **built**
 51. **Intake template builder** (ordered items: task type / task group / field / section; add/remove/reorder) **[config]** — **built**
 52. Intake item config (per-item dialog: mandatory, visible, default-selected, selection mode, display style, help text, allow "Other", generates-tasks) **[config]** — **built**
-53. Staff members — list + create/edit (deactivate, never delete) **[config]** — **built**
-54. Users & roles — list, invite/create, assign role, link to staff **[config/admin]**
+53. **People** — one list of everyone in the salon: create/edit, assignable flag, deactivate (never delete), and — for an admin — invite, resend/correct invite, change role, revoke access. Merges the former #53 (staff members) and #54 (users & roles) per ADR 0013. **[config]** — **built**
+54. _(merged into #53 — see ADR 0013)_
 55. Branding settings (name, logo, colors) **[config/admin]**
 56. Business/tenant settings (timezone, sprint cadence; locale deferred — only `he` exists) **[config/admin]** — **built**
 57. Feedback management (admin view of submitted feedback) **[config]**

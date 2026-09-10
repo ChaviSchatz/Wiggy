@@ -69,7 +69,7 @@ Shared vocabulary for WigFlow. Use these exact terms in code, docs, and UI keys.
 | Intake template item — question   | שאלה                       |
 | Intake template item — task       | משימה                      |
 | Intake template item — task group | קבוצת משימות               |
-| Staff member                      | איש/אשת צוות               |
+| Person (roster entry)             | איש/אשת צוות               |
 | Approval                          | אישור                      |
 | Sewing                            | תפירה                      |
 | Hand tying                        | קשירה ידנית                |

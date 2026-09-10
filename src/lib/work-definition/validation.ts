@@ -1,6 +1,6 @@
 /**
  * Pure validation for the intake-template editor (screen inventory #50-52),
- * mirroring `src/lib/staff/validation.ts`.
+ * mirroring `src/lib/people/validation.ts`.
  */
 
 import { isFieldType, requiresOptions, serializeOptions } from "./field-types";

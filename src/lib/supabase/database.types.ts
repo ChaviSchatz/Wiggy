@@ -750,6 +750,7 @@ export type Database = {
           full_name: string
           id: string
           is_active: boolean
+          is_assignable: boolean
           title: string | null
           updated_at: string
           user_id: string | null
@@ -761,6 +762,7 @@ export type Database = {
           full_name: string
           id?: string
           is_active?: boolean
+          is_assignable?: boolean
           title?: string | null
           updated_at?: string
           user_id?: string | null
@@ -772,6 +774,7 @@ export type Database = {
           full_name?: string
           id?: string
           is_active?: boolean
+          is_assignable?: boolean
           title?: string | null
           updated_at?: string
           user_id?: string | null

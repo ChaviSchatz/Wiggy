@@ -43,6 +43,14 @@
 - **Secretary →** **Work Orders** list with a prominent **+ New Order** CTA.
 - **Admin →** **Dashboard** + full Settings access.
 
+**Settings → People is shared by manager and admin, with a split inside it** (ADR 0013). Both
+roles open the same list and both see every person, their role, and whether an invite is still
+outstanding — a manager needs to see the people they assign work to. Only an admin sees the
+controls that touch a login: invite, resend/correct invite, change role, revoke access
+(`manageUsers`, admin-only). A manager keeps the roster powers they already had (`manageStaff`):
+add, edit, set assignable, deactivate. Unavailable actions are absent rather than disabled, so a
+manager's row simply ends earlier.
+
 **Home is role-tailored, not one shared screen.** Every role can open it (table above), so its
 content follows the role: office roles (manager/admin/secretary) see order + sprint KPIs and
 attention widgets (unhandled missing items, approvals awaiting them, orders due soon, each gated
