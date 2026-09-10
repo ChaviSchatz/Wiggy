@@ -79,12 +79,12 @@
     --stage-tint-5: #fdf2ec;
 
     /* Side navigation — the one inverted surface in the product. */
-    --sidebar: #5b2557;
-    --sidebar-fg: rgb(255 255 255 / 0.9);
-    --sidebar-fg-dim: rgb(255 255 255 / 0.68);
-    --sidebar-hover: rgb(255 255 255 / 0.08);
-    --sidebar-active: rgb(255 255 255 / 0.14);
-    --sidebar-line: rgb(255 255 255 / 0.12);
+    --sidebar: #3d1a3b;
+    --sidebar-fg: rgb(255 255 255 / 0.96);
+    --sidebar-fg-dim: rgb(255 255 255 / 0.75);
+    --sidebar-hover: rgb(255 255 255 / 0.10);
+    --sidebar-active: rgb(255 255 255 / 0.16);
+    --sidebar-line: rgb(255 255 255 / 0.14);
     --sidebar-mark: #ead9e8;
 
     /* Semantic tokens consumed by shadcn/ui primitives */

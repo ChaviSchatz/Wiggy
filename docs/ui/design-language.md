@@ -123,6 +123,17 @@ the information needed to do the task in hand.
 metadata; it does not simply reflow every desktop element into one column. The same thing stays
 most important at every width.
 
+## Brand mark
+
+The Wiggy logo is three stylized human figures whose bodies form the letter W. It exists as a single-colour mark (`src/app/icon.png`) in deep plum (`#722168`). Use it only in its original proportions — never stretch, recolour, or add effects.
+
+**Usage:**
+- **Email headers** — embed as a 80×80 `<img>` with a base64-encoded PNG (300×300 source → 80px display, gives crisp retina display)
+- **App icon / favicon** — `src/app/icon.png` is picked up automatically by Next.js for the browser tab icon
+- **In-app branding** — the sidebar header currently shows a letter-initial "W" badge; if the sidebar gets a richer treatment in future, use the mark here too
+
+The brand mark is never placed on a coloured background — always on white or the near-white app background.
+
 ## Icons in forms and settings panels
 
 Every form field and settings section gets a contextual icon. This is mandatory, not optional — a
