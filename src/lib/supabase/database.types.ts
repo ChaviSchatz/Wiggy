@@ -146,6 +146,113 @@ export type Database = {
           },
         ]
       }
+      appointments: {
+        Row: {
+          appointment_type_id: string
+          business_id: string
+          cancelled_at: string | null
+          cancelled_by: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          ends_at: string
+          id: string
+          notes: string | null
+          reminder_sent_at: string | null
+          staff_member_id: string | null
+          starts_at: string
+          status: string
+          updated_at: string
+          work_order_id: string | null
+        }
+        Insert: {
+          appointment_type_id: string
+          business_id: string
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          ends_at: string
+          id?: string
+          notes?: string | null
+          reminder_sent_at?: string | null
+          staff_member_id?: string | null
+          starts_at: string
+          status?: string
+          updated_at?: string
+          work_order_id?: string | null
+        }
+        Update: {
+          appointment_type_id?: string
+          business_id?: string
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          ends_at?: string
+          id?: string
+          notes?: string | null
+          reminder_sent_at?: string | null
+          staff_member_id?: string | null
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_appointment_type_id_fkey"
+            columns: ["appointment_type_id"]
+            isOneToOne: false
+            referencedRelation: "appointment_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_staff_member_id_fkey"
+            columns: ["staff_member_id"]
+            isOneToOne: false
+            referencedRelation: "staff_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attachments: {
         Row: {
           business_id: string
