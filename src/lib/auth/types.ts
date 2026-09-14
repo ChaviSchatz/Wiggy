@@ -22,4 +22,13 @@ export type CurrentUser = {
    */
   timezone: string;
   role: Role;
+  /**
+   * This user's linked, active `staff_members` row in `businessId`, if any
+   * (resolved via `staff_members.user_id`, scoped by both `business_id` and
+   * `is_active`). `null` for a login with no roster row, or one that's been
+   * deactivated.
+   */
+  staffMemberId: string | null;
+  /** Whether that roster row is bookable for client appointments. False if `staffMemberId` is null. */
+  isBookable: boolean;
 };

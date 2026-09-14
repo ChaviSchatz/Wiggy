@@ -29,6 +29,8 @@ function userWithRole(role: Role): CurrentUser {
     businessName: "מספרת דוגמה",
     timezone: "Asia/Jerusalem",
     role,
+    staffMemberId: null,
+    isBookable: false,
   };
 }
 
