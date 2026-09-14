@@ -309,17 +309,32 @@ export type Database = {
       }
       business_settings: {
         Row: {
+          appointment_reminder_email_enabled: boolean
+          appointment_reminder_lead_hours: number
+          appointment_reminder_whatsapp_enabled: boolean
           business_id: string
+          send_appointment_confirmation: boolean
+          send_appointment_reminder: boolean
           sprint_cadence_days: number
           updated_at: string
         }
         Insert: {
+          appointment_reminder_email_enabled?: boolean
+          appointment_reminder_lead_hours?: number
+          appointment_reminder_whatsapp_enabled?: boolean
           business_id: string
+          send_appointment_confirmation?: boolean
+          send_appointment_reminder?: boolean
           sprint_cadence_days?: number
           updated_at?: string
         }
         Update: {
+          appointment_reminder_email_enabled?: boolean
+          appointment_reminder_lead_hours?: number
+          appointment_reminder_whatsapp_enabled?: boolean
           business_id?: string
+          send_appointment_confirmation?: boolean
+          send_appointment_reminder?: boolean
           sprint_cadence_days?: number
           updated_at?: string
         }
