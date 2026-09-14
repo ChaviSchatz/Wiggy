@@ -102,6 +102,50 @@ export type Database = {
           },
         ]
       }
+      appointment_types: {
+        Row: {
+          business_id: string
+          color: string | null
+          created_at: string
+          default_duration_minutes: number | null
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          color?: string | null
+          created_at?: string
+          default_duration_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          color?: string | null
+          created_at?: string
+          default_duration_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_types_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attachments: {
         Row: {
           business_id: string
