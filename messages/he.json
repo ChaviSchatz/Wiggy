@@ -12,6 +12,7 @@
     "board": "לוח ייצור",
     "sprint": "תכנון",
     "approvals": "אישורים",
+    "calendar": "יומן",
     "orders": "הזמנות עבודה",
     "customers": "לקוחות",
     "missingItems": "פריטים חסרים",
@@ -22,6 +23,7 @@
     "board": "לוח",
     "sprint": "תכנון",
     "approvals": "אישורים",
+    "calendar": "יומן",
     "feedback": "משוב",
     "profile": "פרופיל"
   },
