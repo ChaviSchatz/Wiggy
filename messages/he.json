@@ -132,6 +132,36 @@
         "openQueue": "פתיחת התור שלי"
       }
     },
+    "calendar": {
+      "title": "יומן",
+      "daySubtitle": "כל הצוות, יום אחד",
+      "weekSubtitle": "השבוע שלי",
+      "switchStaff": "החלפת איש צוות",
+      "bookSlot": "קביעת פגישה",
+      "popover": {
+        "bookTitle": "פגישה חדשה",
+        "customerLabel": "לקוח",
+        "customerSearchPlaceholder": "חיפוש לקוח...",
+        "typeLabel": "סוג פגישה",
+        "notesLabel": "הערות",
+        "cancel": "ביטול",
+        "book": "קביעה",
+        "bookAnyway": "קביעה בכל זאת",
+        "saving": "שומר...",
+        "close": "סגירה",
+        "markCompleted": "סימון כהושלם",
+        "markNoShow": "סימון כלא הגיע",
+        "errors": {
+          "required": "יש למלא את כל השדות",
+          "invalid": "שעת הסיום חייבת להיות אחרי שעת ההתחלה",
+          "overlap": "לאיש הצוות כבר יש פגישה בשעה הזו",
+          "notFound": "הפגישה לא נמצאה",
+          "notEditable": "לא ניתן לערוך פגישה שכבר הסתיימה או בוטלה",
+          "forbidden": "אין הרשאה",
+          "generic": "משהו השתבש, נסו שוב"
+        }
+      }
+    },
     "myWork": {
       "title": "העבודה שלי",
       "start": "התחלה",
