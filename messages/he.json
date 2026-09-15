@@ -704,6 +704,9 @@
         "templates": {
           "title": "תבניות קליטה",
           "description": "סוגי ההזמנות והטפסים שהלקוחה ממלאת."
+        },
+        "appointmentTypes": {
+          "title": "סוגי פגישות"
         }
       },
       "people": {
@@ -993,6 +996,43 @@
             "single": "בחירה אחת",
             "multi": "בחירה מרובה",
             "all": "כל העבודות בקבוצה"
+          }
+        }
+      },
+      "appointmentTypes": {
+        "add": "הוסף סוג פגישה",
+        "emptyTitle": "אין עדיין סוגי פגישות",
+        "emptyDescription": "הוסיפו סוג פגישה כדי להתחיל לתאם פגישות עם לקוחות",
+        "columns": {
+          "name": "שם",
+          "duration": "משך",
+          "status": "סטטוס",
+          "actions": "פעולות"
+        },
+        "durationMinutes": "{minutes} דקות",
+        "noDuration": "ללא משך קבוע",
+        "status": {
+          "active": "פעיל",
+          "inactive": "לא פעיל"
+        },
+        "edit": "עריכה",
+        "deactivate": "השבתה",
+        "activate": "הפעלה",
+        "form": {
+          "createTitle": "סוג פגישה חדש",
+          "editTitle": "עריכת סוג פגישה",
+          "name": "שם",
+          "duration": "משך ברירת מחדל (דקות)",
+          "cancel": "ביטול",
+          "save": "שמירה",
+          "saving": "שומר...",
+          "errors": {
+            "required": "שדה חובה",
+            "tooLong": "השם ארוך מדי",
+            "invalid": "ערך לא תקין",
+            "notFound": "סוג הפגישה לא נמצא",
+            "generic": "משהו השתבש, נסו שוב",
+            "forbidden": "אין הרשאה"
           }
         }
       }
