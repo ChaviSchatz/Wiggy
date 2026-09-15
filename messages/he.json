@@ -899,6 +899,25 @@
             "forbidden": "אין לכם הרשאה לפעולה זו.",
             "generic": "משהו השתבש. נסו שוב."
           }
+        },
+        "reminders": {
+          "label": "תזכורות לפגישות",
+          "help": "שליחת אימייל/וואטסאפ ללקוחות על פגישות מתוזמנות",
+          "sendConfirmation": "שליחת אישור בעת קביעת הפגישה",
+          "sendReminder": "שליחת תזכורת לפני הפגישה",
+          "leadHours": "כמה שעות לפני",
+          "leadHoursSuffix": "שעות לפני",
+          "emailEnabled": "שליחה באימייל",
+          "whatsappEnabled": "שליחה בוואטסאפ",
+          "whatsappComingSoon": "בקרוב",
+          "saved": "נשמר",
+          "saving": "שומר...",
+          "save": "שמירה",
+          "errors": {
+            "generic": "משהו השתבש, נסו שוב",
+            "invalidLeadHours": "מספר שעות לא תקין",
+            "forbidden": "אין הרשאה"
+          }
         }
       },
       "templates": {
