@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { colorForName } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { computeOverlapLayout } from "@/lib/appointments/overlap-layout";
 import { businessWallClockToUtc } from "@/lib/time/business-time";
 import { cn } from "@/lib/utils";
 import type { AppointmentListItem } from "@/lib/appointments/types";
@@ -45,43 +47,86 @@ export type GridColumn = {
   appointments: AppointmentListItem[];
 };
 
-export function AppointmentGrid({
-  columns,
-  timezone,
-  canWrite,
-  customerOptions,
-  appointmentTypeOptions,
-}: {
-  columns: GridColumn[];
-  timezone: string;
-  canWrite: boolean;
-  customerOptions: { id: string; name: string; phone: string | null }[];
-  appointmentTypeOptions: {
-    id: string;
-    name: string;
-    defaultDurationMinutes: number | null;
-    color: string | null;
-  }[];
-}) {
+/**
+ * A team-week day column: every bookable staff member's appointments for
+ * that day, not one staff member's -- so unlike `GridColumn`, it carries no
+ * single `staffMemberId`. Read-only (no `EmptySlotButtons`): there's no one
+ * obvious staff member to book for when clicking a shared day column.
+ */
+export type TeamGridColumn = {
+  key: string;
+  label: string;
+  date: string;
+  appointments: AppointmentListItem[];
+};
+
+type AppointmentGridProps =
+  | {
+      mode?: "single-staff";
+      columns: GridColumn[];
+      timezone: string;
+      canWrite: boolean;
+      customerOptions: { id: string; name: string; phone: string | null }[];
+      appointmentTypeOptions: {
+        id: string;
+        name: string;
+        defaultDurationMinutes: number | null;
+        color: string | null;
+      }[];
+    }
+  | {
+      mode: "team";
+      columns: TeamGridColumn[];
+      timezone: string;
+      /** Still gates the appointment popover's edit/view mode, even though this mode never shows booking buttons. */
+      canWrite: boolean;
+    };
+
+export function AppointmentGrid(props: AppointmentGridProps) {
   const t = useTranslations("pages.calendar");
   const rows = gridRows();
   const totalHeight = rows.length * (60 / SLOT_MINUTES) * ROW_HEIGHT_PX;
 
+  if (props.mode === "team") {
+    const { columns, timezone, canWrite } = props;
+    return (
+      <div className="flex overflow-x-auto rounded-card border border-line bg-surface">
+        <HourLabels rows={rows} />
+        {columns.map((column) => {
+          const layout = computeOverlapLayout(
+            column.appointments.map((appointment) => ({
+              id: appointment.id,
+              startsAt: appointment.starts_at,
+              endsAt: appointment.ends_at,
+            })),
+          );
+          return (
+            <div key={column.key} className="min-w-[9rem] flex-1 border-e border-line last:border-e-0">
+              <div className="flex h-9 items-center justify-center border-b border-line px-2 text-body font-medium text-ink">
+                {column.label}
+              </div>
+              <div className="relative" style={{ height: totalHeight }}>
+                {column.appointments.map((appointment) => (
+                  <TeamAppointmentBlock
+                    key={appointment.id}
+                    appointment={appointment}
+                    timezone={timezone}
+                    canWrite={canWrite}
+                    placement={layout.get(appointment.id) ?? { column: 0, columnCount: 1 }}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  const { columns, timezone, canWrite, customerOptions, appointmentTypeOptions } = props;
   return (
     <div className="flex overflow-x-auto rounded-card border border-line bg-surface">
-      <div className="w-14 shrink-0 border-e border-line text-end">
-        <div className="h-9 border-b border-line" />
-        {rows.map(({ hour }) => (
-          <div
-            key={hour}
-            className="border-b border-line px-2 py-1 text-meta text-muted"
-            style={{ height: (60 / SLOT_MINUTES) * ROW_HEIGHT_PX }}
-          >
-            {String(hour).padStart(2, "0")}:00
-          </div>
-        ))}
-      </div>
-
+      <HourLabels rows={rows} />
       {columns.map((column) => (
         <div key={column.key} className="min-w-[9rem] flex-1 border-e border-line last:border-e-0">
           <div className="flex h-9 items-center justify-center border-b border-line px-2 text-body font-medium text-ink">
@@ -106,6 +151,23 @@ export function AppointmentGrid({
               />
             ))}
           </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HourLabels({ rows }: { rows: { hour: number }[] }) {
+  return (
+    <div className="w-14 shrink-0 border-e border-line text-end">
+      <div className="h-9 border-b border-line" />
+      {rows.map(({ hour }) => (
+        <div
+          key={hour}
+          className="border-b border-line px-2 py-1 text-meta text-muted"
+          style={{ height: (60 / SLOT_MINUTES) * ROW_HEIGHT_PX }}
+        >
+          {String(hour).padStart(2, "0")}:00
         </div>
       ))}
     </div>
@@ -219,6 +281,67 @@ function AppointmentBlock({
         >
           <p className="truncate font-medium">{appointment.appointmentTypeName}</p>
           <p className="truncate text-muted">{appointment.customerName}</p>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <AppointmentPopoverContent
+          mode={canWrite ? "edit" : "view"}
+          appointment={appointment}
+          timezone={timezone}
+          onDone={() => setOpen(false)}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/**
+ * The team-week mode's appointment block: color comes from
+ * `colorForName(staffMemberName)` (the same hash-based assignment the
+ * `Avatar` component uses) instead of the appointment type's color, and its
+ * width/offset come from `computeOverlapLayout`'s per-day placement so two
+ * staff members' overlapping appointments render side-by-side instead of
+ * stacking on top of each other.
+ */
+function TeamAppointmentBlock({
+  appointment,
+  timezone,
+  canWrite,
+  placement,
+}: {
+  appointment: AppointmentListItem;
+  timezone: string;
+  canWrite: boolean;
+  placement: { column: number; columnCount: number };
+}) {
+  const [open, setOpen] = useState(false);
+  const startMinutes = minutesFromGridStart(appointment.starts_at, timezone);
+  const endMinutes = minutesFromGridStart(appointment.ends_at, timezone);
+  const top = startMinutes * (ROW_HEIGHT_PX / SLOT_MINUTES);
+  const height = Math.max(
+    (endMinutes - startMinutes) * (ROW_HEIGHT_PX / SLOT_MINUTES),
+    ROW_HEIGHT_PX / 2,
+  );
+  const { column, columnCount } = placement;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "absolute overflow-hidden rounded-xs p-1 text-start text-meta",
+            colorForName(appointment.staffMemberName ?? ""),
+          )}
+          style={{
+            top,
+            height,
+            insetInlineStart: `calc(${(column * 100) / columnCount}% + 2px)`,
+            width: `calc(${100 / columnCount}% - 4px)`,
+          }}
+        >
+          <p className="truncate font-medium">{appointment.staffMemberName}</p>
+          <p className="truncate">{appointment.customerName}</p>
         </button>
       </PopoverTrigger>
       <PopoverContent>

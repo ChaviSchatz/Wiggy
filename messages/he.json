@@ -136,8 +136,19 @@
       "title": "יומן",
       "daySubtitle": "כל הצוות, יום אחד",
       "weekSubtitle": "השבוע שלי",
-      "switchStaff": "החלפת איש צוות",
+      "weekTeamSubtitle": "כל הצוות, השבוע",
+      "dayPersonSubtitle": "יום אחד",
+      "viewDay": "יום",
+      "viewWeek": "שבוע",
+      "switchScope": "בחירת כל הצוות או איש צוות",
+      "wholeTeam": "כל הצוות",
+      "legendHeading": "מקרא:",
       "bookSlot": "קביעת פגישה",
+      "emptyStaff": {
+        "title": "אין אנשי צוות זמינים לקביעת תורים",
+        "description": "כדי להציג את היומן, יש לסמן לפחות איש צוות אחד כניתן לקביעת תורים.",
+        "link": "מעבר להגדרות אנשי הצוות"
+      },
       "popover": {
         "bookTitle": "פגישה חדשה",
         "customerLabel": "לקוח",

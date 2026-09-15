@@ -1,23 +1,30 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/layout/page-header";
+import { colorForName } from "@/components/ui/avatar";
+import { EmptyState } from "@/components/ui/empty-state";
 import { listActiveAppointmentTypes } from "@/lib/appointment-types/queries";
 import {
   listAppointmentsForAllStaffInRange,
   listAppointmentsForStaffInRange,
   listBookableStaff,
+  type BookableStaffOption,
 } from "@/lib/appointments/queries";
 import { resolveViewableStaffMemberId } from "@/lib/appointments/guards";
 import { getCurrentUser } from "@/lib/auth/server";
 import { can } from "@/lib/roles";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { addCalendarDays, businessDateString, businessWallClockToUtc } from "@/lib/time/business-time";
+import { cn } from "@/lib/utils";
 import { searchCustomersAction } from "./search-customers-action";
-import { AppointmentGrid, type GridColumn } from "./appointment-grid";
-import { StaffSwitcher } from "./staff-switcher";
+import { AppointmentGrid, type GridColumn, type TeamGridColumn } from "./appointment-grid";
+import { CalendarViewControls } from "./calendar-view-controls";
 
-type SearchParams = { view?: string; date?: string; staff?: string };
+type ViewOption = "day" | "week";
+type ScopeOption = "team" | "person";
+type SearchParams = { view?: string; date?: string; staff?: string; scope?: string };
 
 /**
  * `[start, end)` as real UTC instants for one business-local calendar day --
@@ -50,9 +57,47 @@ export default async function CalendarPage({
     searchCustomersAction(""),
   ]);
 
-  const date = searchParams.date ?? businessDateString(new Date(), user.timezone);
-  const view = canManageAppointments ? (searchParams.view ?? "day") : "week";
   const t = await getTranslations("pages.calendar");
+
+  // A manageAppointments holder with nobody bookable yet has no calendar to
+  // show in any view/scope combination -- send them to set one up instead of
+  // rendering an empty grid.
+  if (canManageAppointments && bookableStaff.length === 0) {
+    return (
+      <div>
+        <PageHeader title={t("title")} />
+        <EmptyState
+          title={t("emptyStaff.title")}
+          description={t("emptyStaff.description")}
+          action={
+            <Link
+              href="/settings/people"
+              className="text-body font-medium text-mauve-600 hover:underline"
+            >
+              {t("emptyStaff.link")}
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
+  const date = searchParams.date ?? businessDateString(new Date(), user.timezone);
+
+  // The TIME RANGE (day/week) is decoupled from the AUDIENCE (team/person).
+  // Managers default to day+team (today's existing default); a plain worker
+  // never gets a team view at all, no matter what the URL says -- they're
+  // always locked to their own calendar, though they now also get the
+  // day/week toggle.
+  const view: ViewOption =
+    searchParams.view === "day" || searchParams.view === "week"
+      ? searchParams.view
+      : canManageAppointments
+        ? "day"
+        : "week";
+  const requestedScope: ScopeOption | null =
+    searchParams.scope === "team" || searchParams.scope === "person" ? searchParams.scope : null;
+  const scope: ScopeOption = canManageAppointments ? (requestedScope ?? "team") : "person";
 
   const typeOptions = appointmentTypes.map((type) => ({
     id: type.id,
@@ -61,7 +106,19 @@ export default async function CalendarPage({
     color: type.color,
   }));
 
-  if (view === "day") {
+  const controls = (
+    <CalendarViewControls
+      view={view}
+      scope={scope}
+      selectedStaffMemberId={scope === "person" ? (searchParams.staff ?? user.staffMemberId ?? null) : null}
+      bookableStaff={bookableStaff}
+      canManageAppointments={canManageAppointments}
+    />
+  );
+
+  if (scope === "team" && view === "day") {
+    // Unchanged from the original single-mode calendar: all bookable staff,
+    // one column each, for one day, bookable.
     const { start, end } = dayRange(date, user.timezone);
     const appointments = await listAppointmentsForAllStaffInRange(supabase, user.businessId, start, end);
     const columns: GridColumn[] = bookableStaff.map((person) => ({
@@ -74,7 +131,7 @@ export default async function CalendarPage({
 
     return (
       <div>
-        <PageHeader title={t("title")} subtitle={t("daySubtitle")} />
+        <PageHeader title={t("title")} subtitle={t("daySubtitle")} actions={controls} />
         <AppointmentGrid
           columns={columns}
           timezone={user.timezone}
@@ -86,7 +143,49 @@ export default async function CalendarPage({
     );
   }
 
-  // Week view
+  if (scope === "team" && view === "week") {
+    // NEW: 7 day columns, each holding every bookable staff member's
+    // appointments for that day, color-coded by staff and laid out
+    // side-by-side when two people's appointments overlap. Read-only: no
+    // single obvious staff member to book for when clicking a shared column.
+    const weekDates = weekDatesFor(date);
+    const weekStart = businessWallClockToUtc(weekDates[0], 0, 0, user.timezone).toISOString();
+    const weekEnd = businessWallClockToUtc(
+      addCalendarDays(weekDates[weekDates.length - 1], 1),
+      0,
+      0,
+      user.timezone,
+    ).toISOString();
+    const appointments = await listAppointmentsForAllStaffInRange(
+      supabase,
+      user.businessId,
+      weekStart,
+      weekEnd,
+    );
+    const columns: TeamGridColumn[] = weekDates.map((d) => ({
+      key: d,
+      label: new Date(d).toLocaleDateString("he-IL", { weekday: "short" }),
+      date: d,
+      appointments: appointments.filter(
+        (a) => businessDateString(new Date(a.starts_at), user.timezone) === d,
+      ),
+    }));
+
+    return (
+      <div>
+        <PageHeader title={t("title")} subtitle={t("weekTeamSubtitle")} actions={controls} />
+        <CalendarLegend staff={bookableStaff} heading={t("legendHeading")} />
+        <AppointmentGrid
+          mode="team"
+          columns={columns}
+          timezone={user.timezone}
+          canWrite={canManageAppointments}
+        />
+      </div>
+    );
+  }
+
+  // scope === "person": one staff member's calendar, day or week.
   const staffMemberId = resolveViewableStaffMemberId({
     canManageAppointments,
     current: { staffMemberId: user.staffMemberId, isBookable: user.isBookable },
@@ -95,9 +194,46 @@ export default async function CalendarPage({
   });
   if (!staffMemberId) redirect("/");
 
+  const staffNameById = new Map(bookableStaff.map((s) => [s.id, s.fullName]));
+  const columnLabel = staffNameById.get(staffMemberId) ?? user.fullName ?? "";
+
+  if (view === "day") {
+    // NEW: the day-view rendering machinery, but a single column for the
+    // requested (or defaulted) staff member.
+    const { start, end } = dayRange(date, user.timezone);
+    const appointments = await listAppointmentsForStaffInRange(
+      supabase,
+      user.businessId,
+      staffMemberId,
+      start,
+      end,
+    );
+    const columns: GridColumn[] = [
+      {
+        key: staffMemberId,
+        label: columnLabel,
+        staffMemberId,
+        date,
+        appointments,
+      },
+    ];
+
+    return (
+      <div>
+        <PageHeader title={t("title")} subtitle={t("dayPersonSubtitle")} actions={controls} />
+        <AppointmentGrid
+          columns={columns}
+          timezone={user.timezone}
+          canWrite={canManageAppointments}
+          customerOptions={customerOptions}
+          appointmentTypeOptions={typeOptions}
+        />
+      </div>
+    );
+  }
+
+  // Week + person: unchanged from the original calendar's default view.
   const weekDates = weekDatesFor(date);
-  // Same [start, next-day-after-last) shape as `dayRange`, spanning the
-  // whole week rather than one day.
   const weekStart = businessWallClockToUtc(weekDates[0], 0, 0, user.timezone).toISOString();
   const weekEnd = businessWallClockToUtc(
     addCalendarDays(weekDates[weekDates.length - 1], 1),
@@ -128,15 +264,7 @@ export default async function CalendarPage({
 
   return (
     <div>
-      <PageHeader
-        title={t("title")}
-        subtitle={t("weekSubtitle")}
-        actions={
-          canManageAppointments ? (
-            <StaffSwitcher staff={bookableStaff} selectedStaffMemberId={staffMemberId} />
-          ) : undefined
-        }
-      />
+      <PageHeader title={t("title")} subtitle={t("weekSubtitle")} actions={controls} />
       <AppointmentGrid
         columns={columns}
         timezone={user.timezone}
@@ -144,6 +272,31 @@ export default async function CalendarPage({
         customerOptions={customerOptions}
         appointmentTypeOptions={typeOptions}
       />
+    </div>
+  );
+}
+
+/**
+ * The team-week mode's legend: staff name + color swatch, using the exact
+ * same `colorForName` hash the `Avatar` component uses, so a person's
+ * calendar color always matches their avatar color everywhere else.
+ */
+function CalendarLegend({
+  staff,
+  heading,
+}: {
+  staff: BookableStaffOption[];
+  heading: string;
+}) {
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-4">
+      <span className="text-meta font-medium text-muted">{heading}</span>
+      {staff.map((person) => (
+        <span key={person.id} className="flex items-center gap-1.5 text-meta text-ink">
+          <span className={cn("size-3 rounded-full", colorForName(person.fullName))} aria-hidden />
+          {person.fullName}
+        </span>
+      ))}
     </div>
   );
 }
