@@ -248,3 +248,26 @@ export async function cancelAppointmentAction(
     cancelled_by: user.id,
   });
 }
+
+/**
+ * Populates the booking form's optional work-order picker once a customer
+ * is chosen. Read-only, no permission check beyond authentication -- the
+ * caller already passed the page-level `manageAppointments` gate to reach
+ * the booking form at all.
+ */
+export async function listWorkOrdersForCustomerAction(
+  customerId: string,
+): Promise<{ id: string; number: number }[]> {
+  const user = await getCurrentUser();
+  if (!user) return [];
+
+  const supabase = await createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("work_orders")
+    .select("id, number")
+    .eq("business_id", user.businessId)
+    .eq("customer_id", customerId)
+    .order("number", { ascending: false });
+  if (error) return [];
+  return data ?? [];
+}

@@ -13,6 +13,7 @@ import {
   cancelAppointmentAction,
   completeAppointmentAction,
   createAppointmentAction,
+  listWorkOrdersForCustomerAction,
   markNoShowAction,
 } from "@/lib/appointments/actions";
 import type { AppointmentListItem } from "@/lib/appointments/types";
@@ -213,6 +214,10 @@ function BookAppointmentForm({
   const [error, setError] = useState<string | undefined>();
   const [confirmingOverlap, setConfirmingOverlap] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [workOrderId, setWorkOrderId] = useState("");
+  const [customerWorkOrders, setCustomerWorkOrders] = useState<
+    { id: string; number: number }[]
+  >([]);
 
   useEffect(() => {
     const handle = setTimeout(() => {
@@ -220,6 +225,31 @@ function BookAppointmentForm({
     }, 300);
     return () => clearTimeout(handle);
   }, [query]);
+
+  useEffect(() => {
+    // Cleared on every customer change, not just when the customer is
+    // cleared -- otherwise picking a work order for customer A, then
+    // switching to customer B, leaves `workOrderId` pointing at A's order
+    // (invisible if B has none, since the picker itself then renders
+    // nothing) and it would still be submitted, pairing the appointment
+    // with the wrong customer's order. The server has no check tying the
+    // two together, so this has to hold client-side.
+    setWorkOrderId("");
+    if (!customerId) {
+      setCustomerWorkOrders([]);
+      return;
+    }
+    // Ignore a response that lands after a newer customer was already
+    // selected -- without this, quickly switching customer A -> B could
+    // apply A's work orders to the form after B's fetch already resolved.
+    let stale = false;
+    listWorkOrdersForCustomerAction(customerId).then((orders) => {
+      if (!stale) setCustomerWorkOrders(orders);
+    });
+    return () => {
+      stale = true;
+    };
+  }, [customerId]);
 
   const selectedType = appointmentTypeOptions.find((type) => type.id === typeId);
   const durationMinutes = selectedType?.defaultDurationMinutes ?? 30;
@@ -234,6 +264,7 @@ function BookAppointmentForm({
     const formData = new FormData();
     formData.set("staffMemberId", staffMemberId);
     formData.set("customerId", customerId);
+    formData.set("workOrderId", workOrderId);
     formData.set("appointmentTypeId", typeId);
     formData.set("startsAt", initialStartsAtUtc);
     formData.set("endsAt", endsAtUtc);
@@ -297,6 +328,25 @@ function BookAppointmentForm({
           ))}
         </select>
       </div>
+
+      {customerWorkOrders.length > 0 ? (
+        <div className="space-y-1.5">
+          <Label htmlFor="appointment-work-order">{t("workOrderLabel")}</Label>
+          <select
+            id="appointment-work-order"
+            value={workOrderId}
+            onChange={(event) => setWorkOrderId(event.target.value)}
+            className="h-9 w-full rounded-control border border-line bg-surface px-2 text-meta text-ink"
+          >
+            <option value="">{t("noWorkOrder")}</option>
+            {customerWorkOrders.map((order) => (
+              <option key={order.id} value={order.id}>
+                #{order.number}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
 
       <div className="space-y-1.5">
         <Label htmlFor="appointment-notes">{t("notesLabel")}</Label>

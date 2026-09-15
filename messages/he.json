@@ -143,6 +143,8 @@
         "customerLabel": "לקוח",
         "customerSearchPlaceholder": "חיפוש לקוח...",
         "typeLabel": "סוג פגישה",
+        "workOrderLabel": "הזמנה מקושרת",
+        "noWorkOrder": "ללא הזמנה",
         "notesLabel": "הערות",
         "cancel": "ביטול",
         "book": "קביעה",
@@ -405,6 +407,10 @@
             "errors": {
               "generic": "משהו השתבש. נסו שוב."
             }
+          },
+          "meetings": {
+            "title": "פגישות",
+            "empty": "אין פגישות מתוזמנות"
           },
           "attachments": {
             "filesTitle": "קבצים ותמונות",
