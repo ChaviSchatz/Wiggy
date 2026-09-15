@@ -142,6 +142,24 @@ export function TaskCard({
         </PopoverContent>
       </Popover>
 
+      {task.nearestAppointment ? (
+        // No explicit `timeZone` here, matching `dueAt`'s rendering just
+        // above -- both show the viewer's browser timezone rather than the
+        // business's, a pre-existing gap in this file. Fixing it properly
+        // needs `timezone` threaded through board/page.tsx and
+        // production-board.tsx (the calendar screens already do this
+        // correctly); do both at once rather than fixing one field here.
+        <p className="mt-1.5 truncate text-meta text-muted">
+          {task.nearestAppointment.typeName}
+          {" · "}
+          {new Date(task.nearestAppointment.startsAt).toLocaleString("he-IL", {
+            weekday: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </p>
+      ) : null}
+
       <div className="mt-3 flex items-center justify-between gap-2">
         <button
           type="button"

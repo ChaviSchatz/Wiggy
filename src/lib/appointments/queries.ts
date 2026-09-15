@@ -121,7 +121,14 @@ export async function listBookableStaff(
   return (data ?? []).map((row) => ({ id: row.id, fullName: row.full_name }));
 }
 
-/** The nearest upcoming `scheduled` appointment for a work order -- board badge + hub. */
+/**
+ * The nearest upcoming `scheduled` appointment for a single work order --
+ * for the Hub's single-order view. NOT used by the board: with ~50 open
+ * orders on screen at once, calling this per-order would reintroduce the
+ * N+1 this codebase avoids everywhere else -- the board instead does one
+ * batched query directly in `src/lib/board/queries.ts`
+ * (`nearestAppointmentByWorkOrderId`).
+ */
 export async function fetchNearestUpcomingAppointmentForOrder(
   supabase: SupabaseClient<Database>,
   businessId: string,

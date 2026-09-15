@@ -11,6 +11,33 @@ export const LIVE_STATUSES = [
   "deferred",
 ] as const;
 
+type UpcomingAppointmentRow = {
+  work_order_id: string | null;
+  starts_at: string;
+  appointment_type_id: string;
+};
+
+/**
+ * Reduces a `starts_at`-ascending list of upcoming appointments to the
+ * earliest one per work order. Pure so it's unit-testable without a DB --
+ * the actual query (batched, scoped to the board's live orders) lives in
+ * `fetchBoardTasks`.
+ */
+export function nearestAppointmentByWorkOrderId(
+  rows: UpcomingAppointmentRow[],
+  typeNameById: Map<string, string>,
+): Map<string, { typeName: string; startsAt: string }> {
+  const result = new Map<string, { typeName: string; startsAt: string }>();
+  for (const appt of rows) {
+    if (!appt.work_order_id || result.has(appt.work_order_id)) continue;
+    result.set(appt.work_order_id, {
+      typeName: typeNameById.get(appt.appointment_type_id) ?? "",
+      startsAt: appt.starts_at,
+    });
+  }
+  return result;
+}
+
 export type BoardTask = Tables<"runtime_tasks"> & {
   orderNumber: number;
   /**
@@ -25,6 +52,8 @@ export type BoardTask = Tables<"runtime_tasks"> & {
   taskTypeName: string | null;
   /** The card shows the task's own `due_at` and falls back to this (ADR 0012). */
   orderDueAt: string | null;
+  /** The order's nearest upcoming appointment, if any. */
+  nearestAppointment: { typeName: string; startsAt: string } | null;
 };
 
 /**
@@ -99,6 +128,41 @@ export async function fetchBoardTasks(
       : { data: [], error: null };
   if (customersResult.error) throw customersResult.error;
 
+  const { data: upcomingAppointments, error: appointmentsError } =
+    workOrderIds.length > 0
+      ? await supabase
+          .from("appointments")
+          .select("work_order_id, starts_at, appointment_type_id")
+          .eq("business_id", businessId)
+          .eq("status", "scheduled")
+          .in("work_order_id", workOrderIds)
+          .gte("starts_at", new Date().toISOString())
+          .order("starts_at", { ascending: true })
+      : { data: [], error: null };
+  if (appointmentsError) throw appointmentsError;
+
+  const appointmentTypeIds = Array.from(
+    new Set((upcomingAppointments ?? []).map((a) => a.appointment_type_id)),
+  );
+  const { data: appointmentTypes, error: appointmentTypesError } =
+    appointmentTypeIds.length > 0
+      ? await supabase
+          .from("appointment_types")
+          .select("id, name")
+          .in("id", appointmentTypeIds)
+      : { data: [] as { id: string; name: string }[], error: null };
+  if (appointmentTypesError) throw appointmentTypesError;
+  const appointmentTypeNameById = new Map(
+    (appointmentTypes ?? []).map((t) => [t.id, t.name]),
+  );
+
+  // The query above is already sorted ascending by starts_at, so this picks
+  // the earliest (first) row per order.
+  const nearestAppointmentById = nearestAppointmentByWorkOrderId(
+    upcomingAppointments ?? [],
+    appointmentTypeNameById,
+  );
+
   const orderById = new Map(orders.map((o) => [o.id, o]));
   const customerNameById = new Map(
     (customersResult.data ?? []).map((c) => [c.id, c.name]),
@@ -126,6 +190,7 @@ export async function fetchBoardTasks(
         ? (taskTypeNameById.get(task.task_type_id) ?? null)
         : null,
       orderDueAt: order?.due_at ?? null,
+      nearestAppointment: nearestAppointmentById.get(task.work_order_id) ?? null,
     };
   });
 }
