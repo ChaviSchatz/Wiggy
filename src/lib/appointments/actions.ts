@@ -7,7 +7,8 @@ import type { CurrentUser } from "@/lib/auth/types";
 import { can } from "@/lib/roles";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { canWriteAppointments } from "./guards";
-import { listOverlappingAppointments } from "./queries";
+import { notifyAppointmentEvent } from "./notify";
+import { fetchReminderSettings, listOverlappingAppointments } from "./queries";
 import {
   canTransitionStatus,
   validateAppointmentTimes,
@@ -41,6 +42,37 @@ function revalidateAppointmentSurfaces(workOrderId: string | null) {
   revalidatePath("/calendar");
   revalidatePath("/board");
   if (workOrderId) revalidatePath(`/orders/${workOrderId}`);
+}
+
+/**
+ * The customer/type/tenant-settings lookup shared by the confirmation and
+ * cancellation notify paths. The three queries are independent (none needs
+ * another's result), so they're batched via `Promise.all` rather than
+ * awaited sequentially -- this still blocks the caller's response (only the
+ * actual `notifyAppointmentEvent` send is fire-and-forget), so serializing
+ * three round-trips here would add avoidable latency to every booking and
+ * status change.
+ */
+async function resolveNotifyContext(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  businessId: string,
+  customerId: string,
+  appointmentTypeId: string,
+) {
+  const [{ data: customer }, { data: type }, settings] = await Promise.all([
+    supabase
+      .from("customers")
+      .select("name, email, phone")
+      .eq("id", customerId)
+      .maybeSingle(),
+    supabase
+      .from("appointment_types")
+      .select("name")
+      .eq("id", appointmentTypeId)
+      .maybeSingle(),
+    fetchReminderSettings(supabase, businessId),
+  ]);
+  return { customer, type, settings };
 }
 
 function readBookInput(formData: FormData): BookAppointmentInput {
@@ -107,6 +139,33 @@ export async function createAppointmentAction(
   if (error || !data) return { success: false, error: "generic" };
 
   revalidateAppointmentSurfaces(input.workOrderId);
+
+  // Fire-and-forget: a notification failure must never fail the booking
+  // that already succeeded above. The three lookups are independent (none
+  // needs another's result), so they're batched rather than awaited one at
+  // a time -- this still blocks the response (only the actual send below is
+  // `void`-fired), so serializing them would add avoidable latency to
+  // every booking.
+  const { customer, type, settings } = await resolveNotifyContext(
+    supabase,
+    user.businessId,
+    input.customerId,
+    input.appointmentTypeId,
+  );
+  if (customer && type) {
+    if (settings.sendConfirmation) {
+      void notifyAppointmentEvent({
+        kind: "confirmation",
+        customerName: customer.name,
+        customerEmail: customer.email,
+        customerPhone: customer.phone,
+        appointmentTypeName: type.name,
+        startsAt: input.startsAt,
+        settings,
+      });
+    }
+  }
+
   return { success: true, appointmentId: data.id, hadOverlapWarning: overlaps.length > 0 };
 }
 
@@ -193,7 +252,7 @@ async function setStatus(
   const supabase = await createServerSupabaseClient();
   const { data: existing, error: fetchError } = await supabase
     .from("appointments")
-    .select("id, status, work_order_id")
+    .select("id, status, work_order_id, customer_id, appointment_type_id, starts_at")
     .eq("id", id)
     .eq("business_id", user.businessId)
     .maybeSingle();
@@ -219,6 +278,33 @@ async function setStatus(
   }
 
   revalidateAppointmentSurfaces(existing.work_order_id);
+
+  // Only `cancelAppointmentAction` transitions to "cancelled" -- this is the
+  // cleanest way to scope the cancellation notice to that one call path
+  // without threading an extra parameter through the two other thin
+  // wrappers that share this helper. Fire-and-forget, same as the
+  // confirmation send: a notification failure must never fail the status
+  // change that already succeeded above.
+  if (status === "cancelled") {
+    const { customer, type, settings } = await resolveNotifyContext(
+      supabase,
+      user.businessId,
+      existing.customer_id,
+      existing.appointment_type_id,
+    );
+    if (customer && type && settings.sendConfirmation) {
+      void notifyAppointmentEvent({
+        kind: "cancellation",
+        customerName: customer.name,
+        customerEmail: customer.email,
+        customerPhone: customer.phone,
+        appointmentTypeName: type.name,
+        startsAt: existing.starts_at,
+        settings,
+      });
+    }
+  }
+
   return { success: true, appointmentId: id, hadOverlapWarning: false };
 }
 
