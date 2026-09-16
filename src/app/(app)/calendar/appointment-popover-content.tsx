@@ -28,32 +28,40 @@ type AppointmentTypeOption = {
   color: string | null;
 };
 
+/** Shared by both `create` variants below. */
+type CreateCommonProps = {
+  /** A real UTC instant (Step 1's `businessWallClockToUtc`), never a naive local string. */
+  initialStartsAtUtc: string;
+  /** Needed to render the live start–end time range (`TimeRange`) in the business's own timezone. */
+  timezone: string;
+  customerOptions: CustomerOption[];
+  appointmentTypeOptions: AppointmentTypeOption[];
+  onDone: () => void;
+};
+
 /**
- * Three modes, deliberately three distinct shapes rather than one loose
- * "create | edit" shape sharing every field: `edit` here only ever means
- * "change this appointment's status" (`AppointmentEditableDetail` below,
- * which reads only `appointment`) -- there is no reschedule-by-dragging
- * form in this task -- so it needs none of `create`'s booking-form fields.
+ * A predetermined staff member (the single-staff entry point) XOR a picker
+ * list with no staff chosen yet (the team-week entry point, where a shared
+ * day column has no single obvious staff member) -- tied together at the
+ * type level so a mis-wired call site is a compile error, not a silent
+ * runtime gap. Exported so `appointment-grid.tsx`'s two empty-slot call
+ * sites share this one definition instead of each re-declaring it.
+ */
+export type CreateStaffSelection =
+  | { staffMemberId: string; staffOptions?: undefined }
+  | { staffMemberId: null; staffOptions: { id: string; fullName: string }[] };
+
+/**
+ * Four modes, deliberately distinct shapes rather than one loose shape
+ * sharing every field: `edit` here only ever means "change this
+ * appointment's status" (`AppointmentEditableDetail` below, which reads only
+ * `appointment`) -- there is no reschedule-by-dragging form in this task --
+ * so it needs none of `create`'s booking-form fields. `create` itself splits
+ * into the two `CreateStaffSelection` variants.
  */
 export function AppointmentPopoverContent(
   props:
-    | {
-        mode: "create";
-        /** `null` means "not yet chosen" -- pass `staffOptions` too, and the
-         * form renders a required picker instead of booking a predetermined
-         * staff member (the team-week entry point, where a shared day
-         * column has no single obvious staff member). */
-        staffMemberId: string | null;
-        /** A real UTC instant (Step 1's `businessWallClockToUtc`), never a naive local string. */
-        initialStartsAtUtc: string;
-        /** Needed to render the live start–end time range (`TimeRange`) in the business's own timezone. */
-        timezone: string;
-        customerOptions: CustomerOption[];
-        appointmentTypeOptions: AppointmentTypeOption[];
-        /** Only needed/passed when `staffMemberId` is `null`. */
-        staffOptions?: { id: string; fullName: string }[];
-        onDone: () => void;
-      }
+    | (CreateCommonProps & CreateStaffSelection & { mode: "create" })
     | {
         mode: "edit";
         appointment: AppointmentListItem;
@@ -85,17 +93,11 @@ export function AppointmentPopoverContent(
       />
     );
   }
-  return (
-    <BookAppointmentForm
-      staffMemberId={props.staffMemberId}
-      initialStartsAtUtc={props.initialStartsAtUtc}
-      timezone={props.timezone}
-      customerOptions={props.customerOptions}
-      appointmentTypeOptions={props.appointmentTypeOptions}
-      staffOptions={props.staffOptions}
-      onDone={props.onDone}
-    />
-  );
+  // Spread `props` as a whole rather than listing attributes individually --
+  // reading `props.staffMemberId`/`props.staffOptions` out separately would
+  // widen each back to its standalone type and lose the correlation between
+  // them that the discriminated union above exists to enforce.
+  return <BookAppointmentForm {...props} />;
 }
 
 /** Renders a start–end time range in the business's own timezone, wrapped `dir="ltr"` so the dash-separated pair doesn't visually reverse inside an RTL (Hebrew) layout. */
@@ -212,19 +214,7 @@ function BookAppointmentForm({
   appointmentTypeOptions,
   staffOptions,
   onDone,
-}: {
-  staffMemberId: string | null;
-  initialStartsAtUtc: string;
-  timezone: string;
-  customerOptions: CustomerOption[];
-  appointmentTypeOptions: AppointmentTypeOption[];
-  /** Only provided at the team-week entry point -- renders a required staff
-   * picker instead of booking a predetermined staff member. The
-   * single-staff entry point never passes this, so no dropdown renders
-   * there and that flow is unchanged. */
-  staffOptions?: { id: string; fullName: string }[];
-  onDone: () => void;
-}) {
+}: CreateCommonProps & CreateStaffSelection) {
   const t = useTranslations("pages.calendar.popover");
   const router = useRouter();
   const [query, setQuery] = useState("");
