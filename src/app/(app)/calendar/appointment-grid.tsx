@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { colorForName } from "@/components/ui/avatar";
+import { Avatar, colorForName } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { computeOverlapLayout } from "@/lib/appointments/overlap-layout";
 import { businessWallClockToUtc } from "@/lib/time/business-time";
@@ -158,7 +158,8 @@ export function AppointmentGrid(props: AppointmentGridProps) {
       <HourLabels rows={rows} />
       {columns.map((column) => (
         <div key={column.key} className="min-w-[9rem] flex-1 border-e border-line last:border-e-0">
-          <div className="flex h-9 items-center justify-center border-b border-line px-2 text-body font-medium text-ink">
+          <div className="flex h-9 items-center justify-center gap-1.5 border-b border-line px-2 text-body font-medium text-ink">
+            <Avatar name={column.label} size="sm" />
             {column.label}
           </div>
           <div className="relative" style={{ height: totalHeight }}>
@@ -380,7 +381,12 @@ function AppointmentBlock({
         <button
           type="button"
           className={cn(
-            "absolute inset-x-1 overflow-hidden rounded-xs border-s-2 bg-mauve-100 p-1 text-start text-meta text-ink",
+            // `leading-none` + tighter vertical padding than the default
+            // `p-1` -- `text-meta`'s normal 1.45 line-height doesn't leave
+            // room for two lines at the shortest realistic block height (a
+            // single half-hour slot), and the second line would render
+            // fully clipped rather than merely tight.
+            "absolute inset-x-1 overflow-hidden rounded-xs border-s-2 bg-mauve-100 px-1.5 py-0.5 text-start text-meta leading-none text-ink",
           )}
           style={{
             top,
@@ -439,7 +445,9 @@ function TeamAppointmentBlock({
         <button
           type="button"
           className={cn(
-            "absolute overflow-hidden rounded-xs p-1 text-start text-meta",
+            // Same tight-packing rationale as `AppointmentBlock`: two lines
+            // need to fit within a single half-hour slot's height.
+            "absolute overflow-hidden rounded-xs px-1.5 py-0.5 text-start text-meta leading-none",
             colorForName(appointment.staffMemberName ?? ""),
           )}
           style={{

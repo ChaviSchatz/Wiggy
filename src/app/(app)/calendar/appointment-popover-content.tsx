@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -134,7 +135,8 @@ function AppointmentViewOnly({
     <div className="w-72 space-y-2">
       <p className="text-body font-medium text-ink">{appointment.appointmentTypeName}</p>
       <p className="text-meta text-muted">{appointment.customerName}</p>
-      <p className="text-meta text-muted">
+      <p className="flex items-center gap-1.5 text-meta text-muted">
+        <Clock className="size-3.5 text-muted" aria-hidden />
         <TimeRange
           startsAt={appointment.starts_at}
           endsAt={appointment.ends_at}
@@ -180,7 +182,8 @@ function AppointmentEditableDetail({
     <div className="w-72 space-y-3">
       <p className="text-body font-medium text-ink">{appointment.appointmentTypeName}</p>
       <p className="text-meta text-muted">{appointment.customerName}</p>
-      <p className="text-meta text-muted">
+      <p className="flex items-center gap-1.5 text-meta text-muted">
+        <Clock className="size-3.5 text-muted" aria-hidden />
         {new Date(appointment.starts_at).toLocaleString("he-IL", {
           timeZone: timezone,
         })}
@@ -327,7 +330,8 @@ function BookAppointmentForm({
       {/* Prominent, first thing after the title: confirms exactly what's
           being booked before the user picks anything else, and updates
           live as the duration field below changes. */}
-      <p className="text-body-lg font-semibold text-ink">
+      <p className="flex items-center gap-1.5 text-body-lg font-semibold text-ink">
+        <Clock className="size-4 text-muted" aria-hidden />
         <TimeRange startsAt={initialStartsAtUtc} endsAt={endsAtUtc} timezone={timezone} />
       </p>
 
