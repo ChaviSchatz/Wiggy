@@ -38,11 +38,17 @@ export function AppointmentPopoverContent(
   props:
     | {
         mode: "create";
-        staffMemberId: string;
+        /** `null` means "not yet chosen" -- pass `staffOptions` too, and the
+         * form renders a required picker instead of booking a predetermined
+         * staff member (the team-week entry point, where a shared day
+         * column has no single obvious staff member). */
+        staffMemberId: string | null;
         /** A real UTC instant (Step 1's `businessWallClockToUtc`), never a naive local string. */
         initialStartsAtUtc: string;
         customerOptions: CustomerOption[];
         appointmentTypeOptions: AppointmentTypeOption[];
+        /** Only needed/passed when `staffMemberId` is `null`. */
+        staffOptions?: { id: string; fullName: string }[];
         onDone: () => void;
       }
     | {
@@ -82,6 +88,7 @@ export function AppointmentPopoverContent(
       initialStartsAtUtc={props.initialStartsAtUtc}
       customerOptions={props.customerOptions}
       appointmentTypeOptions={props.appointmentTypeOptions}
+      staffOptions={props.staffOptions}
       onDone={props.onDone}
     />
   );
@@ -196,12 +203,18 @@ function BookAppointmentForm({
   initialStartsAtUtc,
   customerOptions,
   appointmentTypeOptions,
+  staffOptions,
   onDone,
 }: {
-  staffMemberId: string;
+  staffMemberId: string | null;
   initialStartsAtUtc: string;
   customerOptions: CustomerOption[];
   appointmentTypeOptions: AppointmentTypeOption[];
+  /** Only provided at the team-week entry point -- renders a required staff
+   * picker instead of booking a predetermined staff member. The
+   * single-staff entry point never passes this, so no dropdown renders
+   * there and that flow is unchanged. */
+  staffOptions?: { id: string; fullName: string }[];
   onDone: () => void;
 }) {
   const t = useTranslations("pages.calendar.popover");
@@ -209,6 +222,7 @@ function BookAppointmentForm({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<CustomerOption[]>(customerOptions);
   const [customerId, setCustomerId] = useState("");
+  const [selectedStaffMemberId, setSelectedStaffMemberId] = useState(staffMemberId ?? "");
   const [typeId, setTypeId] = useState(appointmentTypeOptions[0]?.id ?? "");
   const [durationMinutes, setDurationMinutes] = useState<number | "">(
     appointmentTypeOptions[0]?.defaultDurationMinutes ?? 30,
@@ -264,6 +278,10 @@ function BookAppointmentForm({
     typeof durationMinutes === "number" &&
     Number.isInteger(durationMinutes) &&
     durationMinutes >= 5;
+  // Only actually required when this is the team-week picker mode -- the
+  // single-staff entry point has no `staffOptions` and a concrete
+  // `staffMemberId` from the start, so it's never blocked by this.
+  const isStaffChosen = staffOptions ? Boolean(selectedStaffMemberId) : true;
   // Both are already real UTC instants, so adding a duration is plain
   // millisecond arithmetic -- no timezone math needed here at all.
   const endsAtUtc = new Date(
@@ -274,7 +292,7 @@ function BookAppointmentForm({
   function submit(forceConfirm: boolean) {
     setError(undefined);
     const formData = new FormData();
-    formData.set("staffMemberId", staffMemberId);
+    formData.set("staffMemberId", selectedStaffMemberId);
     formData.set("customerId", customerId);
     formData.set("workOrderId", workOrderId);
     formData.set("appointmentTypeId", typeId);
@@ -324,6 +342,28 @@ function BookAppointmentForm({
           ))}
         </div>
       </div>
+
+      {staffOptions ? (
+        <div className="space-y-1.5">
+          <Label htmlFor="appointment-staff">{t("staffLabel")}</Label>
+          <select
+            id="appointment-staff"
+            required
+            value={selectedStaffMemberId}
+            onChange={(event) => setSelectedStaffMemberId(event.target.value)}
+            className="h-9 w-full rounded-control border border-line bg-surface px-2 text-meta text-ink"
+          >
+            <option value="" disabled>
+              {t("staffPlaceholder")}
+            </option>
+            {staffOptions.map((staff) => (
+              <option key={staff.id} value={staff.id}>
+                {staff.fullName}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
 
       <div className="space-y-1.5">
         <Label htmlFor="appointment-type">{t("typeLabel")}</Label>
@@ -400,7 +440,7 @@ function BookAppointmentForm({
           <Button
             size="sm"
             variant="danger-soft"
-            disabled={pending || !customerId || !isDurationValid}
+            disabled={pending || !customerId || !isDurationValid || !isStaffChosen}
             onClick={() => submit(true)}
           >
             {t("bookAnyway")}
@@ -408,7 +448,7 @@ function BookAppointmentForm({
         ) : (
           <Button
             size="sm"
-            disabled={pending || !customerId || !isDurationValid}
+            disabled={pending || !customerId || !isDurationValid || !isStaffChosen}
             onClick={() => submit(false)}
           >
             {pending ? t("saving") : t("book")}

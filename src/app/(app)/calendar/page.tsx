@@ -154,10 +154,12 @@ export default async function CalendarPage({
   }
 
   if (scope === "team" && view === "week") {
-    // NEW: 7 day columns, each holding every bookable staff member's
+    // 7 day columns, each holding every bookable staff member's
     // appointments for that day, color-coded by staff and laid out
-    // side-by-side when two people's appointments overlap. Read-only: no
-    // single obvious staff member to book for when clicking a shared column.
+    // side-by-side when two people's appointments overlap. When
+    // `canManageAppointments`, empty slots are clickable too -- the staff
+    // member is chosen inside the dialog rather than by which column was
+    // clicked, since a day column here isn't any one person's.
     const weekStart = businessWallClockToUtc(weekDates[0], 0, 0, user.timezone).toISOString();
     const weekEnd = businessWallClockToUtc(
       addCalendarDays(weekDates[weekDates.length - 1], 1),
@@ -189,6 +191,9 @@ export default async function CalendarPage({
           columns={columns}
           timezone={user.timezone}
           canWrite={canManageAppointments}
+          customerOptions={canManageAppointments ? customerOptions : undefined}
+          appointmentTypeOptions={canManageAppointments ? typeOptions : undefined}
+          staffOptions={canManageAppointments ? bookableStaff : undefined}
         />
       </div>
     );

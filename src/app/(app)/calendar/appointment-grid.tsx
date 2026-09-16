@@ -50,8 +50,10 @@ export type GridColumn = {
 /**
  * A team-week day column: every bookable staff member's appointments for
  * that day, not one staff member's -- so unlike `GridColumn`, it carries no
- * single `staffMemberId`. Read-only (no `EmptySlotButtons`): there's no one
- * obvious staff member to book for when clicking a shared day column.
+ * single `staffMemberId`. When `canWrite` and `staffOptions` are provided,
+ * empty slots are still clickable -- the staff member is chosen inside the
+ * booking dialog instead of being predetermined by which shared column was
+ * clicked.
  */
 export type TeamGridColumn = {
   key: string;
@@ -78,8 +80,19 @@ type AppointmentGridProps =
       mode: "team";
       columns: TeamGridColumn[];
       timezone: string;
-      /** Still gates the appointment popover's edit/view mode, even though this mode never shows booking buttons. */
+      /** Still gates the appointment popover's edit/view mode, and (together
+       * with the three options below) whether empty slots become clickable. */
       canWrite: boolean;
+      /** Only needed/passed when `canWrite` -- omitted entirely for a
+       * read-only viewer (e.g. a plain worker never reaches this mode). */
+      customerOptions?: { id: string; name: string; phone: string | null }[];
+      appointmentTypeOptions?: {
+        id: string;
+        name: string;
+        defaultDurationMinutes: number | null;
+        color: string | null;
+      }[];
+      staffOptions?: { id: string; fullName: string }[];
     };
 
 export function AppointmentGrid(props: AppointmentGridProps) {
@@ -88,7 +101,13 @@ export function AppointmentGrid(props: AppointmentGridProps) {
   const totalHeight = rows.length * (60 / SLOT_MINUTES) * ROW_HEIGHT_PX;
 
   if (props.mode === "team") {
-    const { columns, timezone, canWrite } = props;
+    const { columns, timezone, canWrite, customerOptions, appointmentTypeOptions, staffOptions } =
+      props;
+    const canBookFromTeamWeek =
+      canWrite &&
+      customerOptions !== undefined &&
+      appointmentTypeOptions !== undefined &&
+      staffOptions !== undefined;
     return (
       <div className="flex overflow-x-auto rounded-card border border-line bg-surface">
         <HourLabels rows={rows} />
@@ -106,6 +125,16 @@ export function AppointmentGrid(props: AppointmentGridProps) {
                 {column.label}
               </div>
               <div className="relative" style={{ height: totalHeight }}>
+                {canBookFromTeamWeek ? (
+                  <TeamEmptySlotButtons
+                    column={column}
+                    timezone={timezone}
+                    t={t}
+                    customerOptions={customerOptions}
+                    appointmentTypeOptions={appointmentTypeOptions}
+                    staffOptions={staffOptions}
+                  />
+                ) : null}
                 {column.appointments.map((appointment) => (
                   <TeamAppointmentBlock
                     key={appointment.id}
@@ -233,6 +262,84 @@ function EmptySlotButtons({
                 <AppointmentPopoverContent
                   mode="create"
                   staffMemberId={column.staffMemberId}
+                  initialStartsAtUtc={startsAtUtc}
+                  customerOptions={customerOptions}
+                  appointmentTypeOptions={appointmentTypeOptions}
+                  onDone={() => setOpenSlot(null)}
+                />
+              </PopoverContent>
+            </Popover>
+          );
+        }),
+      )}
+    </>
+  );
+}
+
+/**
+ * The team-week mode's empty-slot buttons: same half-hour slot geometry as
+ * `EmptySlotButtons`, but the column is a shared day (no single
+ * `staffMemberId`) so the booking dialog opens with no staff member
+ * predetermined -- `staffOptions` lets the form's own picker choose one.
+ */
+function TeamEmptySlotButtons({
+  column,
+  timezone,
+  t,
+  customerOptions,
+  appointmentTypeOptions,
+  staffOptions,
+}: {
+  column: TeamGridColumn;
+  timezone: string;
+  t: ReturnType<typeof useTranslations>;
+  customerOptions: { id: string; name: string; phone: string | null }[];
+  appointmentTypeOptions: {
+    id: string;
+    name: string;
+    defaultDurationMinutes: number | null;
+    color: string | null;
+  }[];
+  staffOptions: { id: string; fullName: string }[];
+}) {
+  const rows = gridRows();
+  const [openSlot, setOpenSlot] = useState<string | null>(null);
+
+  return (
+    <>
+      {rows.flatMap(({ hour }) =>
+        [0, SLOT_MINUTES].map((minuteOffset) => {
+          const slotKey = `${hour}:${minuteOffset}`;
+          const top =
+            ((hour - GRID_START_HOUR) * 60 + minuteOffset) *
+            (ROW_HEIGHT_PX / SLOT_MINUTES);
+
+          const startsAtUtc = businessWallClockToUtc(
+            column.date,
+            hour,
+            minuteOffset,
+            timezone,
+          ).toISOString();
+
+          return (
+            <Popover
+              key={slotKey}
+              open={openSlot === slotKey}
+              onOpenChange={(next) => setOpenSlot(next ? slotKey : null)}
+            >
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={t("bookSlot")}
+                  className="absolute inset-x-0 hover:bg-mauve-100/60"
+                  style={{ top, height: ROW_HEIGHT_PX }}
+                />
+              </PopoverTrigger>
+              <PopoverContent>
+                <AppointmentPopoverContent
+                  mode="create"
+                  staffMemberId={null}
+                  staffOptions={staffOptions}
                   initialStartsAtUtc={startsAtUtc}
                   customerOptions={customerOptions}
                   appointmentTypeOptions={appointmentTypeOptions}

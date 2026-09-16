@@ -156,6 +156,8 @@
         "bookTitle": "פגישה חדשה",
         "customerLabel": "לקוח",
         "customerSearchPlaceholder": "חיפוש לקוח...",
+        "staffLabel": "איש צוות",
+        "staffPlaceholder": "בחירת איש צוות",
         "typeLabel": "סוג פגישה",
         "durationLabel": "משך (בדקות)",
         "workOrderLabel": "הזמנה מקושרת",
