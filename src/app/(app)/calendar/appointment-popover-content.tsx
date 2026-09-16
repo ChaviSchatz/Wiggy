@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -249,9 +249,21 @@ function BookAppointmentForm({
     { id: string; number: number }[]
   >([]);
 
+  // Guards every async write to `results`/`customerId`: a debounced search
+  // response, or a completed inline customer creation. Whichever started
+  // most recently bumps this and wins; an older one that resolves (or is
+  // cancelled) later checks its own captured token and no-ops instead of
+  // clobbering a decision the user has already moved past -- e.g. a search
+  // response landing right after the user created a new customer would
+  // otherwise silently drop that customer back out of `results`.
+  const asyncGenerationRef = useRef(0);
+
   useEffect(() => {
+    const token = ++asyncGenerationRef.current;
     const handle = setTimeout(() => {
-      searchCustomersAction(query).then(setResults);
+      searchCustomersAction(query).then((searchResults) => {
+        if (asyncGenerationRef.current === token) setResults(searchResults);
+      });
     }, 300);
     return () => clearTimeout(handle);
   }, [query]);
@@ -331,8 +343,14 @@ function BookAppointmentForm({
     formData.set("email", "");
     formData.set("notes", "");
 
+    // Captured before the request starts, not after it resolves -- so a
+    // Cancel click (or another attempt starting) while this is in flight
+    // bumps the shared generation and this result is discarded on arrival
+    // instead of silently overriding whatever the user did in the meantime.
+    const token = ++asyncGenerationRef.current;
     startNewCustomerTransition(async () => {
       const result = await createCustomerAction(formData);
+      if (asyncGenerationRef.current !== token) return;
       if (!result.success) {
         setNewCustomerErrors(result.errors);
         setNewCustomerFormError(result.formError);
@@ -355,9 +373,15 @@ function BookAppointmentForm({
   }
 
   function cancelNewCustomer() {
+    // Bumps the shared generation so a still-in-flight submitNewCustomer
+    // attempt (if the user clicked Cancel mid-submit) discards its result
+    // instead of applying it after the user has already backed out.
+    asyncGenerationRef.current++;
     setShowNewCustomerForm(false);
     setNewCustomerErrors({});
     setNewCustomerFormError(undefined);
+    setNewCustomerName("");
+    setNewCustomerPhone("");
   }
 
   return (
@@ -433,7 +457,8 @@ function BookAppointmentForm({
             </div>
             <button
               type="button"
-              className="text-meta font-medium text-mauve-600 hover:underline"
+              disabled={pending}
+              className="text-meta font-medium text-mauve-600 hover:underline disabled:pointer-events-none disabled:opacity-50"
               onClick={() => setShowNewCustomerForm(true)}
             >
               {t("newCustomerToggle")}
@@ -539,7 +564,9 @@ function BookAppointmentForm({
           <Button
             size="sm"
             variant="danger-soft"
-            disabled={pending || !customerId || !isDurationValid || !isStaffChosen}
+            disabled={
+              pending || newCustomerPending || !customerId || !isDurationValid || !isStaffChosen
+            }
             onClick={() => submit(true)}
           >
             {t("bookAnyway")}
@@ -547,7 +574,9 @@ function BookAppointmentForm({
         ) : (
           <Button
             size="sm"
-            disabled={pending || !customerId || !isDurationValid || !isStaffChosen}
+            disabled={
+              pending || newCustomerPending || !customerId || !isDurationValid || !isStaffChosen
+            }
             onClick={() => submit(false)}
           >
             {pending ? t("saving") : t("book")}
