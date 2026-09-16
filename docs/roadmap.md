@@ -23,7 +23,7 @@ extracted into satellite services when they hit the extraction triggers document
 | Employee task management (sprint & queue)          | **Designed (this phase)**           | Manual sprint + automatic sequence availability. ADRs 0008/0009; `docs/domains/sprint-and-task-queue.md`. |
 | Production calendar (day view)                     | **Parked**                          | Added complexity not needed now; may revisit.                                                             |
 | Client appointments (booking, calendar, reminders) | **Shipped** (decoupled slice)       | `2026-09-14-client-appointments-design.md`. No production/work-order-status coupling.                     |
-| Client appointments + production coupling          | **After planning engine**           | Booking gated by work-order/stage status -- still deferred.                                               |
+| Client appointments + production coupling          | **After planning engine**           | Booking gated by work-order/stage status — still deferred.                                                |
 | Phone interface for workers                        | **Future**                          | v1 targets shared station tablets; phone (remote workers) later.                                          |
 | Missing tops/skins                                 | **In v1**                           | `missing_items` list + status lifecycle; auto-created from intake flags.                                  |
 | Edit intake after creation                         | **In v1**                           | Audited edit of intake data (via `activity`).                                                             |
