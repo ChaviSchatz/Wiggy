@@ -17,7 +17,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { AppointmentTypeFormDialog } from "./appointment-type-form-dialog";
 import { AppointmentTypeRowActions } from "./appointment-type-row-actions";
 
-/** Appointment types settings screen (screen inventory #67, design spec). */
+/** Appointment types settings screen (screen inventory #74, design spec). */
 export default async function AppointmentTypesSettingsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
