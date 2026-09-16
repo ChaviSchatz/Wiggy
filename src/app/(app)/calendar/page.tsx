@@ -82,7 +82,8 @@ export default async function CalendarPage({
     );
   }
 
-  const date = searchParams.date ?? businessDateString(new Date(), user.timezone);
+  const todayDate = businessDateString(new Date(), user.timezone);
+  const date = searchParams.date ?? todayDate;
 
   // The TIME RANGE (day/week) is decoupled from the AUDIENCE (team/person).
   // Managers default to day+team (today's existing default); a plain worker
@@ -106,10 +107,19 @@ export default async function CalendarPage({
     color: type.color,
   }));
 
+  // Computed unconditionally (cheap, pure -- no DB call) so it's available
+  // both for the week-view branches below and for the date-nav controls'
+  // range label, which needs it regardless of which view is active.
+  const weekDates = weekDatesFor(date);
+
   const controls = (
     <CalendarViewControls
       view={view}
       scope={scope}
+      date={date}
+      todayDate={todayDate}
+      weekStart={weekDates[0]}
+      weekEnd={weekDates[weekDates.length - 1]}
       selectedStaffMemberId={scope === "person" ? (searchParams.staff ?? user.staffMemberId ?? null) : null}
       bookableStaff={bookableStaff}
       canManageAppointments={canManageAppointments}
@@ -148,7 +158,6 @@ export default async function CalendarPage({
     // appointments for that day, color-coded by staff and laid out
     // side-by-side when two people's appointments overlap. Read-only: no
     // single obvious staff member to book for when clicking a shared column.
-    const weekDates = weekDatesFor(date);
     const weekStart = businessWallClockToUtc(weekDates[0], 0, 0, user.timezone).toISOString();
     const weekEnd = businessWallClockToUtc(
       addCalendarDays(weekDates[weekDates.length - 1], 1),
@@ -164,7 +173,7 @@ export default async function CalendarPage({
     );
     const columns: TeamGridColumn[] = weekDates.map((d) => ({
       key: d,
-      label: new Date(d).toLocaleDateString("he-IL", { weekday: "short" }),
+      label: new Date(d).toLocaleDateString("he-IL", { weekday: "short", day: "numeric" }),
       date: d,
       appointments: appointments.filter(
         (a) => businessDateString(new Date(a.starts_at), user.timezone) === d,
@@ -233,7 +242,6 @@ export default async function CalendarPage({
   }
 
   // Week + person: unchanged from the original calendar's default view.
-  const weekDates = weekDatesFor(date);
   const weekStart = businessWallClockToUtc(weekDates[0], 0, 0, user.timezone).toISOString();
   const weekEnd = businessWallClockToUtc(
     addCalendarDays(weekDates[weekDates.length - 1], 1),
@@ -250,7 +258,7 @@ export default async function CalendarPage({
   );
   const columns: GridColumn[] = weekDates.map((d) => ({
     key: d,
-    label: new Date(d).toLocaleDateString("he-IL", { weekday: "short" }),
+    label: new Date(d).toLocaleDateString("he-IL", { weekday: "short", day: "numeric" }),
     staffMemberId,
     date: d,
     // Group by the appointment's business-local calendar date, not a raw
