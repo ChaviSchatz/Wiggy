@@ -18,6 +18,8 @@ import {
   markNoShowAction,
 } from "@/lib/appointments/actions";
 import type { AppointmentListItem } from "@/lib/appointments/types";
+import { createCustomerAction } from "@/lib/customers/actions";
+import type { CustomerFieldErrors } from "@/lib/customers/validation";
 import { searchCustomersAction } from "./search-customers-action";
 
 type CustomerOption = { id: string; name: string; phone: string | null };
@@ -216,10 +218,17 @@ function BookAppointmentForm({
   onDone,
 }: CreateCommonProps & CreateStaffSelection) {
   const t = useTranslations("pages.calendar.popover");
+  const tCustomerForm = useTranslations("pages.customers.form");
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<CustomerOption[]>(customerOptions);
   const [customerId, setCustomerId] = useState("");
+  const [showNewCustomerForm, setShowNewCustomerForm] = useState(false);
+  const [newCustomerName, setNewCustomerName] = useState("");
+  const [newCustomerPhone, setNewCustomerPhone] = useState("");
+  const [newCustomerErrors, setNewCustomerErrors] = useState<CustomerFieldErrors>({});
+  const [newCustomerFormError, setNewCustomerFormError] = useState<string | undefined>();
+  const [newCustomerPending, startNewCustomerTransition] = useTransition();
   const [selectedStaffMemberId, setSelectedStaffMemberId] = useState(staffMemberId ?? "");
   const [typeId, setTypeId] = useState(appointmentTypeOptions[0]?.id ?? "");
   const [durationMinutes, setDurationMinutes] = useState<number | "">(
@@ -313,6 +322,44 @@ function BookAppointmentForm({
     });
   }
 
+  function submitNewCustomer() {
+    setNewCustomerErrors({});
+    setNewCustomerFormError(undefined);
+    const formData = new FormData();
+    formData.set("name", newCustomerName);
+    formData.set("phone", newCustomerPhone);
+    formData.set("email", "");
+    formData.set("notes", "");
+
+    startNewCustomerTransition(async () => {
+      const result = await createCustomerAction(formData);
+      if (!result.success) {
+        setNewCustomerErrors(result.errors);
+        setNewCustomerFormError(result.formError);
+        return;
+      }
+      const created = result.customer;
+      // Splice into `results` (rather than just setting `customerId`) so the
+      // normal search view -- shown again right after this -- actually
+      // displays the new customer, radio-selected, instead of leaving the
+      // user unsure whether it's really attached to the booking.
+      setResults((previous) => [
+        { id: created.id, name: created.name, phone: created.phone },
+        ...previous,
+      ]);
+      setCustomerId(created.id);
+      setShowNewCustomerForm(false);
+      setNewCustomerName("");
+      setNewCustomerPhone("");
+    });
+  }
+
+  function cancelNewCustomer() {
+    setShowNewCustomerForm(false);
+    setNewCustomerErrors({});
+    setNewCustomerFormError(undefined);
+  }
+
   return (
     <div className="w-72 space-y-3">
       <p className="text-body font-medium text-ink">{t("bookTitle")}</p>
@@ -327,26 +374,72 @@ function BookAppointmentForm({
 
       <div className="space-y-1.5">
         <Label htmlFor="appointment-customer">{t("customerLabel")}</Label>
-        <Input
-          id="appointment-customer"
-          placeholder={t("customerSearchPlaceholder")}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-        <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-line p-1">
-          {results.map((customer) => (
-            <label key={customer.id} className="flex cursor-pointer items-center gap-2 rounded-control p-1.5 hover:bg-mauve-100">
-              <input
-                type="radio"
-                name="appointment-customer-choice"
-                checked={customerId === customer.id}
-                onChange={() => setCustomerId(customer.id)}
-                className="accent-mauve-600"
+        {showNewCustomerForm ? (
+          <div className="space-y-2 rounded-control border border-line p-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="new-customer-name">{tCustomerForm("nameLabel")}</Label>
+              <Input
+                id="new-customer-name"
+                value={newCustomerName}
+                onChange={(event) => setNewCustomerName(event.target.value)}
               />
-              <span className="text-meta">{customer.name}</span>
-            </label>
-          ))}
-        </div>
+              {newCustomerErrors.name ? (
+                <p className="text-meta text-danger-600">{tCustomerForm("errors.nameRequired")}</p>
+              ) : null}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="new-customer-phone">{tCustomerForm("phoneLabel")}</Label>
+              <Input
+                id="new-customer-phone"
+                value={newCustomerPhone}
+                onChange={(event) => setNewCustomerPhone(event.target.value)}
+              />
+            </div>
+            {newCustomerFormError ? (
+              <FormMessage variant="error">
+                {tCustomerForm(`errors.${newCustomerFormError}`)}
+              </FormMessage>
+            ) : null}
+            <div className="flex justify-end gap-2">
+              <Button size="sm" variant="outline" onClick={cancelNewCustomer}>
+                {t("cancel")}
+              </Button>
+              <Button size="sm" disabled={newCustomerPending} onClick={submitNewCustomer}>
+                {newCustomerPending ? tCustomerForm("saving") : tCustomerForm("save")}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <Input
+              id="appointment-customer"
+              placeholder={t("customerSearchPlaceholder")}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-line p-1">
+              {results.map((customer) => (
+                <label key={customer.id} className="flex cursor-pointer items-center gap-2 rounded-control p-1.5 hover:bg-mauve-100">
+                  <input
+                    type="radio"
+                    name="appointment-customer-choice"
+                    checked={customerId === customer.id}
+                    onChange={() => setCustomerId(customer.id)}
+                    className="accent-mauve-600"
+                  />
+                  <span className="text-meta">{customer.name}</span>
+                </label>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="text-meta font-medium text-mauve-600 hover:underline"
+              onClick={() => setShowNewCustomerForm(true)}
+            >
+              {t("newCustomerToggle")}
+            </button>
+          </>
+        )}
       </div>
 
       {staffOptions ? (
