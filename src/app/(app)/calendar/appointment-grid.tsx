@@ -42,6 +42,12 @@ export { GRID_START_HOUR, GRID_END_HOUR, SLOT_MINUTES, ROW_HEIGHT_PX };
 export type GridColumn = {
   key: string;
   label: string;
+  /** Whether `label` is a staff member's name (day view: one column per
+   * staff member, or a single person-scoped column) as opposed to a date
+   * (week + person scope: one column per day for that one already-known
+   * staff member) -- only the former gets a header `Avatar`, since an
+   * avatar next to a date would be meaningless. */
+  isStaffColumn: boolean;
   staffMemberId: string;
   date: string; // YYYY-MM-DD, business timezone
   appointments: AppointmentListItem[];
@@ -159,7 +165,7 @@ export function AppointmentGrid(props: AppointmentGridProps) {
       {columns.map((column) => (
         <div key={column.key} className="min-w-[9rem] flex-1 border-e border-line last:border-e-0">
           <div className="flex h-9 items-center justify-center gap-1.5 border-b border-line px-2 text-body font-medium text-ink">
-            <Avatar name={column.label} size="sm" />
+            {column.isStaffColumn ? <Avatar name={column.label} size="sm" /> : null}
             {column.label}
           </div>
           <div className="relative" style={{ height: totalHeight }}>

@@ -134,6 +134,7 @@ export default async function CalendarPage({
     const columns: GridColumn[] = bookableStaff.map((person) => ({
       key: person.id,
       label: person.fullName,
+      isStaffColumn: true,
       staffMemberId: person.id,
       date,
       appointments: appointments.filter((a) => a.staff_member_id === person.id),
@@ -226,6 +227,7 @@ export default async function CalendarPage({
       {
         key: staffMemberId,
         label: columnLabel,
+        isStaffColumn: true,
         staffMemberId,
         date,
         appointments,
@@ -264,6 +266,7 @@ export default async function CalendarPage({
   const columns: GridColumn[] = weekDates.map((d) => ({
     key: d,
     label: new Date(d).toLocaleDateString("he-IL", { weekday: "short", day: "numeric" }),
+    isStaffColumn: false,
     staffMemberId,
     date: d,
     // Group by the appointment's business-local calendar date, not a raw
