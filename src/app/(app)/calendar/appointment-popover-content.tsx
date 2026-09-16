@@ -45,6 +45,8 @@ export function AppointmentPopoverContent(
         staffMemberId: string | null;
         /** A real UTC instant (Step 1's `businessWallClockToUtc`), never a naive local string. */
         initialStartsAtUtc: string;
+        /** Needed to render the live start–end time range (`TimeRange`) in the business's own timezone. */
+        timezone: string;
         customerOptions: CustomerOption[];
         appointmentTypeOptions: AppointmentTypeOption[];
         /** Only needed/passed when `staffMemberId` is `null`. */
@@ -86,6 +88,7 @@ export function AppointmentPopoverContent(
     <BookAppointmentForm
       staffMemberId={props.staffMemberId}
       initialStartsAtUtc={props.initialStartsAtUtc}
+      timezone={props.timezone}
       customerOptions={props.customerOptions}
       appointmentTypeOptions={props.appointmentTypeOptions}
       staffOptions={props.staffOptions}
@@ -201,6 +204,7 @@ function AppointmentEditableDetail({
 function BookAppointmentForm({
   staffMemberId,
   initialStartsAtUtc,
+  timezone,
   customerOptions,
   appointmentTypeOptions,
   staffOptions,
@@ -208,6 +212,7 @@ function BookAppointmentForm({
 }: {
   staffMemberId: string | null;
   initialStartsAtUtc: string;
+  timezone: string;
   customerOptions: CustomerOption[];
   appointmentTypeOptions: AppointmentTypeOption[];
   /** Only provided at the team-week entry point -- renders a required staff
@@ -318,6 +323,13 @@ function BookAppointmentForm({
   return (
     <div className="w-72 space-y-3">
       <p className="text-body font-medium text-ink">{t("bookTitle")}</p>
+
+      {/* Prominent, first thing after the title: confirms exactly what's
+          being booked before the user picks anything else, and updates
+          live as the duration field below changes. */}
+      <p className="text-body-lg font-semibold text-ink">
+        <TimeRange startsAt={initialStartsAtUtc} endsAt={endsAtUtc} timezone={timezone} />
+      </p>
 
       <div className="space-y-1.5">
         <Label htmlFor="appointment-customer">{t("customerLabel")}</Label>

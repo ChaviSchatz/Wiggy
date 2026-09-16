@@ -263,6 +263,7 @@ function EmptySlotButtons({
                   mode="create"
                   staffMemberId={column.staffMemberId}
                   initialStartsAtUtc={startsAtUtc}
+                  timezone={timezone}
                   customerOptions={customerOptions}
                   appointmentTypeOptions={appointmentTypeOptions}
                   onDone={() => setOpenSlot(null)}
@@ -341,6 +342,7 @@ function TeamEmptySlotButtons({
                   staffMemberId={null}
                   staffOptions={staffOptions}
                   initialStartsAtUtc={startsAtUtc}
+                  timezone={timezone}
                   customerOptions={customerOptions}
                   appointmentTypeOptions={appointmentTypeOptions}
                   onDone={() => setOpenSlot(null)}
