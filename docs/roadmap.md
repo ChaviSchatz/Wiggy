@@ -49,7 +49,7 @@ queue). Highlights:
 auto-assignment, dynamic reprioritization, estimated completion, automatic rollover, sequence
 skipping.
 
-## Client appointments (after planning engine)
+## Client appointments (decoupled slice shipped; coupling after planning engine)
 
 The **decoupled slice** — appointment entities/types, the `/calendar` day and week views, booking,
 and reminders, with no production/work-order-status gating — **shipped**
