@@ -16,19 +16,20 @@ extracted into satellite services when they hit the extraction triggers document
 
 ## Sessions & phasing
 
-| Area                                      | Status                              | Notes                                                                                                     |
-| ----------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Core model: Work Definition + Runtime     | **Designed**                        | `docs/architecture.md`, ADRs 0001–0006.                                                                   |
-| UI/UX usability & look-and-feel           | **Own session (pending)**           | Consumes this architecture as constraints.                                                                |
-| Employee task management (sprint & queue) | **Designed (this phase)**           | Manual sprint + automatic sequence availability. ADRs 0008/0009; `docs/domains/sprint-and-task-queue.md`. |
-| Production calendar (day view)            | **Parked**                          | Added complexity not needed now; may revisit.                                                             |
-| Client appointments + production coupling | **After planning engine**           | Appointment entities/types + booking gated by production.                                                 |
-| Phone interface for workers               | **Future**                          | v1 targets shared station tablets; phone (remote workers) later.                                          |
-| Missing tops/skins                        | **In v1**                           | `missing_items` list + status lifecycle; auto-created from intake flags.                                  |
-| Edit intake after creation                | **In v1**                           | Audited edit of intake data (via `activity`).                                                             |
-| Billing                                   | **Reserve room now, detail later**  | Invoices keyed off order completion.                                                                      |
-| Time-clock / attendance (שעון נוכחות)     | **Reserve room now, detail later**  | Feeds worker availability/capacity + future payroll.                                                      |
-| Planning / dependency engine              | **Deferred** (`architecture.md` §8) | Due-date auto-computation, capacity, auto-rollover, `available`/`blocked`.                                |
+| Area                                               | Status                              | Notes                                                                                                     |
+| -------------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Core model: Work Definition + Runtime              | **Designed**                        | `docs/architecture.md`, ADRs 0001–0006.                                                                   |
+| UI/UX usability & look-and-feel                    | **Own session (pending)**           | Consumes this architecture as constraints.                                                                |
+| Employee task management (sprint & queue)          | **Designed (this phase)**           | Manual sprint + automatic sequence availability. ADRs 0008/0009; `docs/domains/sprint-and-task-queue.md`. |
+| Production calendar (day view)                     | **Parked**                          | Added complexity not needed now; may revisit.                                                             |
+| Client appointments (booking, calendar, reminders) | **Shipped** (decoupled slice)       | `2026-09-14-client-appointments-design.md`. No production/work-order-status coupling.                     |
+| Client appointments + production coupling          | **After planning engine**           | Booking gated by work-order/stage status -- still deferred.                                               |
+| Phone interface for workers                        | **Future**                          | v1 targets shared station tablets; phone (remote workers) later.                                          |
+| Missing tops/skins                                 | **In v1**                           | `missing_items` list + status lifecycle; auto-created from intake flags.                                  |
+| Edit intake after creation                         | **In v1**                           | Audited edit of intake data (via `activity`).                                                             |
+| Billing                                            | **Reserve room now, detail later**  | Invoices keyed off order completion.                                                                      |
+| Time-clock / attendance (שעון נוכחות)              | **Reserve room now, detail later**  | Feeds worker availability/capacity + future payroll.                                                      |
+| Planning / dependency engine                       | **Deferred** (`architecture.md` §8) | Due-date auto-computation, capacity, auto-rollover, `available`/`blocked`.                                |
 
 ## Employee task management (this phase) — designed
 
@@ -50,10 +51,13 @@ skipping.
 
 ## Client appointments (after planning engine)
 
-Appointment entities/types and the **production ↔ appointment coupling** (booking gated by
-production status; unified worker view) were **resequenced to after the planning engine**, since
-they lean on planning concepts. Reserve-room hooks below still apply. The day-grid **calendar view
-is parked**.
+The **decoupled slice** — appointment entities/types, the `/calendar` day and week views, booking,
+and reminders, with no production/work-order-status gating — **shipped**
+(`docs/superpowers/specs/2026-09-14-client-appointments-design.md`; screen inventory §12, #72–74).
+
+The **production ↔ appointment coupling** (booking gated by work-order/stage status; unified
+worker view) remains **resequenced to after the planning engine**, since it leans on planning
+concepts.
 
 ## Coupling decisions (reserved now, detailed in their sessions)
 
@@ -68,6 +72,8 @@ is parked**.
 
 - Worker calendar: `runtime_tasks.assigned_staff_member_id` + `due_at` (add `scheduled_date` in the
   scheduling session).
-- `appointments` → `customers`, `staff_members`, `work_orders`.
+- ~~`appointments` → `customers`, `staff_members`, `work_orders`.~~ **Implemented.** All three FKs
+  are live on `appointments` (optional `work_order_id` link included); what's still deferred is the
+  production-coupling slice above (gating booking by work-order/stage status), not the hook itself.
 - `invoices` / `invoice_lines` → `work_orders`.
 - `time_entries` → `staff_members`.
