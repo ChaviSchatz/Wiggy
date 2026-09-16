@@ -58,4 +58,14 @@ describe("isDueForReminder", () => {
       ),
     ).toBe(false);
   });
+
+  it("is due at the exact lead-window boundary (starts_at - now === leadHours)", () => {
+    expect(
+      isDueForReminder(
+        { startsAt: "2026-09-15T10:00:00Z", reminderSentAt: null, status: "scheduled" },
+        24,
+        now,
+      ),
+    ).toBe(true);
+  });
 });

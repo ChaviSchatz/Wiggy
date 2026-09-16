@@ -27,12 +27,18 @@ export function isDueForReminder(
   return startsAt - now.getTime() <= leadWindowMs;
 }
 
-export type SweepResult = { businessId: string; sent: number; skipped: number };
+export type SweepResult = { businessId: string; sent: number; skipped: number; error?: string };
 
 /**
  * One business's reminder sweep: finds `scheduled` appointments due for a
- * reminder, sends, and stamps `reminder_sent_at` (dedupe guard against
- * overlapping sweep runs). Called once per business with
+ * reminder, then for each one atomically claims it (a conditional update
+ * that only succeeds while `reminder_sent_at` is still null) immediately
+ * before sending -- this is what actually guards against overlapping sweep
+ * runs (e.g. a slow sweep still in flight when the next cron tick fires):
+ * only the invocation that wins the conditional update sends, the other
+ * sees zero rows affected and moves on. The initial `select` below narrows
+ * candidates but, on its own, can't prevent two concurrent sweeps from both
+ * reading the same not-yet-claimed row. Called once per business with
  * `send_appointment_reminder = true` by the cron route.
  */
 export async function sweepBusinessForReminders(
@@ -92,6 +98,30 @@ export async function sweepBusinessForReminders(
       continue;
     }
 
+    // Claim right before sending, not up front: a conditional update that
+    // only matches while `reminder_sent_at` is still null. If a concurrent
+    // sweep already claimed this appointment, zero rows come back and we
+    // skip without double-sending; the lookups above never mutate state, so
+    // doing them before the claim keeps a customer/type-lookup miss (above)
+    // retryable on the next sweep instead of falsely marking it sent.
+    const { data: claimed, error: claimError } = await supabase
+      .from("appointments")
+      .update({ reminder_sent_at: now.toISOString() })
+      .eq("id", appointment.id)
+      .is("reminder_sent_at", null)
+      .select("id");
+    if (claimError) {
+      console.error(
+        "[appointments/reminder-sweep] failed to claim appointment for reminder",
+        claimError,
+      );
+      skipped++;
+      continue;
+    }
+    if (!claimed || claimed.length === 0) {
+      continue;
+    }
+
     await notifyAppointmentEvent({
       kind: "reminder",
       customerName: customer.name,
@@ -101,18 +131,19 @@ export async function sweepBusinessForReminders(
       startsAt: appointment.starts_at,
       settings,
     });
-
-    await supabase
-      .from("appointments")
-      .update({ reminder_sent_at: now.toISOString() })
-      .eq("id", appointment.id);
     sent++;
   }
 
   return { businessId, sent, skipped };
 }
 
-/** Every business with reminders enabled -- the cron route's entry point. */
+/**
+ * Every business with reminders enabled -- the cron route's entry point.
+ * Each business's sweep is isolated: one business's failure (e.g. a
+ * transient DB error) is logged and recorded on its own `SweepResult`
+ * rather than aborting the loop, so a single bad tenant can't silently
+ * skip every other tenant's reminders for this tick.
+ */
 export async function sweepAllBusinessesForReminders(
   supabase: SupabaseClient<Database>,
   now: Date = new Date(),
@@ -125,7 +156,20 @@ export async function sweepAllBusinessesForReminders(
 
   const results: SweepResult[] = [];
   for (const row of businesses ?? []) {
-    results.push(await sweepBusinessForReminders(supabase, row.business_id, now));
+    try {
+      results.push(await sweepBusinessForReminders(supabase, row.business_id, now));
+    } catch (sweepError) {
+      console.error(
+        `[appointments/reminder-sweep] sweep failed for business ${row.business_id}`,
+        sweepError,
+      );
+      results.push({
+        businessId: row.business_id,
+        sent: 0,
+        skipped: 0,
+        error: sweepError instanceof Error ? sweepError.message : String(sweepError),
+      });
+    }
   }
   return results;
 }
