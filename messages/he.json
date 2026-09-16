@@ -154,6 +154,7 @@
         "customerLabel": "לקוח",
         "customerSearchPlaceholder": "חיפוש לקוח...",
         "typeLabel": "סוג פגישה",
+        "durationLabel": "משך (בדקות)",
         "workOrderLabel": "הזמנה מקושרת",
         "noWorkOrder": "ללא הזמנה",
         "notesLabel": "הערות",

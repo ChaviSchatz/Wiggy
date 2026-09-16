@@ -210,6 +210,15 @@ function BookAppointmentForm({
   const [results, setResults] = useState<CustomerOption[]>(customerOptions);
   const [customerId, setCustomerId] = useState("");
   const [typeId, setTypeId] = useState(appointmentTypeOptions[0]?.id ?? "");
+  const [durationMinutes, setDurationMinutes] = useState<number | "">(
+    appointmentTypeOptions[0]?.defaultDurationMinutes ?? 30,
+  );
+  // Set the first time the user edits the duration field directly. Once
+  // true, changing the appointment type no longer overwrites their chosen
+  // duration -- otherwise picking a deliberately non-default duration and
+  // then touching the type dropdown (e.g. to fix a mis-click) would
+  // silently discard it.
+  const [durationTouched, setDurationTouched] = useState(false);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [confirmingOverlap, setConfirmingOverlap] = useState(false);
@@ -251,12 +260,15 @@ function BookAppointmentForm({
     };
   }, [customerId]);
 
-  const selectedType = appointmentTypeOptions.find((type) => type.id === typeId);
-  const durationMinutes = selectedType?.defaultDurationMinutes ?? 30;
+  const isDurationValid =
+    typeof durationMinutes === "number" &&
+    Number.isInteger(durationMinutes) &&
+    durationMinutes >= 5;
   // Both are already real UTC instants, so adding a duration is plain
   // millisecond arithmetic -- no timezone math needed here at all.
   const endsAtUtc = new Date(
-    new Date(initialStartsAtUtc).getTime() + durationMinutes * 60_000,
+    new Date(initialStartsAtUtc).getTime() +
+      (isDurationValid ? durationMinutes : 0) * 60_000,
   ).toISOString();
 
   function submit(forceConfirm: boolean) {
@@ -318,7 +330,14 @@ function BookAppointmentForm({
         <select
           id="appointment-type"
           value={typeId}
-          onChange={(event) => setTypeId(event.target.value)}
+          onChange={(event) => {
+            const newTypeId = event.target.value;
+            setTypeId(newTypeId);
+            if (!durationTouched) {
+              const newType = appointmentTypeOptions.find((type) => type.id === newTypeId);
+              setDurationMinutes(newType?.defaultDurationMinutes ?? 30);
+            }
+          }}
           className="h-9 w-full rounded-control border border-line bg-surface px-2 text-meta text-ink"
         >
           {appointmentTypeOptions.map((type) => (
@@ -327,6 +346,21 @@ function BookAppointmentForm({
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="appointment-duration">{t("durationLabel")}</Label>
+        <Input
+          id="appointment-duration"
+          type="number"
+          min={5}
+          value={durationMinutes}
+          onChange={(event) => {
+            setDurationTouched(true);
+            const raw = event.target.value;
+            setDurationMinutes(raw === "" ? "" : Number(raw));
+          }}
+        />
       </div>
 
       {customerWorkOrders.length > 0 ? (
@@ -363,11 +397,20 @@ function BookAppointmentForm({
           {t("cancel")}
         </Button>
         {confirmingOverlap ? (
-          <Button size="sm" variant="danger-soft" disabled={pending || !customerId} onClick={() => submit(true)}>
+          <Button
+            size="sm"
+            variant="danger-soft"
+            disabled={pending || !customerId || !isDurationValid}
+            onClick={() => submit(true)}
+          >
             {t("bookAnyway")}
           </Button>
         ) : (
-          <Button size="sm" disabled={pending || !customerId} onClick={() => submit(false)}>
+          <Button
+            size="sm"
+            disabled={pending || !customerId || !isDurationValid}
+            onClick={() => submit(false)}
+          >
             {pending ? t("saving") : t("book")}
           </Button>
         )}
