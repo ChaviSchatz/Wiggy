@@ -5,15 +5,16 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
+import type { CurrentUser } from "@/lib/auth/types";
 import type { Role } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { visibleBottomNavItems } from "./nav-items";
 
-export function BottomNav({ role }: { role: Role }) {
+export function BottomNav({ user, role }: { user: CurrentUser; role: Role }) {
   const t = useTranslations("bottomNav");
   const tA11y = useTranslations("a11y");
   const pathname = usePathname();
-  const items = visibleBottomNavItems(role);
+  const items = visibleBottomNavItems({ role, isBookable: user.isBookable });
 
   // >=44px touch target (design-system.md §3) -- this bar is the tablet and
   // phone navigation, so the target floor applies to every entry.

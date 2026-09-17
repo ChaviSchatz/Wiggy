@@ -15,6 +15,7 @@ export const PERMISSIONS = [
   /** Tenant identity: timezone. Admin-only, mirroring `businesses` RLS. */
   "editBusinessSettings",
   "manageStaff",
+  "manageAppointments",
   "editWorkDefinition",
   "createOrders",
   "editCustomers",
@@ -31,6 +32,7 @@ const ROLE_PERMISSIONS: Record<Role, ReadonlySet<Permission>> = {
   admin: new Set(PERMISSIONS),
   manager: new Set<Permission>([
     "manageStaff",
+    "manageAppointments",
     "editWorkDefinition",
     "createOrders",
     "editCustomers",
@@ -42,6 +44,7 @@ const ROLE_PERMISSIONS: Record<Role, ReadonlySet<Permission>> = {
     "manageBoard",
   ]),
   secretary: new Set<Permission>([
+    "manageAppointments",
     "createOrders",
     "editCustomers",
     "manageMissingItems",

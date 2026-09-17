@@ -401,4 +401,44 @@ describe("getHubData", () => {
     );
     expect(data).toBeNull();
   });
+
+  it("includes appointments linked to the work order, enriched with customer and type names", async () => {
+    const [a] = tenants;
+    const { orderId } = await confirmSeededIntake(a);
+
+    const { data: appointmentType, error: appointmentTypeError } = await admin
+      .from("appointment_types")
+      .insert({ business_id: a.businessId, name: "התאמה" })
+      .select("id, name")
+      .single();
+    if (appointmentTypeError) throw appointmentTypeError;
+
+    const { data: customer, error: customerError } = await admin
+      .from("customers")
+      .insert({ business_id: a.businessId, name: `Hub Appt Customer ${runId}` })
+      .select("id, name")
+      .single();
+    if (customerError) throw customerError;
+
+    const startsAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    const endsAt = new Date(Date.now() + 90 * 60 * 1000).toISOString();
+    const { error: appointmentError } = await admin.from("appointments").insert({
+      business_id: a.businessId,
+      customer_id: customer!.id,
+      work_order_id: orderId,
+      appointment_type_id: appointmentType!.id,
+      starts_at: startsAt,
+      ends_at: endsAt,
+      status: "scheduled",
+    });
+    if (appointmentError) throw appointmentError;
+
+    const data = await getHubData(a.client, a.businessId, orderId);
+    expect(data).not.toBeNull();
+    expect(data!.appointments).toHaveLength(1);
+    expect(data!.appointments[0].customerName).toBe(customer!.name);
+    expect(data!.appointments[0].appointmentTypeName).toBe(
+      appointmentType!.name,
+    );
+  });
 });

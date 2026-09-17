@@ -4,6 +4,7 @@ import {
   addCalendarDays,
   businessDateString,
   businessDayStart,
+  businessWallClockToUtc,
 } from "./business-time";
 
 const JERUSALEM = "Asia/Jerusalem";
@@ -55,6 +56,23 @@ describe("businessDayStart", () => {
     expect(businessDayStart(at, "UTC").toISOString()).toBe(
       "2026-08-27T00:00:00.000Z",
     );
+  });
+});
+
+describe("businessWallClockToUtc", () => {
+  it("converts a wall-clock time in a zone west of UTC to the correct UTC instant", () => {
+    // Asia/Jerusalem is UTC+3 in September (DST).
+    const result = businessWallClockToUtc("2026-09-14", 14, 0, "Asia/Jerusalem");
+    expect(result.toISOString()).toBe("2026-09-14T11:00:00.000Z");
+  });
+
+  it("round-trips through businessDayStart for midnight", () => {
+    const viaHelper = businessWallClockToUtc("2026-09-14", 0, 0, "Asia/Jerusalem");
+    const viaDayStart = businessDayStart(
+      new Date("2026-09-14T12:00:00Z"),
+      "Asia/Jerusalem",
+    );
+    expect(viaHelper.getTime()).toBe(viaDayStart.getTime());
   });
 });
 

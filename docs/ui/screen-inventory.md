@@ -114,8 +114,19 @@ types/groups, intake templates, and staff are seeded via migrations for the firs
 
 ## 11. Future modules (`docs/roadmap.md`)
 
-67. Client appointments — calendar, create/edit, appointment detail **[future]**
+67. _(shipped — see #72–74 in §12 below)_
 68. Billing — invoices list, invoice detail, create invoice **[future]**
 69. Attendance — clock in/out, timesheets **[future]**
 70. Planning engine — bottleneck/capacity/recommendations **[future]**
 71. Production calendar (day view) **[parked]**
+
+## 12. Client appointments (`docs/superpowers/specs/2026-09-14-client-appointments-design.md`)
+
+> Decoupled slice only (booking, calendar, reminders) — no production/work-order-status gating.
+> See `docs/roadmap.md` for the still-deferred "production coupling" slice.
+
+72. `/calendar` day view — team/person scope, appointment grid, create/edit/cancel dialog, date
+    navigation **[v1]** — **built**
+73. `/calendar` week view — team-week overlap layout, date navigation **[v1]** — **built**
+74. Appointment types settings (Settings → Appointment types) — list + create/edit **[config]** —
+    **built**

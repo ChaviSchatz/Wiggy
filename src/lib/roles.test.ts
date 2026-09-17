@@ -51,6 +51,13 @@ describe("roles/can", () => {
     expect(can("secretary", "manageBoard")).toBe(false);
   });
 
+  it("grants manageAppointments to admin/manager/secretary but not worker", () => {
+    expect(can("admin", "manageAppointments")).toBe(true);
+    expect(can("manager", "manageAppointments")).toBe(true);
+    expect(can("secretary", "manageAppointments")).toBe(true);
+    expect(can("worker", "manageAppointments")).toBe(false);
+  });
+
   it("exposes the four canonical roles", () => {
     expect([...ROLES]).toEqual(["admin", "manager", "secretary", "worker"]);
   });

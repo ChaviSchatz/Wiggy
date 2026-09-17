@@ -100,7 +100,7 @@ export function SideNav({ user, role }: { user: CurrentUser; role: Role }) {
         aria-label={tA11y("primaryNav")}
         className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-2"
       >
-        {visibleSideNavItems(role).map(({ key, href, icon: Icon }) => {
+        {visibleSideNavItems({ role, isBookable: user.isBookable }).map(({ key, href, icon: Icon }) => {
           const active = isActive(pathname, href);
           return (
             <Link

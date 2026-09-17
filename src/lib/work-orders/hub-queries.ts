@@ -4,6 +4,8 @@ import {
   fetchActivityForWorkOrder,
   type ActivityEntry,
 } from "@/lib/activity/queries";
+import type { AppointmentListItem } from "@/lib/appointments/types";
+import { listAppointmentsForOrder } from "@/lib/appointments/queries";
 import {
   fetchAttachmentsForParent,
   type AttachmentWithUrl,
@@ -38,6 +40,7 @@ export type HubData = {
   missingItems: Tables<"missing_items">[];
   staff: { id: string; full_name: string }[];
   taskTypes: Tables<"task_types">[];
+  appointments: AppointmentListItem[];
 };
 
 /**
@@ -69,6 +72,7 @@ export async function getHubData(
     attachments,
     activity,
     missingItemsResult,
+    appointments,
   ] = await Promise.all([
     supabase
       .from("runtime_tasks")
@@ -117,6 +121,7 @@ export async function getHubData(
       .select("*")
       .eq("work_order_id", workOrderId)
       .order("created_at", { ascending: false }),
+    listAppointmentsForOrder(supabase, businessId, workOrderId),
   ]);
   if (tasksResult.error) throw tasksResult.error;
   if (customerResult.error) throw customerResult.error;
@@ -203,5 +208,6 @@ export async function getHubData(
     missingItems: missingItemsResult.data ?? [],
     staff: staffResult.data ?? [],
     taskTypes: taskTypesResult.data ?? [],
+    appointments,
   };
 }
