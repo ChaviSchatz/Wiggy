@@ -98,22 +98,70 @@
     --input: var(--line-strong);
     --ring: var(--mauve-600);
 
-    /* Radii — scale with the element (control -> card -> panel -> container) */
+    /* Radii — scale with the element (control -> card -> panel -> container).
+     * Values match design-system/_ds_bundle.css (the locked Claude Design
+     * spec) exactly — corrected 2026-09 from the "Warm Operational Studio"
+     * draft values (sm 12, md 16, lg 20), which predate that lock. */
     --radius-xs: 9px;
-    --radius-sm: 12px;
-    --radius-md: 16px;
-    --radius-lg: 20px;
+    --radius-sm: 11px;
+    --radius-md: 15px;
+    --radius-lg: 16px;
+    --radius-full: 999px;
     /* Aliases kept so existing call sites stay valid. */
     --radius-control: var(--radius-xs);
     --radius-card: var(--radius-sm);
 
     /*
-     * Depth. Resting surfaces have no shadow — a hairline border on `bg` is
-     * what separates them. `--shadow-overlay` is only for things that
-     * genuinely float: dialogs, drawers, popovers, toasts.
+     * Depth — three tiers, matching design-system/_ds_bundle.css. A
+     * component picks one; it never invents a shadow. Resting surfaces
+     * (elevation-0) have no shadow — a hairline border on `bg` does that
+     * work instead.
      */
-    --shadow-overlay: 0 16px 34px rgb(69 35 66 / 0.11);
+    --elevation-0: none;
+    --elevation-1: 0 4px 14px rgb(69 35 66 / 0.04);
+    --elevation-2: 0 2px 6px rgb(69 35 66 / 0.05), 0 22px 52px -12px rgb(69 35 66 / 0.16);
+    /* Aliases kept so existing call sites (`shadow-overlay`) stay valid. */
+    --shadow-card: var(--elevation-1);
+    --shadow-overlay: var(--elevation-2);
     --scrim: rgb(45 24 43 / 0.3);
+
+    /* Spacing scale (4 · 8 · 12 · 16 · 24 · 32 · 48), matching
+     * design-system/_ds_bundle.css. Newly added — not yet consumed by any
+     * component, which currently spaces via raw Tailwind utilities. */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-12: 48px;
+
+    /*
+     * Control heights and chrome dimensions, matching
+     * design-system/_ds_bundle.css. NOT yet wired into button.tsx / input.tsx
+     * / select.tsx / textarea.tsx / control.ts, which currently hardcode
+     * 39px (arbitrary Tailwind `h-[39px]`) rather than reference a token —
+     * intentionally left disconnected here rather than silently changed,
+     * because the per-component specs (Button.d.ts: sm 35 / default 39 /
+     * primary 41 / lg 44) disagree with this token's own value (36px) and
+     * with the WIGGY_DESIGN_SYSTEM.md prose (36px) — a contradiction in the
+     * pulled spec itself, not something to silently resolve one way.
+     */
+    --control-height: 36px;
+    --control-height-sm: 30px;
+    --control-height-lg: 44px;
+    --icon-button-size: 32px;
+    --touch-target-min: 44px;
+    --sidenav-width: 196px;
+    --topbar-height: 60px;
+    --bottomnav-height: 64px;
+    --drawer-width: 440px;
+
+    /* Motion, matching design-system/_ds_bundle.css. Newly added — not yet
+     * consumed anywhere. */
+    --motion-fast: 150ms;
+    --motion-slow: 200ms;
+    --motion-ease: cubic-bezier(0, 0, 0.2, 1);
   }
 }
 
@@ -130,5 +178,23 @@
   th,
   td {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+/*
+ * Respect the OS-level reduced-motion preference everywhere, not just on
+ * Skeleton's pulse — design-system §21 calls this out specifically for
+ * loading states, but it applies to every animation/transition in the app
+ * (hover states, dialog/drawer transitions, etc.), so it's handled globally
+ * here rather than per-component.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -26,7 +26,9 @@ const PopoverContent = React.forwardRef<
       sideOffset={sideOffset}
       collisionPadding={12}
       className={cn(
-        "z-overlay w-80 rounded-md border border-line bg-surface p-4 text-start shadow-overlay outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+        // §7: popovers are elevation-1 ("dropdowns, popovers, subtle
+        // floating controls") -- lighter than Dialog/Drawer's elevation-2.
+        "z-overlay w-80 rounded-md border border-line bg-surface p-4 text-start shadow-card outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         className,
       )}
       dir="rtl"
