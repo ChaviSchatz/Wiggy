@@ -23,12 +23,19 @@ type Seeded = {
   userId: string;
   businessId: string;
   client: SupabaseClient<Database>;
+  staffMemberId: string | null;
 };
 
 async function seedUser(
   label: string,
   role: string,
-  options: { fullName?: string; active?: boolean } = {},
+  options: {
+    fullName?: string;
+    active?: boolean;
+    bookableStaffMember?: boolean;
+    /** Links a staff_members row like `bookableStaffMember`, but with `is_bookable: false` -- distinguishes "no row" from "row present but not bookable". */
+    nonBookableStaffMember?: boolean;
+  } = {},
 ): Promise<Seeded> {
   const slug = `cu-${label}-${runId}`;
   const email = `cu-${label}-${runId}@wiggy.test`;
@@ -63,13 +70,34 @@ async function seedUser(
   });
   if (membership.error) throw membership.error;
 
+  let staffMemberId: string | null = null;
+  if (options.bookableStaffMember || options.nonBookableStaffMember) {
+    const staffMember = await admin
+      .from("staff_members")
+      .insert({
+        business_id: business.data.id,
+        user_id: user.data.user.id,
+        full_name: options.fullName ?? label,
+        is_bookable: Boolean(options.bookableStaffMember),
+      })
+      .select("id")
+      .single();
+    if (staffMember.error) throw staffMember.error;
+    staffMemberId = staffMember.data.id;
+  }
+
   const client = createClient<Database>(url, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const signIn = await client.auth.signInWithPassword({ email, password });
   if (signIn.error) throw signIn.error;
 
-  return { userId: user.data.user.id, businessId: business.data.id, client };
+  return {
+    userId: user.data.user.id,
+    businessId: business.data.id,
+    client,
+    staffMemberId,
+  };
 }
 
 const seeded: Seeded[] = [];
@@ -81,6 +109,18 @@ beforeAll(async () => {
     await seedUser("inactive", "admin", {
       fullName: "Inactive Admin",
       active: false,
+    }),
+  );
+  seeded.push(
+    await seedUser("bookable", "worker", {
+      fullName: "Bina Bookable",
+      bookableStaffMember: true,
+    }),
+  );
+  seeded.push(
+    await seedUser("roster-only", "worker", {
+      fullName: "Rosie Roster",
+      nonBookableStaffMember: true,
     }),
   );
 });
@@ -103,6 +143,34 @@ describe("getCurrentUserFromClient", () => {
     expect(user?.role).toBe("worker");
     expect(user?.fullName).toBe("Danna Worker");
     expect(user?.businessId).toBe(worker.businessId);
+    // No staff_members row is linked for this fixture -- the "no roster
+    // link" baseline case.
+    expect(user?.staffMemberId).toBeNull();
+    expect(user?.isBookable).toBe(false);
+  });
+
+  it("resolves staffMemberId and isBookable for a linked, bookable staff member", async () => {
+    const [, , , bookable] = seeded;
+
+    const user = await getCurrentUserFromClient(bookable.client);
+
+    expect(user).not.toBeNull();
+    expect(user?.staffMemberId).toBe(bookable.staffMemberId);
+    expect(user?.isBookable).toBe(true);
+  });
+
+  it("resolves staffMemberId but isBookable: false for a linked, non-bookable staff member", async () => {
+    // Distinguishes "no roster row" from "roster row present but not
+    // bookable" -- a bug that derived isBookable from row existence rather
+    // than the actual column would pass the two tests above but fail this
+    // one.
+    const [, , , , rosterOnly] = seeded;
+
+    const user = await getCurrentUserFromClient(rosterOnly.client);
+
+    expect(user).not.toBeNull();
+    expect(user?.staffMemberId).toBe(rosterOnly.staffMemberId);
+    expect(user?.isBookable).toBe(false);
   });
 
   it("carries a usable business timezone even when the tenant never set one", async () => {

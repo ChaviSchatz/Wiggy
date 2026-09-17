@@ -26,7 +26,7 @@ export function businessDateString(now: Date, timeZone: string): string {
  * Derived by formatting the instant *as* that zone's wall clock and reading
  * it back as if it were UTC -- the difference is the offset, DST included.
  */
-function zoneOffsetMs(at: Date, timeZone: string): number {
+export function zoneOffsetMs(at: Date, timeZone: string): number {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
     hourCycle: "h23",
@@ -62,6 +62,32 @@ export function businessDayStart(now: Date, timeZone: string): Date {
   // before a DST change still resolves to its own local midnight.
   const offset = zoneOffsetMs(new Date(midnightAsIfUtc), timeZone);
   return new Date(midnightAsIfUtc - offset);
+}
+
+/**
+ * The UTC instant for a specific wall-clock date + hour + minute *as seen
+ * in* `timeZone` -- e.g. "2026-09-14" 14:00 in "Asia/Jerusalem" becomes the
+ * correct UTC instant, DST included. Same technique as `businessDayStart`:
+ * format a UTC-as-if guess back through the zone and correct by the
+ * resulting offset.
+ *
+ * This is the one function in this module that constructs a *new* instant
+ * from user input (a calendar day/slot) rather than deriving one from
+ * `now` -- everything downstream in `src/app/(app)/calendar` goes through
+ * this rather than building `${date}T${time}` strings by hand, which would
+ * carry no offset and get misread using the server/DB connection's zone
+ * instead of the business's.
+ */
+export function businessWallClockToUtc(
+  date: string,
+  hour: number,
+  minute: number,
+  timeZone: string,
+): Date {
+  const [year, month, day] = date.split("-").map(Number);
+  const asIfUtc = Date.UTC(year, month - 1, day, hour, minute);
+  const offset = zoneOffsetMs(new Date(asIfUtc), timeZone);
+  return new Date(asIfUtc - offset);
 }
 
 /** Calendar-safe day arithmetic on a 'YYYY-MM-DD' string. */

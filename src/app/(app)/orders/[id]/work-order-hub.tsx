@@ -16,6 +16,7 @@ import {
   isOrderFinal,
   MarkDeliveredDialog,
 } from "./hub-header";
+import { MeetingsSection } from "./meetings-section";
 import { NotesSection } from "./notes-section";
 import { ProgressStepper } from "./progress-stepper";
 import { TaskSection } from "./task-section";
@@ -96,6 +97,8 @@ export function WorkOrderHub({
         comments={data.comments}
         tasks={data.tasks}
       />
+
+      <MeetingsSection appointments={data.appointments} />
 
       <AttachmentsSection
         workOrderId={data.order.id}

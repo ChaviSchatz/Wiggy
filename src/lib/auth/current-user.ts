@@ -39,13 +39,35 @@ export async function getCurrentUserFromClient(
 
   if (!profile || !membership || !isRole(membership.role)) return null;
 
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("id, name, timezone")
-    .eq("id", membership.business_id)
-    .maybeSingle();
+  const [{ data: business }, { data: staffMember, error: staffMemberError }] =
+    await Promise.all([
+      supabase
+        .from("businesses")
+        .select("id, name, timezone")
+        .eq("id", membership.business_id)
+        .maybeSingle(),
+      supabase
+        .from("staff_members")
+        .select("id, is_bookable")
+        .eq("business_id", membership.business_id)
+        .eq("user_id", userId)
+        .eq("is_active", true)
+        .maybeSingle(),
+    ]);
 
   if (!business) return null;
+  // `.maybeSingle()` errors when more than one row matches. `staff_members`
+  // has no DB-level uniqueness on (business_id, user_id) today, so a data
+  // bug elsewhere (e.g. two roster rows linked to the same login) could in
+  // principle produce that -- degrade to "not bookable" rather than take the
+  // whole page down, but never swallow it silently: someone needs to notice
+  // and fix the underlying duplicate.
+  if (staffMemberError) {
+    console.error(
+      "[getCurrentUserFromClient] ambiguous staff_members lookup",
+      { businessId: membership.business_id, userId, error: staffMemberError },
+    );
+  }
 
   return {
     id: profile.id,
@@ -56,6 +78,8 @@ export async function getCurrentUserFromClient(
     businessName: business.name,
     timezone: business.timezone,
     role: membership.role,
+    staffMemberId: staffMember?.id ?? null,
+    isBookable: staffMember?.is_bookable ?? false,
   };
 }
 

@@ -1,9 +1,15 @@
-import { Building2, FileText, Users, type LucideIcon } from "lucide-react";
+import {
+  Building2,
+  CalendarClock,
+  FileText,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 
 import { can, type Permission, type Role } from "@/lib/roles";
 
 export type SettingsSection = {
-  key: "people" | "business" | "templates";
+  key: "people" | "business" | "templates" | "appointmentTypes";
   href: string;
   icon: LucideIcon;
   /** Any one of these is enough to open the section. */
@@ -34,6 +40,12 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     key: "templates",
     href: "/settings/templates",
     icon: FileText,
+    permissions: ["editWorkDefinition"],
+  },
+  {
+    key: "appointmentTypes",
+    href: "/settings/appointment-types",
+    icon: CalendarClock,
     permissions: ["editWorkDefinition"],
   },
 ];

@@ -12,6 +12,7 @@ function person(overrides: Partial<Person> = {}): Person {
     user_id: null,
     is_active: true,
     is_assignable: true,
+    is_bookable: false,
     created_at: "2026-09-10T00:00:00Z",
     updated_at: "2026-09-10T00:00:00Z",
     ...overrides,

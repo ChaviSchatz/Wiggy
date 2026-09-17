@@ -174,6 +174,63 @@ describe("fetchBoardTasks", () => {
   });
 });
 
+describe("fetchBoardTasks — nearestAppointment", () => {
+  it("returns the order's nearest scheduled appointment, and null for an order with none", async () => {
+    const [a] = tenants;
+
+    const { data: appointmentType, error: appointmentTypeError } = await admin
+      .from("appointment_types")
+      .insert({ business_id: a.businessId, name: "מדידה" })
+      .select("id, name")
+      .single();
+    if (appointmentTypeError) throw appointmentTypeError;
+
+    const { data: customer, error: customerError } = await admin
+      .from("customers")
+      .insert({ business_id: a.businessId, name: `Board Appt Customer ${runId}` })
+      .select("id")
+      .single();
+    if (customerError) throw customerError;
+
+    // Order with an upcoming appointment linked to it.
+    const withAppointment = await confirmSeededIntake(a);
+    const startsAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    const endsAt = new Date(Date.now() + 90 * 60 * 1000).toISOString();
+    const { error: appointmentError } = await admin.from("appointments").insert({
+      business_id: a.businessId,
+      customer_id: customer!.id,
+      work_order_id: withAppointment.orderId,
+      appointment_type_id: appointmentType!.id,
+      starts_at: startsAt,
+      ends_at: endsAt,
+      status: "scheduled",
+    });
+    if (appointmentError) throw appointmentError;
+
+    // Order with no appointments at all.
+    const withoutAppointment = await confirmSeededIntake(a);
+
+    const boardTasks = await fetchBoardTasks(a.client, a.businessId);
+
+    const taskWithAppointment = boardTasks.find(
+      (t) => t.id === withAppointment.tasks[0].id,
+    );
+    expect(taskWithAppointment?.nearestAppointment?.typeName).toBe(
+      appointmentType!.name,
+    );
+    // Postgres round-trips timestamptz as "+00:00" rather than "Z", so
+    // compare instants rather than raw strings.
+    expect(
+      new Date(taskWithAppointment!.nearestAppointment!.startsAt).getTime(),
+    ).toBe(new Date(startsAt).getTime());
+
+    const taskWithoutAppointment = boardTasks.find(
+      (t) => t.id === withoutAppointment.tasks[0].id,
+    );
+    expect(taskWithoutAppointment?.nearestAppointment).toBeNull();
+  });
+});
+
 describe("runtime_tasks UPDATE under RLS (added this slice)", () => {
   it("lets a member start, complete, reassign, and override their own tenant's task", async () => {
     const [a] = tenants;

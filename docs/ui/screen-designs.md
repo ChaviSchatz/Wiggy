@@ -230,6 +230,7 @@ One card per task (ADR 0010). Composition, in order:
 | Task         | The task title                                                          | `text-body` `ink`                               |
 | Assignee     | Worker `Avatar` at `sm`, tap to reassign                                | inline-start of the footer                      |
 | Due          | Task due date, falling back to the order's, omitted when neither is set | `text-meta` `muted`, `tabular-nums`, inline-end |
+| Appointment  | The order's nearest upcoming appointment (type + time), omitted when none | `text-meta` `muted`, own line below the identity/task lines |
 | State        | Inline `Start`/`Done` action, or a `StatusChip` when no action applies  | inline-end of the footer                        |
 
 A 2px `mauve-100` rule runs down the leading edge. Hover moves the border to `line-strong` and

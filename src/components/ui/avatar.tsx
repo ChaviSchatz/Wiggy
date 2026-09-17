@@ -8,14 +8,14 @@ import { cn } from "@/lib/utils";
  * Calm, stable monogram grounds. Deliberately excludes `danger`, so a worker's
  * initials can never be mistaken for an alert.
  */
-const MONOGRAM_COLORS = [
+export const MONOGRAM_COLORS = [
   "bg-mauve-100 text-mauve-600",
   "bg-sage-100 text-sage-600",
   "bg-info-100 text-info-600",
   "bg-peach-100 text-peach-600",
 ];
 
-function colorForName(name: string): string {
+export function colorForName(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++)
     hash = (hash * 31 + name.charCodeAt(i)) >>> 0;

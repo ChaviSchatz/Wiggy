@@ -12,6 +12,7 @@
     "board": "לוח ייצור",
     "sprint": "תכנון",
     "approvals": "אישורים",
+    "calendar": "יומן",
     "orders": "הזמנות עבודה",
     "customers": "לקוחות",
     "missingItems": "פריטים חסרים",
@@ -22,6 +23,7 @@
     "board": "לוח",
     "sprint": "תכנון",
     "approvals": "אישורים",
+    "calendar": "יומן",
     "feedback": "משוב",
     "profile": "פרופיל"
   },
@@ -128,6 +130,56 @@
         "currentTitle": "מה בעבודה עכשיו",
         "currentEmpty": "אין משימה בעבודה כרגע.",
         "openQueue": "פתיחת התור שלי"
+      }
+    },
+    "calendar": {
+      "title": "יומן",
+      "daySubtitle": "כל הצוות, יום אחד",
+      "weekSubtitle": "השבוע שלי",
+      "weekTeamSubtitle": "כל הצוות, השבוע",
+      "dayPersonSubtitle": "יום אחד",
+      "viewDay": "יום",
+      "viewWeek": "שבוע",
+      "today": "היום",
+      "previousLabel": "הקודם",
+      "nextLabel": "הבא",
+      "switchScope": "בחירת כל הצוות או איש צוות",
+      "wholeTeam": "כל הצוות",
+      "legendHeading": "מקרא:",
+      "bookSlot": "קביעת פגישה",
+      "emptyStaff": {
+        "title": "אין אנשי צוות זמינים לקביעת תורים",
+        "description": "כדי להציג את היומן, יש לסמן לפחות איש צוות אחד כניתן לקביעת תורים.",
+        "link": "מעבר להגדרות אנשי הצוות"
+      },
+      "popover": {
+        "bookTitle": "פגישה חדשה",
+        "customerLabel": "לקוח",
+        "customerSearchPlaceholder": "חיפוש לקוח...",
+        "newCustomerToggle": "+ לקוח חדש",
+        "staffLabel": "איש צוות",
+        "staffPlaceholder": "בחירת איש צוות",
+        "typeLabel": "סוג פגישה",
+        "durationLabel": "משך (בדקות)",
+        "workOrderLabel": "הזמנה מקושרת",
+        "noWorkOrder": "ללא הזמנה",
+        "notesLabel": "הערות",
+        "cancel": "ביטול",
+        "book": "קביעה",
+        "bookAnyway": "קביעה בכל זאת",
+        "saving": "שומר...",
+        "close": "סגירה",
+        "markCompleted": "סימון כהושלם",
+        "markNoShow": "סימון כלא הגיע",
+        "errors": {
+          "required": "יש למלא את כל השדות",
+          "invalid": "שעת הסיום חייבת להיות אחרי שעת ההתחלה",
+          "overlap": "לאיש הצוות כבר יש פגישה בשעה הזו",
+          "notFound": "הפגישה לא נמצאה",
+          "notEditable": "לא ניתן לערוך פגישה שכבר הסתיימה או בוטלה",
+          "forbidden": "אין הרשאה",
+          "generic": "משהו השתבש, נסו שוב"
+        }
       }
     },
     "myWork": {
@@ -373,6 +425,10 @@
             "errors": {
               "generic": "משהו השתבש. נסו שוב."
             }
+          },
+          "meetings": {
+            "title": "פגישות",
+            "empty": "אין פגישות מתוזמנות"
           },
           "attachments": {
             "filesTitle": "קבצים ותמונות",
@@ -704,6 +760,9 @@
         "templates": {
           "title": "תבניות קליטה",
           "description": "סוגי ההזמנות והטפסים שהלקוחה ממלאת."
+        },
+        "appointmentTypes": {
+          "title": "סוגי פגישות"
         }
       },
       "people": {
@@ -859,6 +918,25 @@
             "forbidden": "אין לכם הרשאה לפעולה זו.",
             "generic": "משהו השתבש. נסו שוב."
           }
+        },
+        "reminders": {
+          "label": "תזכורות לפגישות",
+          "help": "שליחת אימייל/וואטסאפ ללקוחות על פגישות מתוזמנות",
+          "sendConfirmation": "שליחת אישור בעת קביעת הפגישה",
+          "sendReminder": "שליחת תזכורת לפני הפגישה",
+          "leadHours": "כמה שעות לפני",
+          "leadHoursSuffix": "שעות לפני",
+          "emailEnabled": "שליחה באימייל",
+          "whatsappEnabled": "שליחה בוואטסאפ",
+          "whatsappComingSoon": "בקרוב",
+          "saved": "נשמר",
+          "saving": "שומר...",
+          "save": "שמירה",
+          "errors": {
+            "generic": "משהו השתבש, נסו שוב",
+            "invalidLeadHours": "מספר שעות לא תקין",
+            "forbidden": "אין הרשאה"
+          }
         }
       },
       "templates": {
@@ -995,6 +1073,43 @@
             "single": "בחירה אחת",
             "multi": "בחירה מרובה",
             "all": "כל העבודות בקבוצה"
+          }
+        }
+      },
+      "appointmentTypes": {
+        "add": "הוסף סוג פגישה",
+        "emptyTitle": "אין עדיין סוגי פגישות",
+        "emptyDescription": "הוסיפו סוג פגישה כדי להתחיל לתאם פגישות עם לקוחות",
+        "columns": {
+          "name": "שם",
+          "duration": "משך",
+          "status": "סטטוס",
+          "actions": "פעולות"
+        },
+        "durationMinutes": "{minutes} דקות",
+        "noDuration": "ללא משך קבוע",
+        "status": {
+          "active": "פעיל",
+          "inactive": "לא פעיל"
+        },
+        "edit": "עריכה",
+        "deactivate": "השבתה",
+        "activate": "הפעלה",
+        "form": {
+          "createTitle": "סוג פגישה חדש",
+          "editTitle": "עריכת סוג פגישה",
+          "name": "שם",
+          "duration": "משך ברירת מחדל (דקות)",
+          "cancel": "ביטול",
+          "save": "שמירה",
+          "saving": "שומר...",
+          "errors": {
+            "required": "שדה חובה",
+            "tooLong": "השם ארוך מדי",
+            "invalid": "ערך לא תקין",
+            "notFound": "סוג הפגישה לא נמצא",
+            "generic": "משהו השתבש, נסו שוב",
+            "forbidden": "אין הרשאה"
           }
         }
       }
