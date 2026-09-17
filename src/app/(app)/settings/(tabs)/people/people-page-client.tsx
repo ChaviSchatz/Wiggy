@@ -120,7 +120,9 @@ export function PeoplePageClient({
                 <TableHead>{t("columns.access")}</TableHead>
                 <TableHead>{t("columns.assignable")}</TableHead>
                 <TableHead>{t("columns.status")}</TableHead>
-                <TableHead>{t("columns.actions")}</TableHead>
+                <TableHead className="text-end">
+                  {t("columns.actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -135,7 +137,7 @@ export function PeoplePageClient({
                     key={person.id}
                     className={cn(
                       person.is_active ? undefined : "opacity-60",
-                      isHighlighted && "bg-fill-subtle",
+                      isHighlighted && "bg-mauve-100",
                     )}
                   >
                     <TableCell>
@@ -170,9 +172,11 @@ export function PeoplePageClient({
                       </span>
                     </TableCell>
                     <TableCell>
-                      {person.is_active
-                        ? t("status.active")
-                        : t("status.inactive")}
+                      <Badge variant={person.is_active ? "success" : "idle"}>
+                        {person.is_active
+                          ? t("status.active")
+                          : t("status.inactive")}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <PersonRowActions
@@ -193,7 +197,7 @@ export function PeoplePageClient({
 
       {/* Inline detail panel — part of the page flow, no overlay */}
       {panel ? (
-        <div className="w-[420px] shrink-0 rounded-xl border border-line bg-surface shadow-sm flex flex-col overflow-hidden">
+        <div className="flex w-[420px] shrink-0 flex-col overflow-hidden rounded-card border border-line bg-surface shadow-card">
           {/* Panel header */}
           <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
             <div className="flex items-center gap-3 min-w-0">

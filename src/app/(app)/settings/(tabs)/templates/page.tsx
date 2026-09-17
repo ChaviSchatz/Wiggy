@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
@@ -48,7 +49,7 @@ export default async function TemplatesSettingsPage() {
               <TableHead>{t("columns.name")}</TableHead>
               <TableHead>{t("columns.items")}</TableHead>
               <TableHead>{t("columns.status")}</TableHead>
-              <TableHead>{t("columns.actions")}</TableHead>
+              <TableHead className="text-end">{t("columns.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -60,12 +61,14 @@ export default async function TemplatesSettingsPage() {
                 <TableCell>{template.name}</TableCell>
                 <TableCell>{template.itemCount}</TableCell>
                 <TableCell>
-                  {template.is_active
-                    ? t("status.active")
-                    : t("status.inactive")}
+                  <Badge variant={template.is_active ? "success" : "idle"}>
+                    {template.is_active
+                      ? t("status.active")
+                      : t("status.inactive")}
+                  </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center justify-end gap-2">
                     <Button asChild size="sm" variant="outline">
                       <Link href={`/settings/templates/${template.id}`}>
                         {t("openBuilder")}

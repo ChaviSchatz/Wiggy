@@ -744,6 +744,7 @@
         },
         "none": "—",
         "edit": "עריכה",
+        "moreActions": "פעולות נוספות",
         "form": {
           "createTitle": "הוספת אדם",
           "editTitle": "עריכת פרטי אדם",
@@ -877,6 +878,7 @@
           "inactive": "לא פעילה"
         },
         "edit": "עריכה",
+        "moreActions": "פעולות נוספות",
         "openBuilder": "עריכת הטופס",
         "duplicate": "שכפול",
         "activate": "הפעלה",
