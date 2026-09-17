@@ -3,7 +3,7 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import type { Customer } from "@/lib/customers/queries";
 import { CustomerFormDialog } from "./customer-form-dialog";
 import { DeleteCustomerDialog } from "./delete-customer-dialog";
@@ -19,17 +19,21 @@ export function CustomerRowActions({ customer }: { customer: Customer }) {
       <CustomerFormDialog
         customer={customer}
         trigger={
-          <Button variant="ghost" size="icon" aria-label={t("edit")}>
-            <Pencil className="size-4" aria-hidden />
-          </Button>
+          <IconButton
+            dense
+            icon={<Pencil className="size-4" aria-hidden />}
+            label={t("edit")}
+          />
         }
       />
       <DeleteCustomerDialog
         customer={customer}
         trigger={
-          <Button variant="ghost" size="icon" aria-label={t("delete.title")}>
-            <Trash2 className="size-4" aria-hidden />
-          </Button>
+          <IconButton
+            dense
+            icon={<Trash2 className="size-4" aria-hidden />}
+            label={t("delete.title")}
+          />
         }
       />
     </div>

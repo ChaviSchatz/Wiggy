@@ -81,6 +81,10 @@ export function StatusChip({
   icon,
   /** The colour-family dot that leads the label (design-system.md §4). Turn off for a chip that already carries its own icon. */
   dot = true,
+  /** Dense surfaces (a board column of a dozen cards): dot + word, no
+   * ground, so a filled chip elsewhere still reads as "look here"
+   * (design-system §12). */
+  quiet = false,
   className,
 }: {
   kind: StatusKind;
@@ -89,13 +93,14 @@ export function StatusChip({
   label: string;
   icon?: React.ReactNode;
   dot?: boolean;
+  quiet?: boolean;
   className?: string;
 }) {
   const variant = statusVariant(kind, status);
   if (!variant) return null;
 
   return (
-    <Badge variant={variant} className={cn("gap-1", className)}>
+    <Badge variant={variant} quiet={quiet} className={className}>
       {icon ??
         (dot ? (
           <span

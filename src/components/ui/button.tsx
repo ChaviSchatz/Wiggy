@@ -10,6 +10,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-mauve-700",
+        /** Alias for `default` -- the pulled Button spec names this variant
+         * `primary`, not `default`; kept both so spec-conformant call sites
+         * (`variant="primary"`) don't silently fall through to unstyled. */
+        primary: "bg-primary text-primary-foreground hover:bg-mauve-700",
         outline:
           "border border-line-strong bg-surface text-ink hover:bg-mauve-100 hover:text-ink",
         ghost: "text-ink hover:bg-mauve-100",

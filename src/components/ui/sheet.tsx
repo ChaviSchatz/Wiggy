@@ -18,7 +18,7 @@ const SheetOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "bg-ink/40 fixed inset-0 z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-scrim data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
     )}
     {...props}
@@ -36,10 +36,12 @@ const SheetContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
+        // Design-system §19: drawers open from the inline-start edge (the
+        // right in Hebrew RTL) — `start-0`/`border-e`, not `end-0`/`border-s`.
         // tailwindcss-animate's slide-in/out utilities only support physical
         // left/right, not logical start/end, so this uses fade+zoom (like
         // Dialog) instead of a directional slide to stay RTL-correct.
-        "fixed inset-y-0 end-0 z-50 flex w-full max-w-md flex-col border-s border-line bg-surface p-6 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+        "fixed inset-y-0 start-0 z-50 flex w-full max-w-md flex-col border-e border-line bg-surface p-6 shadow-overlay data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         className,
       )}
       dir="rtl"

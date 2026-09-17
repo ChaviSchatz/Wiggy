@@ -102,12 +102,15 @@ const config: Config = {
         sm: "var(--radius-sm)",
         md: "var(--radius-md)",
         lg: "var(--radius-lg)",
+        full: "var(--radius-full)",
         // Aliases kept so existing call sites stay valid.
         control: "var(--radius-control)",
         card: "var(--radius-card)",
       },
       boxShadow: {
-        // Resting surfaces get no shadow; `overlay` is for floating things.
+        // Resting surfaces get no shadow. `card` (elevation-1) is for
+        // dropdowns/popovers; `overlay` (elevation-2) is for dialogs/drawers.
+        card: "var(--shadow-card)",
         overlay: "var(--shadow-overlay)",
       },
       fontFamily: {

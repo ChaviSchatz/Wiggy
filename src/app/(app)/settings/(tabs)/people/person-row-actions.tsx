@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { MoreHorizontal, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -12,9 +13,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { FormMessage } from "@/components/ui/form-message";
+import { IconButton } from "@/components/ui/icon-button";
+import { MenuItem } from "@/components/ui/menu-item";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   reinvitePersonAction,
   revokeAccessAction,
@@ -24,6 +31,11 @@ import type { PersonAccessState } from "@/lib/people/guards";
 import type { PersonListItem } from "@/lib/people/queries";
 import type { PanelState } from "./people-page-client";
 
+/**
+ * Edit rides in the row as an icon; everything else lives behind `…`. A row
+ * that spells out all six actions turns the column into noise, and the rarer
+ * an action is, the less it deserves permanent width.
+ */
 export function PersonRowActions({
   person,
   openTaskCount,
@@ -38,65 +50,119 @@ export function PersonRowActions({
   onOpenPanel: (panel: PanelState) => void;
 }) {
   const t = useTranslations("pages.settings.people");
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirm, setConfirm] = useState<"deactivate" | "revoke" | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  const hasLogin = accessState !== "rosterOnly";
+  const manageAccess = canManageAccess && person.is_active;
+
+  function run(action: () => Promise<unknown>) {
+    setMenuOpen(false);
+    startTransition(async () => {
+      await action();
+      router.refresh();
+    });
+  }
+
+  function openPanel(panel: PanelState) {
+    setMenuOpen(false);
+    onOpenPanel(panel);
+  }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Button
-        size="sm"
-        variant="outline"
+    <div className="flex items-center justify-end gap-0.5">
+      <IconButton
+        dense
+        icon={<Pencil className="size-4" aria-hidden />}
+        label={t("edit")}
         onClick={() => onOpenPanel({ kind: "edit", person })}
-      >
-        {t("edit")}
-      </Button>
+      />
 
-      {person.is_active ? (
-        <DeactivateDialog
-          person={person}
-          openTaskCount={openTaskCount}
-          hasLogin={accessState !== "rosterOnly"}
-        />
-      ) : (
-        <ReactivateButton person={person} />
-      )}
-
-      {canManageAccess && person.is_active ? (
-        <>
-          <span className="h-4 w-px bg-line" aria-hidden />
-          {accessState === "rosterOnly" ? (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onOpenPanel({ kind: "invite", person })}
+      <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+        <PopoverTrigger asChild>
+          <IconButton
+            dense
+            icon={<MoreHorizontal className="size-[18px]" aria-hidden />}
+            label={t("moreActions")}
+          />
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-52 p-1.5">
+          {person.is_active ? (
+            <MenuItem
+              tone="danger"
+              onClick={() => {
+                setMenuOpen(false);
+                setConfirm("deactivate");
+              }}
             >
+              {t("deactivate.action")}
+            </MenuItem>
+          ) : (
+            <MenuItem
+              disabled={pending}
+              onClick={() => run(() => setPersonActiveAction(person.id, true))}
+            >
+              {t("reactivate.action")}
+            </MenuItem>
+          )}
+
+          {manageAccess && !hasLogin ? (
+            <MenuItem onClick={() => openPanel({ kind: "invite", person })}>
               {t("invite.action")}
-            </Button>
+            </MenuItem>
           ) : null}
-          {accessState === "invited" ? (
+
+          {manageAccess && accessState === "invited" ? (
             <>
-              <ResendInviteButton person={person} />
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onOpenPanel({ kind: "correctEmail", person })}
+              <MenuItem
+                disabled={pending}
+                onClick={() => run(() => reinvitePersonAction(person.id))}
+              >
+                {pending ? t("resend.sending") : t("resend.action")}
+              </MenuItem>
+              <MenuItem
+                onClick={() => openPanel({ kind: "correctEmail", person })}
               >
                 {t("correctEmail.action")}
-              </Button>
+              </MenuItem>
             </>
           ) : null}
-          {accessState !== "rosterOnly" ? (
+
+          {manageAccess && hasLogin ? (
             <>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onOpenPanel({ kind: "changeRole", person })}
+              <MenuItem
+                onClick={() => openPanel({ kind: "changeRole", person })}
               >
                 {t("changeRole.action")}
-              </Button>
-              <RevokeAccessDialog person={person} />
+              </MenuItem>
+              <MenuItem
+                tone="danger"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setConfirm("revoke");
+                }}
+              >
+                {t("revoke.action")}
+              </MenuItem>
             </>
           ) : null}
-        </>
-      ) : null}
+        </PopoverContent>
+      </Popover>
+
+      <DeactivateDialog
+        person={person}
+        openTaskCount={openTaskCount}
+        hasLogin={hasLogin}
+        open={confirm === "deactivate"}
+        onClose={() => setConfirm(null)}
+      />
+      <RevokeAccessDialog
+        person={person}
+        open={confirm === "revoke"}
+        onClose={() => setConfirm(null)}
+      />
     </div>
   );
 }
@@ -105,14 +171,17 @@ function DeactivateDialog({
   person,
   openTaskCount,
   hasLogin,
+  open,
+  onClose,
 }: {
   person: PersonListItem;
   openTaskCount: number;
   hasLogin: boolean;
+  open: boolean;
+  onClose: () => void;
 }) {
   const t = useTranslations("pages.settings.people");
   const router = useRouter();
-  const [open, setOpen] = useState(false);
   const [formError, setFormError] = useState<string | undefined>();
   const [pending, startTransition] = useTransition();
 
@@ -124,7 +193,7 @@ function DeactivateDialog({
         setFormError(result.formError ?? "generic");
         return;
       }
-      setOpen(false);
+      onClose();
       router.refresh();
     });
   }
@@ -133,15 +202,12 @@ function DeactivateDialog({
     <Dialog
       open={open}
       onOpenChange={(next) => {
-        setOpen(next);
-        if (!next) setFormError(undefined);
+        if (!next) {
+          setFormError(undefined);
+          onClose();
+        }
       }}
     >
-      <DialogTrigger asChild>
-        <Button size="sm" variant="danger-soft">
-          {t("deactivate.action")}
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("deactivate.title")}</DialogTitle>
@@ -184,54 +250,17 @@ function DeactivateDialog({
   );
 }
 
-function ReactivateButton({ person }: { person: PersonListItem }) {
+function RevokeAccessDialog({
+  person,
+  open,
+  onClose,
+}: {
+  person: PersonListItem;
+  open: boolean;
+  onClose: () => void;
+}) {
   const t = useTranslations("pages.settings.people");
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
-
-  return (
-    <Button
-      size="sm"
-      variant="outline"
-      disabled={pending}
-      onClick={() =>
-        startTransition(async () => {
-          const result = await setPersonActiveAction(person.id, true);
-          if (result.success) router.refresh();
-        })
-      }
-    >
-      {t("reactivate.action")}
-    </Button>
-  );
-}
-
-function ResendInviteButton({ person }: { person: PersonListItem }) {
-  const t = useTranslations("pages.settings.people");
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
-
-  return (
-    <Button
-      size="sm"
-      variant="outline"
-      disabled={pending}
-      onClick={() =>
-        startTransition(async () => {
-          await reinvitePersonAction(person.id);
-          router.refresh();
-        })
-      }
-    >
-      {pending ? t("resend.sending") : t("resend.action")}
-    </Button>
-  );
-}
-
-function RevokeAccessDialog({ person }: { person: PersonListItem }) {
-  const t = useTranslations("pages.settings.people");
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
   const [formError, setFormError] = useState<string | undefined>();
   const [pending, startTransition] = useTransition();
 
@@ -243,7 +272,7 @@ function RevokeAccessDialog({ person }: { person: PersonListItem }) {
         setFormError(result.formError ?? "generic");
         return;
       }
-      setOpen(false);
+      onClose();
       router.refresh();
     });
   }
@@ -252,15 +281,12 @@ function RevokeAccessDialog({ person }: { person: PersonListItem }) {
     <Dialog
       open={open}
       onOpenChange={(next) => {
-        setOpen(next);
-        if (!next) setFormError(undefined);
+        if (!next) {
+          setFormError(undefined);
+          onClose();
+        }
       }}
     >
-      <DialogTrigger asChild>
-        <Button size="sm" variant="danger-soft">
-          {t("revoke.action")}
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("revoke.title")}</DialogTitle>

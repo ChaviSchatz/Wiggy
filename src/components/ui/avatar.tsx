@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import { cn } from "@/lib/utils";
 
 /**
@@ -33,48 +37,90 @@ const DIMENSIONS = {
 
 /**
  * Circular worker avatar (design-language.md "Identity & media rules"):
- * workers always render an avatar, monogram fallback with a stable colour.
- * Never used for client identity, which is text-only.
+ * workers always render an avatar, a photo when one exists and a monogram
+ * fallback (stable colour) otherwise. Never used for client identity, which
+ * is text-only.
  *
  * The light ring is what lets the same avatar read cleanly on white content
  * and on the dark side navigation.
  */
 export function Avatar({
   name,
+  src,
   size = "md",
+  onClick,
   className,
 }: {
-  /** `null` renders the unassigned state (dashed ring, no monogram). */
+  /** `null` renders the unassigned state (dashed ring, no monogram/photo). */
   name: string | null;
+  /** Falls back to the monogram when omitted, or if the image fails to load. */
+  src?: string;
   size?: keyof typeof DIMENSIONS;
+  /** Board cards use this to open the reassignment picker. */
+  onClick?: () => void;
   className?: string;
 }) {
+  const [imgFailed, setImgFailed] = useState(false);
   const dimension = DIMENSIONS[size];
+  const interactive = Boolean(onClick);
+  const Tag = interactive ? "button" : "span";
+  const interactiveProps = interactive
+    ? { type: "button" as const, onClick }
+    : {};
 
   if (!name) {
     return (
-      <span
+      <Tag
         className={cn(
           "inline-flex shrink-0 items-center justify-center rounded-full border-2 border-dashed border-line-strong text-muted",
+          interactive &&
+            "cursor-pointer transition-colors hover:border-mauve-600 hover:text-mauve-600",
           dimension,
           className,
         )}
-        aria-hidden
+        aria-hidden={!interactive}
+        {...interactiveProps}
       />
     );
   }
 
+  if (src && !imgFailed) {
+    return (
+      <Tag
+        className={cn(
+          "inline-flex shrink-0 overflow-hidden rounded-full ring-1 ring-inset ring-white/70",
+          interactive && "cursor-pointer",
+          dimension,
+          className,
+        )}
+        title={name}
+        {...interactiveProps}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- worker
+            photos are arbitrary external/storage URLs, not build-time assets. */}
+        <img
+          src={src}
+          alt={name}
+          className="size-full object-cover"
+          onError={() => setImgFailed(true)}
+        />
+      </Tag>
+    );
+  }
+
   return (
-    <span
+    <Tag
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-full font-semibold ring-1 ring-inset ring-white/70",
         colorForName(name),
+        interactive && "cursor-pointer",
         dimension,
         className,
       )}
       title={name}
+      {...interactiveProps}
     >
       {initials(name)}
-    </span>
+    </Tag>
   );
 }

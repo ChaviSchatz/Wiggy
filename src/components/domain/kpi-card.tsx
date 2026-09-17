@@ -6,10 +6,19 @@ import { cn } from "@/lib/utils";
 
 export type KpiTone = "neutral" | "warning" | "danger";
 
+// `-500` never carries text (design-system.md §1) -- the deepened `-600` step
+// is what clears AA, so the tone travels as `-600` here.
 const TONE_CLASS: Record<KpiTone, string> = {
   neutral: "text-ink",
-  warning: "text-peach-500",
+  warning: "text-peach-600",
   danger: "text-danger-600",
+};
+
+/** The icon rides in a soft tinted square, the way every metric reads in the mockups. */
+const TONE_CHIP_CLASS: Record<KpiTone, string> = {
+  neutral: "bg-mauve-100 text-mauve-600",
+  warning: "bg-peach-100 text-peach-600",
+  danger: "bg-danger-100 text-danger-600",
 };
 
 /**
@@ -54,24 +63,30 @@ export function KpiCard({
           {eyebrow}
         </span>
       ) : null}
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-label text-muted">{label}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-label text-muted">{label}</p>
+          <p
+            className={cn(
+              "mt-1 font-display text-metric tabular-nums",
+              TONE_CLASS[tone],
+            )}
+          >
+            {value}
+          </p>
+          {hint ? <p className="mt-1 text-meta text-muted">{hint}</p> : null}
+        </div>
         {Icon ? (
-          <Icon
-            className={cn("size-5 shrink-0", TONE_CLASS[tone])}
-            aria-hidden
-          />
+          <span
+            className={cn(
+              "flex size-9 shrink-0 items-center justify-center rounded-control",
+              TONE_CHIP_CLASS[tone],
+            )}
+          >
+            <Icon className="size-[18px]" aria-hidden />
+          </span>
         ) : null}
       </div>
-      <p
-        className={cn(
-          "mt-2 font-display text-metric tabular-nums",
-          TONE_CLASS[tone],
-        )}
-      >
-        {value}
-      </p>
-      {hint ? <p className="mt-1 text-meta text-muted">{hint}</p> : null}
     </Card>
   );
 
