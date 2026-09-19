@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { Customer } from "@/lib/customers/queries";
 import { CustomerPanel } from "./customer-panel";
 import { DeleteCustomerDialog } from "./delete-customer-dialog";
+import { WhatsappMark } from "./whatsapp-mark";
 
 export function CustomerDetailClient({ customer }: { customer: Customer }) {
   const t = useTranslations("pages.customers");
@@ -45,6 +46,12 @@ export function CustomerDetailClient({ customer }: { customer: Customer }) {
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <DetailRow label={t("form.phoneLabel")} value={customer.phone} />
+            <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+              <span className="w-28 shrink-0 text-muted">
+                {t("whatsapp.column")}
+              </span>
+              <WhatsappMark value={customer.has_whatsapp} />
+            </div>
             <DetailRow label={t("form.emailLabel")} value={customer.email} />
             <DetailRow label={t("form.notesLabel")} value={customer.notes} />
           </CardContent>

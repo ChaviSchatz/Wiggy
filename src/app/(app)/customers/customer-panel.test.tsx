@@ -26,6 +26,7 @@ const customer = {
   phone: "050-1111111",
   email: "ruth@example.com",
   notes: "אלרגיה",
+  has_whatsapp: false,
 } as Customer;
 
 function renderPanel(props: { customer?: Customer; onDone?: () => void }) {
@@ -100,5 +101,38 @@ describe("CustomerPanel", () => {
     renderPanel({ customer, onDone });
     await userEvent.click(screen.getByRole("button", { name: f.cancel }));
     expect(onDone).toHaveBeenCalled();
+  });
+
+  describe("WhatsApp toggle", () => {
+    const whatsapp = () =>
+      screen.getByRole("checkbox", { name: new RegExp(f.hasWhatsapp) });
+
+    it("defaults to unchecked for a new customer", () => {
+      renderPanel({});
+      expect(whatsapp()).not.toBeChecked();
+    });
+
+    it("reflects the stored value when editing", () => {
+      renderPanel({ customer: { ...customer, has_whatsapp: true } });
+      expect(whatsapp()).toBeChecked();
+    });
+
+    it("submits hasWhatsapp when checked", async () => {
+      renderPanel({ customer });
+      await userEvent.click(whatsapp());
+      await userEvent.click(screen.getByRole("button", { name: f.save }));
+
+      const formData = updateCustomerAction.mock.calls[0][1] as FormData;
+      expect(formData.get("hasWhatsapp")).not.toBeNull();
+    });
+
+    it("omits hasWhatsapp when unchecked", async () => {
+      renderPanel({ customer: { ...customer, has_whatsapp: true } });
+      await userEvent.click(whatsapp());
+      await userEvent.click(screen.getByRole("button", { name: f.save }));
+
+      const formData = updateCustomerAction.mock.calls[0][1] as FormData;
+      expect(formData.get("hasWhatsapp")).toBeNull();
+    });
   });
 });

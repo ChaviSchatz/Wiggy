@@ -22,6 +22,7 @@ import { CustomerRowActions } from "./customer-row-actions";
 import { CustomerSearchBar } from "./customer-search-bar";
 import { CustomerTableRow } from "./customer-table-row";
 import { CustomersPagination } from "./customers-pagination";
+import { WhatsappMark } from "./whatsapp-mark";
 
 type PanelState = { kind: "create" } | { kind: "edit"; customer: Customer };
 
@@ -79,6 +80,7 @@ export function CustomersPageClient({
                 <TableRow>
                   <TableHead>{t("form.nameLabel")}</TableHead>
                   <TableHead>{t("form.phoneLabel")}</TableHead>
+                  <TableHead>{t("whatsapp.column")}</TableHead>
                   <TableHead>{t("form.emailLabel")}</TableHead>
                   <TableHead className="text-end">{t("actions")}</TableHead>
                 </TableRow>
@@ -98,6 +100,9 @@ export function CustomersPageClient({
                     </TableCell>
                     <TableCell className="text-muted">
                       {customer.phone ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      <WhatsappMark value={customer.has_whatsapp} />
                     </TableCell>
                     <TableCell className="text-muted">
                       {customer.email ?? "—"}

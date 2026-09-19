@@ -591,6 +591,11 @@
       "searchPlaceholder": "חיפוש לפי שם, טלפון או אימייל",
       "actions": "פעולות",
       "edit": "עריכה",
+      "whatsapp": {
+        "column": "וואטסאפ",
+        "yes": "יש וואטסאפ",
+        "no": "אין וואטסאפ"
+      },
       "emptyTitle": "אין עדיין לקוחות",
       "emptyDescription": "הוסיפו את הלקוח הראשון כדי להתחיל.",
       "emptySearchTitle": "לא נמצאו תוצאות",
@@ -606,6 +611,8 @@
         "phoneLabel": "טלפון",
         "emailLabel": "אימייל",
         "notesLabel": "הערות",
+        "hasWhatsapp": "יש וואטסאפ",
+        "hasWhatsappHint": "אפשר ליצור קשר עם הלקוח/ה בוואטסאפ.",
         "cancel": "ביטול",
         "save": "שמירה",
         "saving": "שומר/ת...",

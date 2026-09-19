@@ -26,6 +26,8 @@ function readInput(formData: FormData): CustomerInput {
     phone: String(formData.get("phone") ?? ""),
     email: String(formData.get("email") ?? ""),
     notes: String(formData.get("notes") ?? ""),
+    // An unchecked checkbox is simply absent from the FormData.
+    hasWhatsapp: formData.get("hasWhatsapp") !== null,
   };
 }
 
@@ -61,6 +63,7 @@ export async function createCustomerAction(
       phone: input.phone.trim() || null,
       email: input.email.trim() || null,
       notes: input.notes.trim() || null,
+      has_whatsapp: input.hasWhatsapp,
     })
     .select("*")
     .single();
@@ -96,6 +99,7 @@ export async function updateCustomerAction(
       phone: input.phone.trim() || null,
       email: input.email.trim() || null,
       notes: input.notes.trim() || null,
+      has_whatsapp: input.hasWhatsapp,
     })
     .eq("id", id)
     .select("*")
