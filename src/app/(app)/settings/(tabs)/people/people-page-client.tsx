@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { UserPlus, X } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DetailPanel } from "@/components/ui/detail-panel";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   Table,
@@ -82,7 +83,7 @@ export function PeoplePageClient({
   }
 
   return (
-    <div className="flex items-start gap-6">
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
       {/* Table — shrinks naturally as the panel opens */}
       <div className="flex-1 min-w-0">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -119,6 +120,7 @@ export function PeoplePageClient({
                 <TableHead>{t("columns.stage")}</TableHead>
                 <TableHead>{t("columns.access")}</TableHead>
                 <TableHead>{t("columns.assignable")}</TableHead>
+                <TableHead>{t("columns.bookable")}</TableHead>
                 <TableHead>{t("columns.status")}</TableHead>
                 <TableHead className="text-end">
                   {t("columns.actions")}
@@ -172,6 +174,13 @@ export function PeoplePageClient({
                       </span>
                     </TableCell>
                     <TableCell>
+                      <span className="text-meta text-muted">
+                        {person.is_bookable
+                          ? t("bookable.yes")
+                          : t("bookable.no")}
+                      </span>
+                    </TableCell>
+                    <TableCell>
                       <Badge variant={person.is_active ? "success" : "idle"}>
                         {person.is_active
                           ? t("status.active")
@@ -197,49 +206,43 @@ export function PeoplePageClient({
 
       {/* Inline detail panel — part of the page flow, no overlay */}
       {panel ? (
-        <div className="flex w-[420px] shrink-0 flex-col overflow-hidden rounded-card border border-line bg-surface shadow-card">
-          {/* Panel header */}
-          <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
-            <div className="flex items-center gap-3 min-w-0">
-              {panel.kind === "create" ? (
-                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-mauve-100 text-mauve-600">
-                  <UserPlus className="size-5" aria-hidden />
-                </span>
-              ) : (
-                <Avatar name={panel.person.full_name} size="lg" className="shrink-0" />
-              )}
-              <div className="min-w-0">
-                <p className="font-semibold text-ink leading-snug">
-                  {panelTitle()}
-                </p>
-                {panel.kind !== "create" ? (
-                  <p className="text-meta text-muted mt-0.5 truncate">
-                    {panel.person.full_name}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-            <button
-              onClick={close}
-              className="mt-1 shrink-0 rounded-control p-1 text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label="סגור"
-            >
-              <X className="size-4" aria-hidden />
-            </button>
-          </div>
-
-          {/* Panel body */}
+        <DetailPanel
+          leading={
+            panel.kind === "create" ? (
+              <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-mauve-100 text-mauve-600">
+                <UserPlus className="size-5" aria-hidden />
+              </span>
+            ) : (
+              <Avatar
+                name={panel.person.full_name}
+                size="lg"
+                className="shrink-0"
+              />
+            )
+          }
+          title={panelTitle()}
+          subtitle={
+            panel.kind !== "create" ? panel.person.full_name : undefined
+          }
+          closeLabel={t("form.close")}
+          onClose={close}
+        >
           {panel.kind === "create" || panel.kind === "edit" ? (
             <PersonPanel
+              key={panel.kind === "edit" ? panel.person.id : "create"}
               stages={stages}
               person={panel.kind === "edit" ? panel.person : undefined}
               canManageAccess={canManageAccess}
               onDone={close}
             />
           ) : (
-            <AccessPanel kind={panel.kind} person={panel.person} onDone={close} />
+            <AccessPanel
+              kind={panel.kind}
+              person={panel.person}
+              onDone={close}
+            />
           )}
-        </div>
+        </DetailPanel>
       ) : null}
     </div>
   );
