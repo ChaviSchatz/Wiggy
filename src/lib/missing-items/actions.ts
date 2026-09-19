@@ -110,6 +110,58 @@ export async function createMissingItemAction(
 }
 
 /**
+ * Assign (or clear) who is chasing a missing item, straight from the list.
+ * Touches only `responsible_staff_member_id` -- unlike the handle dialog it
+ * must not rewrite status or notes.
+ */
+export async function assignMissingItemResponsibleAction(
+  id: string,
+  staffMemberId: string | null,
+): Promise<MissingItemActionResult> {
+  const user = await requireMissingItemManager();
+  if (!user) {
+    return { success: false, errors: {}, formError: "forbidden" };
+  }
+
+  const supabase = await createServerSupabaseClient();
+
+  // RLS scopes the row being updated, but not the staff id being written:
+  // check it belongs to this business so an id from another tenant can't be
+  // linked to this item.
+  if (staffMemberId) {
+    const { data: staff, error: staffError } = await supabase
+      .from("staff_members")
+      .select("id")
+      .eq("id", staffMemberId)
+      .eq("business_id", user.businessId)
+      .maybeSingle();
+    if (staffError) {
+      return { success: false, errors: {}, formError: "generic" };
+    }
+    if (!staff) {
+      return { success: false, errors: {}, formError: "staffNotFound" };
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("missing_items")
+    .update({ responsible_staff_member_id: staffMemberId })
+    .eq("id", id)
+    .eq("business_id", user.businessId)
+    .select("work_order_id");
+  if (error) {
+    return { success: false, errors: {}, formError: "generic" };
+  }
+  // A filtered update that matches nothing reports no error.
+  if (!data || data.length === 0) {
+    return { success: false, errors: {}, formError: "notFound" };
+  }
+
+  revalidateMissingItemSurfaces(data[0].work_order_id);
+  return { success: true };
+}
+
+/**
  * Handle a missing item (screen inventory #30): move it along the
  * open -> found -> ordered -> handled lifecycle, optionally re-assigning who
  * is chasing it and updating the notes.

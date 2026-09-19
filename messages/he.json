@@ -713,6 +713,20 @@
           "generic": "משהו השתבש. נסו שוב."
         }
       },
+      "assignDialog": {
+        "cta": "שיוך אחראי/ת",
+        "title": "שיוך אחראי/ת לפריט",
+        "unassign": "ללא אחראי/ת",
+        "cancel": "ביטול",
+        "save": "שמירה",
+        "saving": "שומר/ת...",
+        "errors": {
+          "forbidden": "אין לך הרשאה לנהל פריטים חסרים.",
+          "notFound": "הפריט לא נמצא.",
+          "staffNotFound": "האדם שנבחר לא נמצא.",
+          "generic": "משהו השתבש. נסו שוב."
+        }
+      },
       "handleDialog": {
         "title": "{kind} · הזמנה #{number}",
         "statusLabel": "סטטוס",

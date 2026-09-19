@@ -4,7 +4,6 @@ import { PackageX, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { PageHeader } from "@/components/layout/page-header";
-import { Avatar } from "@/components/ui/avatar";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -36,6 +35,7 @@ import {
   type MissingItemFilters,
 } from "./missing-item-filter-bar";
 import { MissingItemsPagination } from "./missing-items-pagination";
+import { ResponsibleCell } from "./responsible-cell";
 
 type SearchParams = { [key: string]: string | string[] | undefined };
 
@@ -189,15 +189,8 @@ function MissingItemsView({
                   <TableCell className="text-muted">
                     {item.description ?? "—"}
                   </TableCell>
-                  <TableCell className="text-muted">
-                    {item.responsibleName ? (
-                      <span className="flex items-center gap-2">
-                        <Avatar name={item.responsibleName} size="sm" />
-                        {item.responsibleName}
-                      </span>
-                    ) : (
-                      "—"
-                    )}
+                  <TableCell>
+                    <ResponsibleCell item={item} staff={staff} />
                   </TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(item.status)}>
