@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { PageHeader } from "@/components/layout/page-header";
-import { colorForName } from "@/components/ui/avatar";
+import { colorForName } from "@/components/ui/avatar-color";
 import { EmptyState } from "@/components/ui/empty-state";
 import { listActiveAppointmentTypes } from "@/lib/appointment-types/queries";
 import {
