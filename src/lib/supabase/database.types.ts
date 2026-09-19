@@ -392,6 +392,7 @@ export type Database = {
           business_id: string
           created_at: string
           email: string | null
+          has_whatsapp: boolean
           id: string
           name: string
           notes: string | null
@@ -402,6 +403,7 @@ export type Database = {
           business_id: string
           created_at?: string
           email?: string | null
+          has_whatsapp?: boolean
           id?: string
           name: string
           notes?: string | null
@@ -412,6 +414,7 @@ export type Database = {
           business_id?: string
           created_at?: string
           email?: string | null
+          has_whatsapp?: boolean
           id?: string
           name?: string
           notes?: string | null

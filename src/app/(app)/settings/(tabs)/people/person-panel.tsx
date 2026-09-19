@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   Briefcase,
+  CalendarDays,
   CheckCircle,
   Layers,
   Mail,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FieldIcon } from "@/components/ui/field-icon";
 import { FormField } from "@/components/ui/form-field";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
@@ -30,14 +32,6 @@ import { ROLES } from "@/lib/roles";
 import type { StageOption } from "./people-page-client";
 
 const NO_VALUE = "__none__";
-
-function FieldIcon({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-fill-subtle text-muted">
-      {children}
-    </span>
-  );
-}
 
 function SelectField({
   name,
@@ -191,6 +185,24 @@ export function PersonPanel({
             type="checkbox"
             name="isAssignable"
             defaultChecked={person ? person.is_assignable : true}
+            className="mt-1 size-4 rounded-xs border-line-strong text-mauve-600 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-mauve-100"
+          />
+        </label>
+
+        <label className="flex items-start gap-3 text-body text-ink cursor-pointer rounded-lg border border-line bg-fill-subtle/50 px-3 py-2.5">
+          <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-fill-subtle text-muted mt-0.5">
+            <CalendarDays className="size-3.5" />
+          </span>
+          <span className="flex-1">
+            {t("form.isBookable")}
+            <span className="block text-meta text-muted mt-0.5">
+              {t("form.isBookableHint")}
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            name="isBookable"
+            defaultChecked={person ? person.is_bookable : false}
             className="mt-1 size-4 rounded-xs border-line-strong text-mauve-600 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-mauve-100"
           />
         </label>

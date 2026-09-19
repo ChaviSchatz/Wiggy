@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { Avatar, colorForName } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
+import { colorForName } from "@/components/ui/avatar-color";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { computeOverlapLayout } from "@/lib/appointments/overlap-layout";
 import { businessWallClockToUtc } from "@/lib/time/business-time";

@@ -591,6 +591,11 @@
       "searchPlaceholder": "חיפוש לפי שם, טלפון או אימייל",
       "actions": "פעולות",
       "edit": "עריכה",
+      "whatsapp": {
+        "column": "וואטסאפ",
+        "yes": "יש וואטסאפ",
+        "no": "אין וואטסאפ"
+      },
       "emptyTitle": "אין עדיין לקוחות",
       "emptyDescription": "הוסיפו את הלקוח הראשון כדי להתחיל.",
       "emptySearchTitle": "לא נמצאו תוצאות",
@@ -606,9 +611,12 @@
         "phoneLabel": "טלפון",
         "emailLabel": "אימייל",
         "notesLabel": "הערות",
+        "hasWhatsapp": "יש וואטסאפ",
+        "hasWhatsappHint": "אפשר ליצור קשר עם הלקוח/ה בוואטסאפ.",
         "cancel": "ביטול",
         "save": "שמירה",
         "saving": "שומר/ת...",
+        "close": "סגירה",
         "errors": {
           "nameRequired": "יש להזין שם.",
           "emailInvalid": "כתובת אימייל לא תקינה.",
@@ -705,6 +713,20 @@
           "generic": "משהו השתבש. נסו שוב."
         }
       },
+      "assignDialog": {
+        "cta": "שיוך אחראי/ת",
+        "title": "שיוך אחראי/ת לפריט",
+        "unassign": "ללא אחראי/ת",
+        "cancel": "ביטול",
+        "save": "שמירה",
+        "saving": "שומר/ת...",
+        "errors": {
+          "forbidden": "אין לך הרשאה לנהל פריטים חסרים.",
+          "notFound": "הפריט לא נמצא.",
+          "staffNotFound": "האדם שנבחר לא נמצא.",
+          "generic": "משהו השתבש. נסו שוב."
+        }
+      },
       "handleDialog": {
         "title": "{kind} · הזמנה #{number}",
         "statusLabel": "סטטוס",
@@ -779,6 +801,7 @@
           "stage": "שלב ברירת מחדל",
           "access": "גישה",
           "assignable": "שיוך משימות",
+          "bookable": "יומן אישי",
           "status": "סטטוס",
           "actions": "פעולות"
         },
@@ -789,6 +812,10 @@
         "assignable": {
           "yes": "משויך/ת",
           "no": "לא משויך/ת"
+        },
+        "bookable": {
+          "yes": "יש יומן",
+          "no": "אין יומן"
         },
         "access": {
           "noLogin": "ללא גישה",
@@ -813,6 +840,8 @@
           "noStage": "ללא שלב",
           "isAssignable": "אפשר לשייך משימות",
           "isAssignableHint": "מי שלא משויך/ת לא יופיע/תופיע ברשימת בעלי המשימות.",
+          "isBookable": "יש יומן אישי",
+          "isBookableHint": "מזכירות ומנהלים/ות יוכלו לקבוע תורים ביומן של האדם הזה.",
           "accessSection": "גישה למערכת",
           "accessHint": "אפשר גם להוסיף אדם ללא גישה, ולהזמין אותו מאוחר יותר.",
           "email": "כתובת אימייל",
@@ -821,6 +850,7 @@
           "cancel": "ביטול",
           "save": "שמירה",
           "saving": "שומר/ת...",
+          "close": "סגירה",
           "errors": {
             "required": "שדה חובה.",
             "tooLong": "השם ארוך מדי.",

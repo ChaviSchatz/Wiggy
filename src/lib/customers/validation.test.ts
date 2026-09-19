@@ -10,6 +10,7 @@ function input(
     phone: "050-1234567",
     email: "test@example.com",
     notes: "",
+    hasWhatsapp: false,
     ...overrides,
   };
 }

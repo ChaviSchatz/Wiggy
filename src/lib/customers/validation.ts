@@ -15,6 +15,7 @@ export type CustomerInput = {
   phone: string;
   email: string;
   notes: string;
+  hasWhatsapp: boolean;
 };
 
 export type CustomerFieldErrors = Partial<
