@@ -5,10 +5,15 @@ import { useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
 import type { Customer } from "@/lib/customers/queries";
-import { CustomerFormDialog } from "./customer-form-dialog";
 import { DeleteCustomerDialog } from "./delete-customer-dialog";
 
-export function CustomerRowActions({ customer }: { customer: Customer }) {
+export function CustomerRowActions({
+  customer,
+  onEdit,
+}: {
+  customer: Customer;
+  onEdit: () => void;
+}) {
   const t = useTranslations("pages.customers");
 
   return (
@@ -16,15 +21,11 @@ export function CustomerRowActions({ customer }: { customer: Customer }) {
       className="flex justify-end gap-1"
       onClick={(e) => e.stopPropagation()}
     >
-      <CustomerFormDialog
-        customer={customer}
-        trigger={
-          <IconButton
-            dense
-            icon={<Pencil className="size-4" aria-hidden />}
-            label={t("edit")}
-          />
-        }
+      <IconButton
+        dense
+        icon={<Pencil className="size-4" aria-hidden />}
+        label={t("edit")}
+        onClick={onEdit}
       />
       <DeleteCustomerDialog
         customer={customer}

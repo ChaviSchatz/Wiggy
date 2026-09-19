@@ -37,6 +37,7 @@ function readInput(formData: FormData): PersonInput {
     defaultWorkStageId: String(formData.get("defaultWorkStageId") ?? ""),
     // An unchecked checkbox is simply absent from the FormData.
     isAssignable: formData.get("isAssignable") !== null,
+    isBookable: formData.get("isBookable") !== null,
     email: String(formData.get("email") ?? ""),
     role: String(formData.get("role") ?? ""),
   };
@@ -97,6 +98,7 @@ export async function createPersonAction(
       title: scoped.title.trim() || null,
       default_work_stage_id: scoped.defaultWorkStageId || null,
       is_assignable: scoped.isAssignable,
+      is_bookable: scoped.isBookable,
     })
     .select("id")
     .single();
@@ -134,6 +136,7 @@ export async function updatePersonAction(
       title: input.title.trim() || null,
       default_work_stage_id: input.defaultWorkStageId || null,
       is_assignable: input.isAssignable,
+      is_bookable: input.isBookable,
     })
     .eq("id", id)
     .eq("business_id", user.businessId)
@@ -291,6 +294,7 @@ export async function invitePersonAction(
     title: "",
     defaultWorkStageId: "",
     isAssignable: true,
+    isBookable: false,
     email,
     role,
   });
@@ -390,6 +394,7 @@ export async function correctEmailAction(
     title: "",
     defaultWorkStageId: "",
     isAssignable: true,
+    isBookable: false,
     email,
     role: membership.role,
   });

@@ -4,7 +4,7 @@
 
 ## Entities
 
-- **`customers`** — `business_id, name, phone, email, notes`, plus timestamps. Fields are
+- **`customers`** — `business_id, name, phone, email, notes, has_whatsapp`, plus timestamps. Fields are
   intentionally simple for now.
 
 ## Notes

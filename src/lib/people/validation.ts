@@ -15,6 +15,7 @@ export type PersonInput = {
   title: string;
   defaultWorkStageId: string;
   isAssignable: boolean;
+  isBookable: boolean;
   /** Empty means roster-only: no login is being granted. */
   email: string;
   role: string;

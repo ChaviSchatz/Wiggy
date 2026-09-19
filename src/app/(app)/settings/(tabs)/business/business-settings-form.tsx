@@ -76,17 +76,25 @@ export function BusinessSettingsForm({
     return null;
   }
 
+  const showGeneral = canEditName || canEditTimezone || canEditCadence;
+
   return (
-    <Card className="divide-y divide-line">
-      {canEditName ? <NameSection name={businessName} /> : null}
-      {canEditTimezone ? (
-        <TimezoneSection timezone={timezone} timezones={timezones} />
+    <div className="grid items-start gap-6 lg:grid-cols-2">
+      {showGeneral ? (
+        <Card className="divide-y divide-line">
+          {canEditName ? <NameSection name={businessName} /> : null}
+          {canEditTimezone ? (
+            <TimezoneSection timezone={timezone} timezones={timezones} />
+          ) : null}
+          {canEditCadence ? <CadenceSection cadenceDays={cadenceDays} /> : null}
+        </Card>
       ) : null}
-      {canEditCadence ? <CadenceSection cadenceDays={cadenceDays} /> : null}
       {canEditReminders && reminderSettings ? (
-        <ReminderSection settings={reminderSettings} />
+        <Card>
+          <ReminderSection settings={reminderSettings} />
+        </Card>
       ) : null}
-    </Card>
+    </div>
   );
 }
 
@@ -113,7 +121,7 @@ function NameSection({ name }: { name: string }) {
         title={t("label")}
         description={t("help")}
       />
-      <div className="space-y-1.5">
+      <div className="max-w-md space-y-1.5">
         <Label htmlFor="business-name" className="sr-only">{t("label")}</Label>
         <Input
           id="business-name"
@@ -167,7 +175,7 @@ function TimezoneSection({
         title={t("label")}
         description={t("help")}
       />
-      <div className="space-y-1.5">
+      <div className="max-w-md space-y-1.5">
         <Label htmlFor="business-timezone" className="sr-only">{t("label")}</Label>
         <select
           id="business-timezone"
@@ -219,7 +227,7 @@ function CadenceSection({ cadenceDays }: { cadenceDays: number }) {
         title={t("label")}
         description={t("help")}
       />
-      <div className="space-y-1.5">
+      <div className="max-w-32 space-y-1.5">
         <Label htmlFor="sprint-cadence" className="sr-only">{t("label")}</Label>
         <Input
           id="sprint-cadence"

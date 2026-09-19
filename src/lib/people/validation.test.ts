@@ -7,6 +7,7 @@ const base = {
   title: "",
   defaultWorkStageId: "",
   isAssignable: true,
+  isBookable: false,
   email: "",
   role: "",
 };
